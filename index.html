@@ -1,0 +1,157 @@
+<!doctype html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>Gepetto</title>
+      <style>
+        :root{
+          --bg:#f7f4ee;
+          --panel:#ffffff;
+          --text:#1f2937;
+          --muted:#6b7280;
+          --accent:#6b8fa3;
+          --user:#e8f1f6;
+          --bot:#f3f4f6;
+          --border:#e5e7eb;
+        }
+        *{box-sizing:border-box}
+        body{
+          margin:0; background:var(--bg); color:var(--text);
+          font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+          display:flex; min-height:100vh; align-items:center; justify-content:center; padding:16px;
+        }
+        .app{
+          width:min(100%,860px); height:min(92vh,840px); background:var(--panel);
+          border:1px solid var(--border); border-radius:22px; overflow:hidden;
+          box-shadow:0 10px 30px rgba(0,0,0,.08); display:flex; flex-direction:column;
+        }
+        .top{
+          padding:18px 20px; border-bottom:1px solid var(--border);
+          background:linear-gradient(180deg,#fff, #fafafa);
+        }
+        .title{font-size:22px; font-weight:700; margin:0}
+        .subtitle{margin:4px 0 0; color:var(--muted)}
+        .messages{padding:18px; overflow:auto; flex:1; background:
+          radial-gradient(circle at top left, rgba(107,143,163,.08), transparent 25%),
+          radial-gradient(circle at bottom right, rgba(107,143,163,.06), transparent 20%);
+        }
+        .msg{max-width:78%; margin:10px 0; padding:12px 14px; border-radius:16px; white-space:pre-wrap}
+        .bot{background:var(--bot); border-top-left-radius:6px}
+        .user{background:var(--user); margin-left:auto; border-top-right-radius:6px}
+        .composer{
+          border-top:1px solid var(--border); padding:14px; display:flex; gap:10px; background:#fff;
+        }
+        textarea{
+          flex:1; resize:none; min-height:52px; max-height:140px; padding:14px;
+          border:1px solid var(--border); border-radius:14px; outline:none; font:inherit;
+        }
+        textarea:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(107,143,163,.15)}
+        button{
+          border:0; background:var(--accent); color:white; padding:0 18px; border-radius:14px;
+          font-weight:700; cursor:pointer;
+        }
+        button:disabled{opacity:.5; cursor:not-allowed}
+        .chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+        .chip{
+          border:1px solid var(--border); background:#fff; border-radius:999px; padding:8px 12px;
+          font-size:14px; cursor:pointer;
+        }
+        .status{font-size:12px; color:var(--muted); padding:0 18px 12px}
+      </style>
+    </head>
+    <body>
+      <div class="app">
+        <div class="top">
+          <h1 class="title">Gepetto</h1>
+          <p class="subtitle">Seu assistente durante a estadia 🏖️</p>
+          <div class="chips">
+            <button class="chip" onclick="quickAsk('Qual é o Wi‑Fi?')">Wi‑Fi</button>
+            <button class="chip" onclick="quickAsk('Como funciona o serviço de praia?')">Praia</button>
+            <button class="chip" onclick="quickAsk('Tem mercado perto?')">Mercado</button>
+            <button class="chip" onclick="quickAsk('Como funciona a garagem?')">Garagem</button>
+            <button class="chip" onclick="quickAsk('I need you to translate something for me')">Translate</button>
+          </div>
+        </div>
+
+        <div class="messages" id="messages"></div>
+        <div class="status" id="status">Versão alfa do Gepetto</div>
+
+        <div class="composer">
+          <textarea id="input" placeholder="Digite sua mensagem..." onkeydown="handleKey(event)"></textarea>
+          <button id="sendBtn" onclick="sendMessage()">Enviar</button>
+        </div>
+      </div>
+
+      <script>
+        const messagesEl = document.getElementById("messages");
+        const inputEl = document.getElementById("input");
+        const sendBtn = document.getElementById("sendBtn");
+        const statusEl = document.getElementById("status");
+        let history = [];
+
+        function addMessage(role, content){
+          const div = document.createElement("div");
+          div.className = `msg ${role}`;
+          div.textContent = content;
+          messagesEl.appendChild(div);
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+          history.push({role: role === 'user' ? 'user' : 'assistant', content});
+        }
+
+        function quickAsk(text){
+          inputEl.value = text;
+          sendMessage();
+        }
+
+        function handleKey(event){
+          if(event.key === "Enter" && !event.shiftKey){
+            event.preventDefault();
+            sendMessage();
+          }
+        }
+
+        async function sendMessage(){
+          const message = inputEl.value.trim();
+          if(!message) return;
+
+          addMessage("user", message);
+          inputEl.value = "";
+          sendBtn.disabled = true;
+          statusEl.textContent = "Gepetto está pensando…";
+
+          try{
+            const res = await fetch("/chat", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({message, history})
+            });
+            const data = await res.json();
+            addMessage("bot", data.reply || "Tive uma instabilidade rápida 😕");
+            statusEl.textContent = "Versão alfa do Gepetto";
+          }catch(err){
+            addMessage("bot", "Tive uma instabilidade rápida 😕 Tente novamente em instantes.");
+            statusEl.textContent = "Erro temporário";
+          }finally{
+            sendBtn.disabled = false;
+            inputEl.focus();
+          }
+        }
+
+        addMessage("bot",
+`Olá! Seja bem-vindo(a) 😊
+
+Eu sou o Gepetto.
+
+Estou por aqui pra te ajudar durante sua estadia — pode me chamar de assistente, mordomo… ou até de parceiro de viagem 😄
+
+Posso te ajudar com:
+🏖️ praia e serviço de praia
+🍽️ restaurantes e mercados próximos
+🏢 dúvidas do apartamento
+🚗 garagem e funcionamento do prédio
+
+Se precisar de algo, é só me chamar 👍`);
+      </script>
+    </body>
+    </html>
