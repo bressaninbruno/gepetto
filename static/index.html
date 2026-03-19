@@ -23,7 +23,6 @@ html, body{
   height:100%;
   font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   background:var(--bg);
-  color:var(--text);
 }
 
 body{
@@ -37,7 +36,6 @@ body{
   min-height:100vh;
   display:flex;
   flex-direction:column;
-  background:var(--bg);
 }
 
 /* TOPO */
@@ -45,9 +43,6 @@ body{
   padding:16px;
   background:#fff;
   border-bottom:1px solid var(--border);
-  position:sticky;
-  top:0;
-  z-index:10;
 }
 
 .brand{
@@ -61,26 +56,21 @@ body{
   height:44px;
   border-radius:12px;
   overflow:hidden;
-  background:#fff;
-  flex-shrink:0;
-  box-shadow:0 1px 3px rgba(0,0,0,0.08);
 }
 
 .brand-avatar img{
   width:100%;
   height:100%;
   object-fit:cover;
-  display:block;
 }
 
 .brand h1{
   margin:0;
   font-size:20px;
-  line-height:1.1;
 }
 
 .brand p{
-  margin:3px 0 0;
+  margin:0;
   font-size:13px;
   color:var(--muted);
 }
@@ -94,17 +84,11 @@ body{
 }
 
 .quick button{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  height:48px;
-  border-radius:12px;
+  height:44px;
+  border-radius:10px;
   border:1px solid var(--border);
   background:#fff;
   font-weight:600;
-  font-size:14px;
-  color:var(--text);
   cursor:pointer;
 }
 
@@ -118,14 +102,11 @@ body{
   gap:10px;
 }
 
-/* LINHAS */
 .row{
   display:flex;
-  width:100%;
 }
 
 .row.bot{
-  align-items:flex-end;
   gap:8px;
 }
 
@@ -133,81 +114,56 @@ body{
   justify-content:flex-end;
 }
 
-/* AVATAR DAS MENSAGENS */
+/* AVATAR */
 .avatar{
   width:34px;
   height:34px;
   border-radius:50%;
   overflow:hidden;
-  background:#fff;
-  flex-shrink:0;
-  box-shadow:0 1px 3px rgba(0,0,0,0.08);
 }
 
 .avatar img{
   width:100%;
   height:100%;
   object-fit:cover;
-  display:block;
 }
 
-/* BOLHAS */
+/* MENSAGENS */
 .msg{
   max-width:75%;
-  padding:12px 14px;
+  padding:12px;
   border-radius:14px;
-  line-height:1.45;
   font-size:14px;
-  word-break:break-word;
-}
-
-.msg.user{
-  background:var(--user);
 }
 
 .msg.bot{
   background:var(--bot);
 }
 
+.msg.user{
+  background:var(--user);
+}
+
 /* INPUT */
 #inputArea{
   display:flex;
-  align-items:center;
   border-top:1px solid var(--border);
   background:#fff;
-  position:sticky;
-  bottom:0;
-  padding-bottom:env(safe-area-inset-bottom);
 }
 
 #msg{
   flex:1;
-  min-width:0;
   padding:14px;
   border:none;
   outline:none;
-  font-size:14px;
-  background:#fff;
 }
 
 button.send{
-  padding:14px 18px;
+  padding:14px;
+  border:none;
   background:#111;
   color:#fff;
-  border:none;
-  font-weight:600;
   cursor:pointer;
-  flex-shrink:0;
-}
-
-/* RODAPÉ */
-.footer{
-  text-align:center;
-  font-size:11px;
-  color:#999;
-  padding:6px;
-  background:#fff;
-  border-top:1px solid #f0f0f0;
 }
 </style>
 </head>
@@ -219,7 +175,7 @@ button.send{
   <div class="header">
     <div class="brand">
       <div class="brand-avatar">
-        <img src="gepetto.png?v=1001" alt="Gepetto">
+        <img src="gepetto.png?v=1">
       </div>
       <div>
         <h1>Gepetto</h1>
@@ -242,24 +198,25 @@ button.send{
     <button class="send" onclick="send()">Enviar</button>
   </div>
 
-  <div class="footer">
-    Hospedagem administrada por Bruno
-  </div>
-
 </div>
 
 <script>
+function format(text){
+  return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+}
+
 function add(role, text){
   const chat = document.getElementById("chat");
+
   let html = "";
 
   if(role === "bot"){
     html = `
       <div class="row bot">
         <div class="avatar">
-          <img src="gepetto.png?v=1001" alt="Gepetto">
+          <img src="gepetto.png?v=1">
         </div>
-        <div class="msg bot">${text}</div>
+        <div class="msg bot">${format(text)}</div>
       </div>
     `;
   } else {
@@ -271,9 +228,7 @@ function add(role, text){
   }
 
   chat.insertAdjacentHTML("beforeend", html);
-  requestAnimationFrame(() => {
-    chat.scrollTop = chat.scrollHeight;
-  });
+  chat.scrollTop = chat.scrollHeight;
 }
 
 function quick(q){
@@ -296,36 +251,23 @@ async function send(){
   add("user", msg);
   input.value = "";
 
-  try{
-    const res = await fetch("/chat", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({message: msg})
-    });
+  const res = await fetch("/chat", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({message: msg})
+  });
 
-    const data = await res.json();
-    add("bot", data.reply);
-  }catch(err){
-    add("bot", "Tive uma instabilidade rápida 😕 Tente novamente em instantes.");
-  }
+  const data = await res.json();
+  add("bot", data.reply);
 }
 
 async function start(){
-  try{
-    const res = await fetch("/welcome");
-    const data = await res.json();
+  const res = await fetch("/welcome");
+  const data = await res.json();
 
-    const partes = data.message
-      .split("\\n\\n")
-      .map(p => p.trim())
-      .filter(Boolean);
+  const partes = data.message.split("\\n\\n");
 
-    for(const p of partes){
-      add("bot", p);
-    }
-  }catch{
-    add("bot", "Olá 😊 Eu sou o Gepetto!");
-  }
+  partes.forEach(p => add("bot", p));
 }
 
 start();
