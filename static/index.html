@@ -265,7 +265,7 @@ async function start(){
   const res = await fetch("/welcome");
   const data = await res.json();
 
-  const partes = data.message.split("\\n\\n");
+  const partes = data.message.split("\n\n");
 
   partes.forEach(p => add("bot", p));
 }
