@@ -1,0 +1,8 @@
+{
+  "apartamento": {
+    "wifi": {
+      "nome": "WIFI_NAME",
+      "senha": "WIFI_PASSWORD"
+    }
+  }
+}
