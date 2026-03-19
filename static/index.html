@@ -1,295 +1,236 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gepetto</title>
-  <style>
-    :root{
-      --bg:#f4f4f5;
-      --card:#ffffff;
-      --border:#e5e7eb;
-      --text:#111827;
-      --muted:#6b7280;
-      --user:#dbeafe;
-      --bot:#ececec;
-      --accent:#111111;
-      --shadow:0 8px 24px rgba(0,0,0,.06);
-      --radius:18px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gepetto</title>
 
-    *{box-sizing:border-box}
+<style>
+:root{
+  --bg:#f4f4f5;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+  --user:#dbeafe;
+  --bot:#ececec;
+}
 
-    html,body{
-      margin:0;
-      padding:0;
-      background:var(--bg);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      color:var(--text);
-      height:100%;
-    }
+*{box-sizing:border-box}
 
-    body{
-      display:flex;
-      justify-content:center;
-    }
+body{
+  margin:0;
+  font-family:-apple-system, Arial;
+  background:#f4f4f5;
+  display:flex;
+  justify-content:center;
+}
 
-    .app{
-      width:100%;
-      max-width:760px;
-      min-height:100dvh;
-      display:flex;
-      flex-direction:column;
-      background:var(--bg);
-    }
+.app{
+  width:100%;
+  max-width:760px;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
 
-    .header{
-      position:sticky;
-      top:0;
-      z-index:20;
-      background:rgba(244,244,245,.92);
-      backdrop-filter:blur(10px);
-      border-bottom:1px solid var(--border);
-      padding:16px 16px 12px;
-    }
+.header{
+  position:sticky;
+  top:0;
+  background:white;
+  border-bottom:1px solid var(--border);
+  padding:16px;
+  z-index:10;
+}
 
-    .header-title{
-      font-size:28px;
-      font-weight:800;
-      letter-spacing:-0.03em;
-      margin:0 0 4px;
-    }
+.header h1{
+  margin:0;
+  font-size:26px;
+}
 
-    .header-subtitle{
-      margin:0;
-      font-size:14px;
-      color:var(--muted);
-    }
+.header p{
+  margin:4px 0 0;
+  font-size:14px;
+  color:var(--muted);
+}
 
-    .quick-actions{
-      display:flex;
-      gap:10px;
-      overflow-x:auto;
-      padding:12px 0 2px;
-      scrollbar-width:none;
-    }
+.quick-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
 
-    .quick-actions::-webkit-scrollbar{display:none}
+.quick-btn{
+  border:1px solid var(--border);
+  background:white;
+  border-radius:14px;
+  padding:12px;
+  font-weight:600;
+  font-size:14px;
+}
 
-    .quick-btn{
-      flex:0 0 auto;
-      border:1px solid var(--border);
-      background:var(--card);
-      color:var(--text);
-      border-radius:999px;
-      padding:10px 14px;
-      font-size:14px;
-      font-weight:600;
-      line-height:1;
-      white-space:nowrap;
-      box-shadow:0 1px 2px rgba(0,0,0,.03);
-      cursor:pointer;
-    }
+.messages{
+  flex:1;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow-y:auto;
+  position:relative;
+}
 
-    .messages{
-      flex:1;
-      padding:16px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      overflow-y:auto;
-      scroll-behavior:smooth;
-    }
+/* MARCA D'ÁGUA */
+.messages::before{
+  content:"Bem-vindo à Enseada 🏖️";
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:28px;
+  font-weight:800;
+  color:rgba(0,0,0,0.05);
+  pointer-events:none;
+}
 
-    .row{
-      display:flex;
-    }
+.row{
+  display:flex;
+}
 
-    .row.user{
-      justify-content:flex-end;
-    }
+.row.user{
+  justify-content:flex-end;
+}
 
-    .row.bot{
-      justify-content:flex-start;
-    }
+.bubble{
+  max-width:80%;
+  padding:12px 14px;
+  border-radius:16px;
+  line-height:1.4;
+  font-size:15px;
+}
 
-    .bubble{
-      max-width:min(82%, 560px);
-      padding:14px 16px;
-      border-radius:var(--radius);
-      line-height:1.45;
-      font-size:16px;
-      box-shadow:var(--shadow);
-      white-space:pre-wrap;
-      word-wrap:break-word;
-    }
+.row.user .bubble{
+  background:var(--user);
+}
 
-    .row.user .bubble{
-      background:var(--user);
-      border-bottom-right-radius:6px;
-    }
+.row.bot .bubble{
+  background:var(--bot);
+}
 
-    .row.bot .bubble{
-      background:var(--bot);
-      border-bottom-left-radius:6px;
-    }
+.input-area{
+  position:sticky;
+  bottom:0;
+  background:white;
+  border-top:1px solid var(--border);
+  display:flex;
+}
 
-    .composer-wrap{
-      position:sticky;
-      bottom:0;
-      z-index:20;
-      background:rgba(244,244,245,.95);
-      backdrop-filter:blur(10px);
-      border-top:1px solid var(--border);
-      padding:12px 16px calc(12px + env(safe-area-inset-bottom));
-    }
+input{
+  flex:1;
+  border:none;
+  padding:14px;
+  font-size:15px;
+}
 
-    .composer{
-      display:flex;
-      gap:10px;
-      align-items:flex-end;
-    }
+button{
+  background:black;
+  color:white;
+  border:none;
+  padding:14px 18px;
+}
 
-    .composer textarea{
-      flex:1;
-      resize:none;
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:#fff;
-      padding:14px 16px;
-      min-height:54px;
-      max-height:140px;
-      font:inherit;
-      color:var(--text);
-      outline:none;
-      box-shadow:0 1px 2px rgba(0,0,0,.03);
-    }
-
-    .composer textarea:focus{
-      border-color:#cbd5e1;
-    }
-
-    .composer button{
-      height:54px;
-      min-width:90px;
-      border:none;
-      border-radius:16px;
-      background:var(--accent);
-      color:#fff;
-      font-size:16px;
-      font-weight:700;
-      padding:0 18px;
-      cursor:pointer;
-    }
-
-    .composer button:disabled{
-      opacity:.6;
-      cursor:not-allowed;
-    }
-
-    @media (max-width: 520px){
-      .header-title{font-size:24px}
-      .bubble{max-width:88%; font-size:15px}
-      .composer button{min-width:78px}
-    }
-  </style>
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="header">
-      <h1 class="header-title">Gepetto 🏖️</h1>
-      <p class="header-subtitle">Seu concierge pessoal durante a estadia</p>
 
-      <div class="quick-actions">
-        <button class="quick-btn" onclick="quickAsk('Qual é o Wi-Fi?')">📶 Wi-Fi</button>
-        <button class="quick-btn" onclick="quickAsk('Onde fica o serviço de praia?')">🏖️ Praia</button>
-        <button class="quick-btn" onclick="quickAsk('Quais restaurantes você recomenda?')">🍽️ Restaurantes</button>
-        <button class="quick-btn" onclick="quickAsk('Tem mercado perto?')">🛒 Mercado</button>
-      </div>
-    </div>
+<div class="app">
 
-    <div class="messages" id="chat"></div>
+  <div class="header">
+    <h1>Gepetto 🏖️</h1>
+    <p>Seu assistente pessoal durante a estadia</p>
 
-    <div class="composer-wrap">
-      <div class="composer">
-        <textarea
-          id="msg"
-          placeholder="Fale com o Gepetto..."
-          rows="1"
-          onkeydown="handleKey(event)"
-          oninput="autoResize(this)"
-        ></textarea>
-        <button id="sendBtn" onclick="send()">Enviar</button>
-      </div>
+    <div class="quick-actions">
+      <button class="quick-btn" onclick="quickAsk('wifi')">📶 Wi-Fi</button>
+      <button class="quick-btn" onclick="quickAsk('praia')">🏖️ Praia</button>
+      <button class="quick-btn" onclick="quickAsk('restaurante')">🍽️ Restaurantes</button>
+      <button class="quick-btn" onclick="quickAsk('mercado')">🛒 Mercado</button>
     </div>
   </div>
 
-  <script>
-    const chat = document.getElementById("chat");
-    const msgInput = document.getElementById("msg");
-    const sendBtn = document.getElementById("sendBtn");
+  <div id="chat" class="messages"></div>
 
-    function addMessage(role, text){
-      const row = document.createElement("div");
-      row.className = `row ${role}`;
+  <div class="input-area">
+    <input id="msg" placeholder="Fale com o Gepetto..." onkeydown="enter(event)">
+    <button onclick="send()">Enviar</button>
+  </div>
 
-      const bubble = document.createElement("div");
-      bubble.className = "bubble";
-      bubble.textContent = text;
+</div>
 
-      row.appendChild(bubble);
-      chat.appendChild(row);
-      chat.scrollTop = chat.scrollHeight;
-    }
+<script>
 
-    function autoResize(el){
-      el.style.height = "auto";
-      el.style.height = Math.min(el.scrollHeight, 140) + "px";
-    }
+function addMessage(role, text){
+  let chat = document.getElementById("chat");
 
-    function quickAsk(text){
-      msgInput.value = text;
-      autoResize(msgInput);
-      send();
-    }
+  let row = document.createElement("div");
+  row.className = "row " + role;
 
-    function handleKey(e){
-      if(e.key === "Enter" && !e.shiftKey){
-        e.preventDefault();
-        send();
-      }
-    }
+  let bubble = document.createElement("div");
+  bubble.className = "bubble";
 
-    async function send(){
-      const msg = msgInput.value.trim();
-      if(!msg) return;
+  // 🔥 NEGRITO ATIVO AQUI
+  bubble.innerHTML = text;
 
-      addMessage("user", msg);
-      msgInput.value = "";
-      autoResize(msgInput);
-      sendBtn.disabled = true;
+  row.appendChild(bubble);
+  chat.appendChild(row);
 
-      try{
-        const res = await fetch("/chat", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ message: msg })
-        });
+  chat.scrollTop = chat.scrollHeight;
+}
 
-        const data = await res.json();
-        addMessage("bot", data.reply || "Tive uma instabilidade rápida 😕");
-      } catch(err){
-        addMessage("bot", "Tive uma instabilidade rápida 😕 Tente novamente em instantes.");
-      } finally {
-        sendBtn.disabled = false;
-        msgInput.focus();
-      }
-    }
+function quickAsk(text){
+  document.getElementById("msg").value = text;
+  send();
+}
 
-    addMessage(
-      "bot",
-      "Olá 😊 Eu sou o Gepetto, seu concierge pessoal durante a estadia.\n\nPosso te ajudar com praia, restaurantes, mercado, regras da casa e dúvidas do apartamento."
-    );
-  </script>
+function enter(e){
+  if(e.key === "Enter"){
+    send();
+  }
+}
+
+async function send(){
+  let msg = document.getElementById("msg").value;
+  if(!msg) return;
+
+  addMessage("user", msg);
+
+  let res = await fetch("/chat", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({message: msg})
+  });
+
+  let data = await res.json();
+
+  addMessage("bot", data.reply);
+
+  document.getElementById("msg").value="";
+}
+
+/* 🔥 BOAS-VINDAS DINÂMICA */
+async function carregarBoasVindas(){
+  try{
+    let res = await fetch("/welcome");
+    let data = await res.json();
+    addMessage("bot", data.message);
+  }catch{
+    addMessage("bot","Olá 😊 Eu sou o Gepetto!");
+  }
+}
+
+carregarBoasVindas();
+
+</script>
+
 </body>
 </html>
