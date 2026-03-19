@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).parent
 KNOWLEDGE_FILE = BASE_DIR / "knowledge_base.json"
 GUEST_FILE = BASE_DIR / "current_guest.json"
 
-ADMIN_PIN = "1234"  # <-- TROQUE AQUI PELO SEU PIN
+ADMIN_PIN = "2710"  # <-- TROQUE AQUI PELO SEU PIN
 
 # =========================
 # ARQUIVOS / ESTADO
