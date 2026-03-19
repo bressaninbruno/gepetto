@@ -75,9 +75,13 @@ def mensagem_boas_vindas():
         "É uma honra ter você hospedado aqui 😊 Espero que tenha feito uma ótima viagem!\n\n"
         "Eu sou o Gepetto, seu concierge pessoal durante a estadia.\n\n"
         "Poderei te ajudar em qualquer ponto da sua viagem, como:\n"
+        
         "• Guia do apartamento e do condomínio\n"
+        
         "• Recomendações de restaurantes\n"
+        
         "• Supermercados e conveniências\n"
+        
         "• Praia, passeios e dicas locais\n\n"
         "Fique à vontade para me chamar a qualquer momento 😉"
     )
@@ -181,8 +185,8 @@ def gepetto_responde(msg):
         wifi = KNOWLEDGE.get("apartamento", {}).get("wifi", {})
         return (
             "Claro 😊\n\n"
-            f"Rede: {wifi.get('nome', 'WIFI_NAME')}\n"
-            f"Senha: {wifi.get('senha', 'WIFI_PASSWORD')}"
+            f"Rede: {wifi.get('nome', 'Volare Hal')}\n"
+            f"Senha: {wifi.get('senha', 'Guaruja123@')}"
         )
 
     # Regras da casa
@@ -204,7 +208,7 @@ def gepetto_responde(msg):
             "Boa escolha 😄\n\n"
             f"A praia fica a {praia.get('distancia', 'poucos minutos a pé')}.\n"
             f"O serviço de praia funciona das {servico.get('horario', '9h às 17h')}.\n"
-            f"Ele fica {servico.get('localizacao', 'ao lado do Casa Grande Hotel')}.\n\n"
+            f"Ele fica {servico.get('localizacao', 'ao lado do Thai Lounge, em frente ao Casa Grande Hotel')}.\n\n"
             f"{servico.get('como_funciona', 'Os itens já ficam montados na areia.')}"
         )
 
@@ -214,7 +218,7 @@ def gepetto_responde(msg):
         servico = praia.get("servico_praia", {})
         return (
             "Claro 😊\n\n"
-            f"O serviço de praia fica {servico.get('localizacao', 'ao lado do Casa Grande Hotel')}."
+            f"O serviço de praia fica {servico.get('localizacao', 'em frente ao Casa Grande Hotel')}."
         )
 
     # Restaurantes
@@ -230,7 +234,7 @@ def gepetto_responde(msg):
     if "mercado" in text or "supermercado" in text:
         mercado = KNOWLEDGE.get("proximidades", {}).get("mercado_dia", {})
         return (
-            "Tem um mercado praticamente ao lado 😊\n\n"
+            "Tem um supermercado Dia praticamente ao lado 😊\n\n"
             f"Dá para ir a pé em {mercado.get('tempo_a_pe', 'menos de 1 minuto')}.\n"
             "É ótimo para compras rápidas."
         )
@@ -261,7 +265,7 @@ def gepetto_responde(msg):
         "• Mercados\n"
         "• Regras da casa\n"
         "• Dúvidas do apartamento\n\n"
-        "O que você quer agora?"
+        "Como posso ser útil?"
     )
 
 # =========================
