@@ -1,4 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gepetto</title>
 
-Gepetto Chat
-Enviar
+<style>
+body {
+  font-family: Arial;
+  background: #f5f5f5;
+  margin: 0;
+}
+
+#chat {
+  padding: 10px;
+  height: 80vh;
+  overflow-y: auto;
+}
+
+.msg {
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 70%;
+}
+
+.user {
+  background: #d1e7ff;
+  margin-left: auto;
+}
+
+.bot {
+  background: #eaeaea;
+}
+
+#inputArea {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+}
+
+input {
+  flex: 1;
+  padding: 15px;
+  border: none;
+}
+
+button {
+  padding: 15px;
+  background: black;
+  color: white;
+  border: none;
+}
+</style>
+</head>
+
+<body>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+<input id="msg" placeholder="Fale com o Gepetto..." />
+<button onclick="send()">Enviar</button>
+</div>
+
+<script>
+async function send(){
+ let msg = document.getElementById("msg").value;
+
+ let chat = document.getElementById("chat");
+
+ chat.innerHTML += `<div class="msg user">${msg}</div>`;
+
+ let res = await fetch("/chat", {
+  method: "POST",
+  headers: {"Content-Type": "application/json"},
+  body: JSON.stringify({message: msg})
+ });
+
+ let data = await res.json();
+
+ chat.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+
+ document.getElementById("msg").value = "";
+}
+</script>
+
+</body>
+</html>
 
