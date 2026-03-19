@@ -62,12 +62,29 @@ body{
 }
 
 .quick-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
   border:1px solid var(--border);
   background:white;
   border-radius:14px;
   padding:12px;
+
+  font-size:15px;
   font-weight:600;
-  font-size:14px;
+  line-height:1;
+
+  height:52px;
+
+  box-shadow:0 2px 6px rgba(0,0,0,0.04);
+
+  transition:all 0.15s ease;
+}
+
+.quick-btn:active{
+  transform:scale(0.97);
 }
 
 .messages{
