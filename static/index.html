@@ -251,14 +251,21 @@ async function send(){
   add("user", msg);
   input.value = "";
 
-  const res = await fetch("/chat", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({message: msg})
-  });
+  try {
+    const res = await fetch("/chat", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({message: msg})
+    });
 
-  const data = await res.json();
-  add("bot", data.reply);
+    const text = await res.text();
+    const data = JSON.parse(text);
+
+    add("bot", data.reply || "⚠️ Erro ao responder");
+  } catch (e) {
+    console.error("Erro no send:", e);
+    add("bot", "⚠️ Erro ao conectar com o servidor");
+  }
 }
 
 async function start(){
