@@ -123,7 +123,7 @@ def append_memory(role, text, topic="", meta=None):
         "meta": meta or {},
         "timestamp": datetime.now().isoformat(timespec="seconds")
     })
-    memory["messages"] = memory["messages"][-80:]
+    memory["messages"] = memory["messages"][-120:]
     save_memory(memory)
 
 
@@ -203,7 +203,7 @@ def save_incidents(data):
 def append_incident(payload):
     data = load_incidents()
     data.append(payload)
-    data = data[-300:]
+    data = data[-500:]
     save_incidents(data)
 
 
@@ -218,7 +218,7 @@ def log_conversation(guest, message, intent, response):
         "guest": guest.get("nome", ""),
         "message": message,
         "intent": intent,
-        "response": response[:500]
+        "response": response[:800]
     })
     logs = logs[-3000:]
     write_json(LOG_FILE, logs)
@@ -762,8 +762,9 @@ def infer_contextual_followup(text_raw, last_topic):
 
     very_short_contextual = [
         "qual", "melhor", "barato", "perto", "especial",
-        "completo", "tranquilo", "animado", "leve", "esse", "essa",
-        "entao", "então", "vc indica",
+        "completo", "tranquilo", "animado", "leve",
+        "rapido", "rápido",
+        "esse", "essa", "entao", "então", "vc indica",
         "localizacao", "localização", "horario", "horário",
         "servico", "serviço", "envie", "manda", "pode mandar"
     ]
@@ -790,7 +791,8 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "sim", "isso", "esse", "essa", "pode ser", "manda", "quero esse",
         "quero essa", "qual", "melhor", "barato", "perto", "especial",
         "vc indica", "vcs indicam", "envie", "enviar", "mandar", "mande",
-        "pode avisar", "avise", "encaminhe", "encaminhar"
+        "pode avisar", "avise", "encaminhe", "encaminhar",
+        "rapido", "rápido"
     ]
     if text_n in exact_short:
         return True
@@ -873,7 +875,8 @@ def score_intents(text_raw, last_topic=""):
 
     if has_any(text_n, [
         "mercado", "supermercado", "compras", "pao de acucar", "pão de açúcar",
-        "carrefour", "extra", "agua", "água", "mercado dia", "supermercado dia"
+        "carrefour", "extra", "agua", "água", "mercado dia", "supermercado dia",
+        "rapido", "rápido"
     ]):
         add("mercado", 9)
 
@@ -1580,13 +1583,7 @@ def get_bruno_reply():
     return (
         f"Claro 😊 Posso avisar o {anfitriao} agora.\n\n"
         "Tem algum assunto que você queira que eu adiante na notificação?\n\n"
-        "Se preferir, também pode só me responder:\n"
-        "• **envie**\n"
-        "• **enviar**\n"
-        "• **manda**\n"
-        "• **mandar**\n"
-        "• **mande**\n"
-        "• **encaminhe**"
+        "Se preferir, pode só me responder **envie**."
     )
 
 
@@ -1934,6 +1931,7 @@ def get_followup_reply(text, last_topic, guest):
             incident_ok, _ = maybe_notify("incidente", text, guest, sev)
             bruno_ok, _ = notify_bruno_request(guest, text)
             set_bruno_pending(False)
+
             if incident_ok and bruno_ok:
                 return "Entendi 😊 Já deixei isso sinalizado por aqui e também enviei uma solicitação de acompanhamento ao Bruno. Ele entrará em contato com você o quanto antes."
             if incident_ok and not bruno_ok:
