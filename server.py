@@ -138,6 +138,7 @@ def default_session():
         "last_followup_hint": "",
         "last_recommendation_type": "",
         "last_recommendation_name": "",
+        "pending_bruno_contact": False,
         "updated_at": ""
     }
 
@@ -184,6 +185,13 @@ def update_session(
     save_session(sess)
 
 
+def set_bruno_pending(value: bool):
+    sess = load_session()
+    sess["pending_bruno_contact"] = value
+    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    save_session(sess)
+
+
 def load_incidents():
     return read_json(INCIDENTS_FILE, [])
 
@@ -212,7 +220,7 @@ def log_conversation(guest, message, intent, response):
         "intent": intent,
         "response": response[:500]
     })
-    logs = logs[-1000:]
+    logs = logs[-3000:]
     write_json(LOG_FILE, logs)
 
 
@@ -472,6 +480,53 @@ def update_guest_preferences(text_raw):
     return guest
 
 
+def should_send_telegram():
+    return bool(requests and TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID)
+
+
+def send_telegram_message(message):
+    if not should_send_telegram():
+        return False, "Telegram não configurado"
+
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
+
+    try:
+        resp = requests.post(url, json=payload, timeout=8)
+        return resp.ok, resp.text
+    except Exception as e:
+        return False, str(e)
+
+
+def send_telegram_log(title, lines):
+    if not should_send_telegram():
+        return False, "Telegram não configurado"
+    text = f"📋 {title}\n\n" + "\n".join(lines)
+    return send_telegram_message(text)
+
+
+def notify_conversation_to_telegram(guest, message, intent, response):
+    nome = guest.get("nome", "").strip() or "Hóspede sem nome definido"
+    grupo = guest.get("grupo", "").strip() or "-"
+    checkout = guest.get("checkout", "").strip() or "-"
+    agora = datetime.now().isoformat(timespec="seconds")
+
+    lines = [
+        f"👤 Hóspede: {nome}",
+        f"👥 Grupo: {grupo}",
+        f"🕒 Checkout: {checkout}",
+        f"🎯 Intenção: {intent or '-'}",
+        f"⏰ Horário: {agora}",
+        "",
+        "💬 Mensagem:",
+        message[:700],
+        "",
+        "🤖 Resposta:",
+        response[:900]
+    ]
+    return send_telegram_log("NOVA INTERAÇÃO — GEPETTO", lines)
+
+
 def mensagem_boas_vindas():
     guest = load_guest()
     inicio = saudacao_personalizada(guest)
@@ -568,28 +623,9 @@ def proactive_prompt(guest):
     return random.choice(options)
 
 
-def should_send_telegram():
-    return bool(requests and TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID)
-
-
-def send_telegram_message(message):
-    if not should_send_telegram():
-        return False, "Telegram não configurado"
-
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
-
-    try:
-        resp = requests.post(url, json=payload, timeout=8)
-        return resp.ok, resp.text
-    except Exception as e:
-        return False, str(e)
-
-
 def remember_guest_details(text_raw):
     guest = load_guest()
     changed = False
-
     text_n = normalize_text(text_raw)
 
     strong_name_patterns = [
@@ -667,7 +703,7 @@ def format_distance(dist):
     if not dist:
         return ""
     dist_n = normalize_text(str(dist))
-    if has_any(dist_n, ["a pe", "a pé", "metros", "ao lado", "menos de", "andando"]):
+    if has_any(dist_n, ["a pe", "a pé", "metros", "ao lado", "menos de", "andando", "km"]):
         return str(dist)
     if has_any(dist_n, ["min", "minuto", "minutos"]):
         if has_any(dist_n, ["carro", "pé", "a pe", "a pé"]):
@@ -686,6 +722,10 @@ def distance_sort_key(distance):
         m = re.search(r"(\d+)", text)
         if m:
             return int(m.group(1)) / 100.0
+    if has_any(text, ["km"]):
+        m = re.search(r"(\d+(?:[.,]\d+)?)", text)
+        if m:
+            return float(m.group(1).replace(",", ".")) * 10
     if has_any(text, ["min", "minuto", "minutos"]):
         m = re.search(r"(\d+)", text)
         if m:
@@ -722,7 +762,10 @@ def infer_contextual_followup(text_raw, last_topic):
 
     very_short_contextual = [
         "qual", "melhor", "barato", "perto", "especial",
-        "completo", "tranquilo", "animado", "leve", "esse", "essa", "entao", "então", "vc indica"
+        "completo", "tranquilo", "animado", "leve", "esse", "essa",
+        "entao", "então", "vc indica",
+        "localizacao", "localização", "horario", "horário",
+        "servico", "serviço", "envie", "manda", "pode mandar"
     ]
     if text_n in very_short_contextual:
         return last_topic
@@ -745,7 +788,9 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
 
     exact_short = [
         "sim", "isso", "esse", "essa", "pode ser", "manda", "quero esse",
-        "quero essa", "qual", "melhor", "barato", "perto", "especial", "vc indica", "vcs indicam"
+        "quero essa", "qual", "melhor", "barato", "perto", "especial",
+        "vc indica", "vcs indicam", "envie", "enviar", "mandar", "mande",
+        "pode avisar", "avise", "encaminhe", "encaminhar"
     ]
     if text_n in exact_short:
         return True
@@ -838,7 +883,7 @@ def score_intents(text_raw, last_topic=""):
     if has_any(text_n, ["padaria", "cafe da manha", "café da manhã", "cafe", "café"]):
         add("padaria", 8)
 
-    if has_any(text_n, ["farmacia", "farmácia", "remedio", "remédio", "dor de cabeca", "dor de cabeça"]):
+    if has_any(text_n, ["farmacia", "farmácia", "remedio", "remédio", "dor de cabeca", "dor de cabeça", "droga raia"]):
         add("farmacia", 8)
 
     if has_any(text_n, ["garagem", "vaga", "estacionar", "estacionamento", "trocar de vaga"]):
@@ -968,10 +1013,7 @@ def classify_health(text):
     return "baixa"
 
 
-def maybe_notify(kind, raw_message, guest, severity):
-    if severity not in ["alta", "media"]:
-        return
-
+def append_incident_record(kind, raw_message, guest, severity):
     payload = {
         "tipo": kind,
         "gravidade": severity,
@@ -983,7 +1025,10 @@ def maybe_notify(kind, raw_message, guest, severity):
         "status": "aberto"
     }
     append_incident(payload)
+    return payload
 
+
+def send_incident_telegram(kind, raw_message, guest, severity):
     label_guest = guest.get("nome") or "Hóspede sem nome definido"
     emoji = "🚨" if severity == "alta" else "⚠️"
     tg_msg = (
@@ -991,9 +1036,22 @@ def maybe_notify(kind, raw_message, guest, severity):
         f"Gravidade: {severity.upper()}\n"
         f"Hóspede: {label_guest}\n"
         f"Mensagem: {raw_message}\n"
-        f"Horário: {payload['timestamp']}"
+        f"Horário: {datetime.now().isoformat(timespec='seconds')}"
     )
-    send_telegram_message(tg_msg)
+    return send_telegram_message(tg_msg)
+
+
+def maybe_notify(kind, raw_message, guest, severity):
+    if severity not in ["alta", "media"]:
+        return False, "gravidade baixa"
+
+    append_incident_record(kind, raw_message, guest, severity)
+    ok, detail = send_incident_telegram(kind, raw_message, guest, severity)
+    return ok, detail
+
+
+def is_incident_like_message(text):
+    return infer_primary_intent(text, get_last_topic()) == "incidente"
 
 
 # =========================
@@ -1257,11 +1315,7 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-
-        reply = (
-            "Boa 😄\n\n"
-            f"Uma opção prática nesse estilo é o **{nome}**, que fica a cerca de **{dist}**."
-        )
+        reply = f"Boa 😄\n\nUma opção prática nesse estilo é o **{nome}**, que fica a cerca de **{dist}**."
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
@@ -1276,11 +1330,7 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-
-        reply = (
-            "Boa 😄\n\n"
-            f"Se quiser algo mais especial, o **{nome}** costuma ser uma ótima pedida ✨"
-        )
+        reply = f"Boa 😄\n\nSe quiser algo mais especial, o **{nome}** costuma ser uma ótima pedida ✨"
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
@@ -1295,11 +1345,7 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-
-        reply = (
-            "Se a vontade for comida japonesa 🍣\n\n"
-            f"Uma boa referência é o **{nome}**, que fica a cerca de **{dist}**."
-        )
+        reply = f"Se a vontade for comida japonesa 🍣\n\nUma boa referência é o **{nome}**, que fica a cerca de **{dist}**."
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
@@ -1320,11 +1366,7 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-
-        reply = (
-            "Se a ideia for um doce ou uma lembrança gostosa 🍫\n\n"
-            f"A **{nome}** fica a cerca de **{dist}**."
-        )
+        reply = f"Se a ideia for um doce ou uma lembrança gostosa 🍫\n\nA **{nome}** fica a cerca de **{dist}**."
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
@@ -1384,11 +1426,7 @@ def get_mercado_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="mercado", last_recommendation_name=nome)
-
-        reply = (
-            "Pra algo rápido 🛒\n\n"
-            f"• **{nome}** → {dist}"
-        )
+        reply = f"Pra algo rápido 🛒\n\n• **{nome}** → {dist}"
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
@@ -1465,10 +1503,23 @@ def get_padaria_reply():
 
 
 def get_farmacia_reply():
-    return (
-        "Se você estiver precisando de farmácia, posso te orientar para uma opção próxima e prática.\n\n"
-        "Se for algo urgente ou mais delicado, também posso te indicar atendimento rápido na região 👍"
+    farmacia = knowledge().get("farmacia", {})
+    nome = farmacia.get("nome", "Droga Raia")
+    distancia = farmacia.get("distancia", "1,2km do apartamento")
+    horario = farmacia.get("horario", "24h")
+    perfil = farmacia.get("perfil", "")
+    obs = farmacia.get("observacao", "")
+
+    reply = (
+        "Se você estiver precisando de farmácia 😊\n\n"
+        f"Uma referência prática é a **{nome}**, que fica a cerca de **{distancia}** e funciona **{horario}**."
     )
+    if perfil:
+        reply += f"\n\n{perfil}."
+    if obs:
+        reply += f"\n\n{obs}"
+    reply += "\n\nSe for algo urgente ou mais delicado, também posso te orientar para atendimento na região 👍"
+    return reply
 
 
 def get_garagem_reply():
@@ -1525,10 +1576,46 @@ def get_checkout_aviso_reply(guest):
 
 def get_bruno_reply():
     anfitriao = knowledge().get("extras", {}).get("anfitriao", "Bruno")
+    set_bruno_pending(True)
     return (
-        f"Se preferir falar diretamente com o {anfitriao}, posso avisá-lo rapidamente 😊\n\n"
-        "Ele receberá uma notificação e poderá entrar em contato com você pelo Airbnb."
+        f"Claro 😊 Posso avisar o {anfitriao} agora.\n\n"
+        "Tem algum assunto que você queira que eu adiante na notificação?\n\n"
+        "Se preferir, também pode só me responder:\n"
+        "• **envie**\n"
+        "• **enviar**\n"
+        "• **manda**\n"
+        "• **mandar**\n"
+        "• **mande**\n"
+        "• **encaminhe**"
     )
+
+
+def notify_bruno_request(guest, raw_message=""):
+    nome = guest.get("nome", "").strip() or "Hóspede sem nome definido"
+    grupo = guest.get("grupo", "").strip() or "-"
+    checkout = guest.get("checkout", "").strip() or "-"
+    agora = datetime.now().isoformat(timespec="seconds")
+
+    msg = (
+        "📩 SOLICITAÇÃO DE CONTATO COM O BRUNO\n\n"
+        f"Hóspede: {nome}\n"
+        f"Grupo: {grupo}\n"
+        f"Checkout: {checkout}\n"
+        f"Horário: {agora}\n"
+    )
+
+    raw_message = (raw_message or "").strip()
+    normalized = normalize_text(raw_message)
+    if raw_message and normalized not in [
+        "envie", "enviar", "manda", "mandar", "mande",
+        "pode avisar", "avise", "avisar", "encaminhe", "encaminhar"
+    ]:
+        msg += f"\nAssunto adiantado pelo hóspede: {raw_message}"
+    else:
+        msg += "\nAssunto adiantado pelo hóspede: não informado"
+
+    ok, detail = send_telegram_message(msg)
+    return ok, detail
 
 
 def get_health_reply(text):
@@ -1537,8 +1624,7 @@ def get_health_reply(text):
         return (
             "Isso parece importante ⚠️\n\n"
             "Se for uma situação urgente, priorize atendimento imediato.\n\n"
-            "Posso te orientar rapidamente para **UPA Enseada** ou **Hospital Santo Amaro**.\n\n"
-            "Enquanto isso, já estou deixando isso sinalizado por aqui."
+            "Posso te orientar rapidamente para **UPA Enseada** ou **Hospital Santo Amaro**."
         )
     return (
         "Entendi 😕\n\n"
@@ -1553,8 +1639,7 @@ def get_problem_reply(text):
     if sev == "alta":
         return (
             "Isso parece importante ⚠️\n\n"
-            "Se for seguro, se afaste do local ou desligue o equipamento, quando fizer sentido.\n\n"
-            "Já estou deixando isso sinalizado como prioridade."
+            "Se for seguro, se afaste do local ou desligue o equipamento, quando fizer sentido."
         )
 
     if sev == "media":
@@ -1739,14 +1824,30 @@ def get_followup_reply(text, last_topic, guest):
     session = load_session()
     last_rec_name = session.get("last_recommendation_name", "")
 
+    if topic == "praia":
+        if has_any(text_n, [
+            "onde fica", "localizacao", "localização",
+            "servico de praia", "serviço de praia"
+        ]):
+            return get_servico_praia_localizacao_reply()
+
+        if has_any(text_n, ["horario", "horário", "que horas", "funciona que horas"]):
+            servico = knowledge().get("praia", {}).get("servico_praia", {})
+            return f"Claro 😊\n\nO serviço de praia funciona das **{servico.get('horario', '9h às 17h')}**."
+
+        if has_any(text_n, ["como funciona", "funciona", "servico", "serviço"]):
+            servico = knowledge().get("praia", {}).get("servico_praia", {})
+            return f"Claro 😊\n\n{servico.get('como_funciona', 'Os itens ficam montados na areia durante o horário do serviço.')}"
+
+        if has_any(text_n, ["mais tarde", "ainda hoje"]):
+            return "Se for ainda hoje, eu aproveitaria enquanto o serviço está funcionando e já deixaria o fim do dia mais leve 😉"
+
     if topic == "restaurantes":
         restaurantes = get_restaurants_data()
         if has_any(text_n, ["mais perto", "perto"]):
             item = best_closest_item(restaurantes)
             if item:
-                reply = (
-                    f"Se a prioridade for proximidade, eu iria no **{item.get('nome', '')}**, que fica a cerca de **{format_distance(item.get('distancia', ''))}**."
-                )
+                reply = f"Se a prioridade for proximidade, eu iria no **{item.get('nome', '')}**, que fica a cerca de **{format_distance(item.get('distancia', ''))}**."
                 if item.get("perfil"):
                     reply += f"\n\n{item.get('perfil')}."
                 reply += "\n\nSe quiser, eu também posso te dizer qual eu escolheria pelo custo-benefício."
@@ -1779,9 +1880,7 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["mais perto", "perto", "rapido", "rápido"]):
             item = best_closest_item(mercados)
             if item:
-                reply = (
-                    f"Se a prioridade for praticidade, eu iria no **{item.get('nome', '')}**, que fica **{format_distance(item.get('distancia', ''))}**."
-                )
+                reply = f"Se a prioridade for praticidade, eu iria no **{item.get('nome', '')}**, que fica **{format_distance(item.get('distancia', ''))}**."
                 if item.get("perfil"):
                     reply += f"\n\n{item.get('perfil')}."
                 reply += "\n\nÉ a melhor opção para resolver algo rápido."
@@ -1795,12 +1894,6 @@ def get_followup_reply(text, last_topic, guest):
                 "• **Pão de Açúcar** → se quiser algo mais organizado e confortável\n"
                 "• **Extra / Carrefour** → se a ideia for compra mais completa"
             )
-
-    if topic == "praia":
-        if has_any(text_n, ["onde fica", "localizacao", "localização"]):
-            return get_servico_praia_localizacao_reply()
-        if has_any(text_n, ["mais tarde", "ainda hoje"]):
-            return "Se for ainda hoje, eu aproveitaria enquanto o serviço está funcionando e já deixaria o fim do dia mais leve 😉"
 
     if topic == "saude":
         return get_health_reply(text)
@@ -1821,10 +1914,39 @@ def get_followup_reply(text, last_topic, guest):
 
     if topic == "tempo":
         if has_any(text_n, ["e pra praia", "compensa", "vale a pena", "e hoje"]):
-            return (
-                f"{get_weather_reply()}\n\n"
-                "Se quiser, eu também posso te sugerir se hoje faz mais sentido praia, passeio ou algo coberto 😉"
-            )
+            return f"{get_weather_reply()}\n\nSe quiser, eu também posso te sugerir se hoje faz mais sentido praia, passeio ou algo coberto 😉"
+
+    if topic == "bruno":
+        if has_any(text_n, [
+            "envie", "enviar", "manda", "mandar", "mande",
+            "pode mandar", "pode avisar", "avise", "avisar",
+            "encaminhe", "encaminhar"
+        ]):
+            ok, _ = notify_bruno_request(guest, "")
+            set_bruno_pending(False)
+            if ok:
+                return "Perfeito 😊 Já enviei uma solicitação de acompanhamento ao Bruno. Ele entrará em contato com você o quanto antes."
+            return "Entendi 😊 Tentei avisar o Bruno agora, mas não consegui enviar a solicitação de acompanhamento neste momento."
+
+        incident_like = is_incident_like_message(text)
+        if incident_like:
+            sev = classify_incident(text)
+            incident_ok, _ = maybe_notify("incidente", text, guest, sev)
+            bruno_ok, _ = notify_bruno_request(guest, text)
+            set_bruno_pending(False)
+            if incident_ok and bruno_ok:
+                return "Entendi 😊 Já deixei isso sinalizado por aqui e também enviei uma solicitação de acompanhamento ao Bruno. Ele entrará em contato com você o quanto antes."
+            if incident_ok and not bruno_ok:
+                return "Entendi 😊 Já deixei isso sinalizado por aqui, mas não consegui enviar a solicitação de acompanhamento ao Bruno neste momento."
+            if bruno_ok and not incident_ok:
+                return "Entendi 😊 Já avisei o Bruno com esse assunto. Ele entrará em contato com você o quanto antes."
+            return "Entendi 😊 Registrei o assunto por aqui, mas não consegui enviar a solicitação ao Bruno neste momento."
+
+        ok, _ = notify_bruno_request(guest, text)
+        set_bruno_pending(False)
+        if ok:
+            return "Perfeito 😊 Já avisei o Bruno e adiantei esse assunto para ele. Ele entrará em contato com você o quanto antes."
+        return "Entendi 😊 Tentei avisar o Bruno agora, mas não consegui enviar a solicitação de acompanhamento neste momento."
 
     return ""
 
@@ -2092,6 +2214,10 @@ def finalize_and_log(
     update_guest_insights(text_raw)
     update_usage_stats(text_raw, reply, topic, used_followup=used_followup)
     update_guest_preferences(text_raw)
+
+    if topic in ["incidente", "saude", "bruno", "fallback", "checkout"]:
+        notify_conversation_to_telegram(guest, text_raw, topic, reply)
+
     return reply
 
 
@@ -2129,6 +2255,20 @@ def gepetto_responde(msg):
             )
         return finalize_and_log(guest, text_raw, "saudacao", reply, remembered, intent_for_session="saudacao")
 
+    sess = load_session()
+    if sess.get("pending_bruno_contact"):
+        followup = get_followup_reply(text_raw, "bruno", guest)
+        if followup:
+            return finalize_and_log(
+                guest,
+                text_raw,
+                "bruno",
+                followup,
+                remembered,
+                used_followup=True,
+                intent_for_session="bruno"
+            )
+
     inferred_intent = infer_primary_intent(text_raw, last_topic)
 
     if is_followup_candidate(text_raw, last_topic, inferred_intent):
@@ -2153,13 +2293,21 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "localizacao", get_localizacao_reply(text_raw), remembered, intent_for_session="localizacao")
 
     if intent == "saude":
-        reply = get_health_reply(text_raw)
-        maybe_notify("saude", text_raw, guest, classify_health(text_raw))
+        base_reply = get_health_reply(text_raw)
+        ok, _ = maybe_notify("saude", text_raw, guest, classify_health(text_raw))
+        if ok:
+            reply = base_reply + "\n\nJá deixei isso sinalizado por aqui e enviei uma solicitação de acompanhamento ao Bruno. Ele entrará em contato com você o quanto antes 😊"
+        else:
+            reply = base_reply + "\n\nJá deixei isso sinalizado por aqui, mas não consegui enviar a solicitação de acompanhamento ao Bruno neste momento."
         return finalize_and_log(guest, text_raw, "saude", reply, remembered, intent_for_session="saude")
 
     if intent == "incidente":
-        reply = get_problem_reply(text_raw)
-        maybe_notify("incidente", text_raw, guest, classify_incident(text_raw))
+        base_reply = get_problem_reply(text_raw)
+        ok, _ = maybe_notify("incidente", text_raw, guest, classify_incident(text_raw))
+        if ok:
+            reply = base_reply + "\n\nJá deixei isso sinalizado por aqui e enviei uma solicitação de acompanhamento ao Bruno. Ele entrará em contato com você o quanto antes 😊"
+        else:
+            reply = base_reply + "\n\nJá deixei isso sinalizado por aqui, mas não consegui enviar a solicitação de acompanhamento ao Bruno neste momento."
         return finalize_and_log(guest, text_raw, "incidente", reply, remembered, intent_for_session="incidente")
 
     if intent == "wifi":
@@ -2213,7 +2361,6 @@ def gepetto_responde(msg):
             reply = get_checkout_aviso_reply(guest)
         else:
             reply = get_checkout_reply(guest)
-
         return finalize_and_log(guest, text_raw, "checkout", reply, remembered, intent_for_session="checkout")
 
     if intent == "bruno":
