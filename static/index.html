@@ -2,17 +2,22 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gepetto</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>🏖️ Gepetto</title>
 
 <style>
 :root{
-  --bg:#f4f4f5;
-  --border:#e5e7eb;
-  --text:#111827;
-  --muted:#6b7280;
-  --user:#dbeafe;
-  --bot:#e5e5e5;
+  --bg:#eaf3ff;
+  --panel:#f8fbff;
+  --panel-strong:#ffffff;
+  --border:#cfe0f5;
+  --text:#10233f;
+  --muted:#5f7592;
+  --accent:#2f6fb3;
+  --accent-soft:#d9eaff;
+  --user:#cfe5ff;
+  --bot:#ffffff;
+  --shadow:0 10px 30px rgba(33, 79, 140, 0.08);
 }
 
 *{ box-sizing:border-box; }
@@ -22,7 +27,8 @@ html, body{
   padding:0;
   height:100%;
   font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  background:var(--bg);
+  background:linear-gradient(180deg, #edf5ff 0%, #e4f0ff 100%);
+  color:var(--text);
 }
 
 body{
@@ -32,71 +38,99 @@ body{
 
 .app{
   width:100%;
-  max-width:600px;
+  max-width:640px;
   min-height:100vh;
   display:flex;
   flex-direction:column;
+  background:transparent;
 }
 
 /* TOPO */
 .header{
-  padding:16px;
-  background:#fff;
+  position:sticky;
+  top:0;
+  z-index:10;
+  padding:14px 14px 10px;
+  background:rgba(248, 251, 255, 0.92);
+  backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
 }
 
-.brand{
+.header-top{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
+  justify-content:space-between;
   gap:12px;
 }
 
-.brand-avatar{
-  width:44px;
-  height:44px;
-  border-radius:12px;
-  overflow:hidden;
-}
-
-.brand-avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
+.brand{
+  min-width:0;
 }
 
 .brand h1{
   margin:0;
-  font-size:20px;
+  font-size:28px;
+  line-height:1;
+  letter-spacing:0.2px;
+  font-weight:800;
+  color:var(--accent);
 }
 
 .brand p{
-  margin:0;
+  margin:6px 0 0;
   font-size:13px;
+  line-height:1.35;
   color:var(--muted);
+}
+
+.host-note{
+  margin-top:3px;
+  font-size:11px;
+  line-height:1.3;
+  color:var(--muted);
+  opacity:.9;
+  text-align:right;
+  white-space:normal;
+  max-width:180px;
+  font-style:italic;
 }
 
 /* BOTÕES */
 .quick{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:repeat(4, 1fr);
   gap:8px;
   margin-top:12px;
 }
 
 .quick button{
-  height:44px;
-  border-radius:10px;
+  min-height:38px;
+  padding:8px 10px;
+  border-radius:12px;
   border:1px solid var(--border);
-  background:#fff;
+  background:var(--panel-strong);
+  color:var(--text);
+  font-size:13px;
   font-weight:600;
   cursor:pointer;
+  box-shadow:none;
+  transition:transform .12s ease, background .12s ease, border-color .12s ease;
+}
+
+.quick button:active{
+  transform:scale(.98);
+}
+
+.quick button:hover{
+  background:#f2f8ff;
+  border-color:#bdd5f0;
 }
 
 /* CHAT */
 #chat{
   flex:1;
   overflow-y:auto;
-  padding:16px;
+  padding:14px;
   display:flex;
   flex-direction:column;
   gap:10px;
@@ -104,66 +138,128 @@ body{
 
 .row{
   display:flex;
+  width:100%;
 }
 
 .row.bot{
-  gap:8px;
+  justify-content:flex-start;
 }
 
 .row.user{
   justify-content:flex-end;
 }
 
-/* AVATAR */
-.avatar{
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  overflow:hidden;
-}
-
-.avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-/* MENSAGENS */
 .msg{
-  max-width:75%;
-  padding:12px;
-  border-radius:14px;
+  max-width:82%;
+  padding:12px 14px;
+  border-radius:16px;
   font-size:14px;
+  line-height:1.45;
+  box-shadow:var(--shadow);
+  word-wrap:break-word;
+  white-space:pre-wrap;
 }
 
 .msg.bot{
   background:var(--bot);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-top-left-radius:6px;
 }
 
 .msg.user{
   background:var(--user);
+  border:1px solid #bdd6f7;
+  color:var(--text);
+  border-top-right-radius:6px;
 }
 
 /* INPUT */
+#inputWrap{
+  position:sticky;
+  bottom:0;
+  z-index:12;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(248, 251, 255, 0.96);
+  backdrop-filter:blur(10px);
+  border-top:1px solid var(--border);
+}
+
 #inputArea{
   display:flex;
-  border-top:1px solid var(--border);
-  background:#fff;
+  align-items:center;
+  gap:8px;
+  background:var(--panel-strong);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:8px;
+  box-shadow:var(--shadow);
 }
 
 #msg{
   flex:1;
-  padding:14px;
   border:none;
   outline:none;
+  background:transparent;
+  color:var(--text);
+  font-size:16px; /* evita zoom no iPhone */
+  line-height:1.2;
+  padding:10px 8px;
+  min-width:0;
+}
+
+#msg::placeholder{
+  color:var(--muted);
 }
 
 button.send{
-  padding:14px;
+  flex:0 0 auto;
   border:none;
-  background:#111;
+  background:var(--accent);
   color:#fff;
   cursor:pointer;
+  border-radius:12px;
+  min-height:42px;
+  padding:0 16px;
+  font-size:14px;
+  font-weight:700;
+  transition:transform .12s ease, opacity .12s ease;
+}
+
+button.send:active{
+  transform:scale(.98);
+}
+
+button.send:hover{
+  opacity:.94;
+}
+
+/* RESPONSIVO */
+@media (max-width: 560px){
+  .brand h1{
+    font-size:26px;
+  }
+
+  .brand p{
+    font-size:12px;
+  }
+
+  .host-note{
+    font-size:10px;
+    max-width:140px;
+  }
+
+  .quick{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .quick button{
+    font-size:13px;
+  }
+
+  .msg{
+    max-width:88%;
+  }
 }
 </style>
 </head>
@@ -173,49 +269,48 @@ button.send{
 <div class="app">
 
   <div class="header">
-    <div class="brand">
-      <div class="brand-avatar">
-        <img src="gepetto.png?v=1">
-      </div>
-      <div>
+    <div class="header-top">
+      <div class="brand">
         <h1>Gepetto</h1>
-        <p>Seu concierge • Apto 14B</p>
+        <p>🏖️ O Concierge do Apto. 14B ao seu dispor</p>
       </div>
+
+      <div class="host-note">Hospedagem administrada por Bruno Bressanin</div>
     </div>
 
     <div class="quick">
       <button onclick="quick('wifi')">📶 Wi-Fi</button>
       <button onclick="quick('praia')">🏖️ Praia</button>
-      <button onclick="quick('restaurante')">🍽️ Restaurantes</button>
+      <button onclick="quick('restaurante')">🍽️ Comer</button>
       <button onclick="quick('mercado')">🛒 Mercado</button>
     </div>
   </div>
 
   <div id="chat"></div>
 
-  <div id="inputArea">
-    <input id="msg" placeholder="Fale com o Gepetto..." onkeydown="enter(event)">
-    <button class="send" onclick="send()">Enviar</button>
+  <div id="inputWrap">
+    <div id="inputArea">
+      <input id="msg" placeholder="Fale com o Gepetto..." onkeydown="enter(event)" autocomplete="off">
+      <button class="send" onclick="send()">Enviar</button>
+    </div>
   </div>
 
 </div>
 
 <script>
 function format(text){
-  return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\n/g, "<br>");
 }
 
 function add(role, text){
   const chat = document.getElementById("chat");
-
   let html = "";
 
   if(role === "bot"){
     html = `
       <div class="row bot">
-        <div class="avatar">
-          <img src="gepetto.png?v=1">
-        </div>
         <div class="msg bot">${format(text)}</div>
       </div>
     `;
@@ -251,7 +346,7 @@ async function send(){
   add("user", msg);
   input.value = "";
 
-  try {
+  try{
     const res = await fetch("/chat", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
@@ -262,19 +357,23 @@ async function send(){
     const data = JSON.parse(text);
 
     add("bot", data.reply || "⚠️ Erro ao responder");
-  } catch (e) {
+  }catch(e){
     console.error("Erro no send:", e);
     add("bot", "⚠️ Erro ao conectar com o servidor");
   }
 }
 
 async function start(){
-  const res = await fetch("/welcome");
-  const data = await res.json();
+  try{
+    const res = await fetch("/welcome");
+    const data = await res.json();
 
-  const partes = data.message.split("\n\n");
-
-  partes.forEach(p => add("bot", p));
+    const partes = (data.message || "").split("\n\n").filter(Boolean);
+    partes.forEach(p => add("bot", p));
+  }catch(e){
+    console.error("Erro no start:", e);
+    add("bot", "Olá 😊 Eu sou o Gepetto.");
+  }
 }
 
 start();
