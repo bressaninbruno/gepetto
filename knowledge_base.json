@@ -213,5 +213,14 @@
     "anfitriao": "Bruno",
     "concierge_nome": "Gepetto",
     "descricao_curta": "Concierge do apartamento 14B para orientar hóspedes durante a estadia"
+  },
+  "farmacia": {
+    "nome": "Droga Raia",
+    "distancia": "1,2km do apartamento",
+    "horario": "24h",
+    "perfil": "boa opção prática para farmácia na região",
+    "observacao": "fica a cerca de 1,2km do apartamento e funciona 24h"
   }
+  
 }
+
