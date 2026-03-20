@@ -1,8 +1,217 @@
 {
+  "wifi": {
+    "rede": "Volare Hal",
+    "senha": "Guaruja123@",
+    "observacao": "Caso tenha qualquer dificuldade para conectar, posso te orientar."
+  },
+  "regras": {
+    "silencio": "23h às 7h",
+    "areia": "usar o lava-pés antes de entrar no elevador ou retornar ao apartamento",
+    "lixo": "há ponto de descarte no térreo e o condomínio possui coleta de recicláveis ♻️",
+    "fumar": "proibido fumar nas dependências internas do apartamento 🚭",
+    "festas": "não são permitidas festas ou eventos",
+    "observacao": "Essas regras ajudam a manter o ambiente agradável para todos."
+  },
   "apartamento": {
-    "wifi": {
-      "nome": "WIFI_NAME",
-      "senha": "WIFI_PASSWORD"
+    "nome": "Residencial Volare – Apto 14B",
+    "checkout": "13h",
+    "checkin": "conforme orientação da reserva",
+    "descricao_curta": "Apartamento pensado para oferecer conforto, praticidade e boa experiência de hospedagem na Enseada.",
+    "endereco": {
+      "rua": "Avenida da Saudade, 335",
+      "bairro": "Jardim São Miguel",
+      "cidade": "Praia da Enseada, Guarujá",
+      "cep": "11440-180"
     }
+  },
+  "praia": {
+    "distancia": "280 metros (4 a 5 minutos a pé)",
+    "melhor_horario": "manhã e fim da tarde",
+    "dica": "vale sair um pouco mais cedo para aproveitar a praia com mais tranquilidade",
+    "servico_praia": {
+      "horario": "9h às 17h",
+      "localizacao": "ao lado do Thai Lounge, em frente ao Casa Grande Hotel",
+      "como_funciona": "os itens ficam montados na areia durante o horário do serviço",
+      "observacao": "é uma facilidade ótima para quem quer ir à praia com mais conforto"
+    }
+  },
+  "restaurantes": [
+    {
+      "nome": "McDonald's",
+      "tipo": "rapido",
+      "distancia": "5 minutos",
+      "perfil": "opção prática, rápida e simples",
+      "ideal_para": ["lanche", "praticidade", "algo sem complicação"],
+      "faixa_preco": "baixo",
+      "observacao": "boa escolha quando a ideia é resolver rápido"
+    },
+    {
+      "nome": "Thai Lounge",
+      "tipo": "especial",
+      "distancia": "5 minutos",
+      "perfil": "experiência mais especial, sofisticada e agradável para a noite",
+      "ideal_para": ["casal", "jantar", "ocasião especial"],
+      "faixa_preco": "medio-alto",
+      "observacao": "ótima pedida para uma noite mais especial"
+    },
+    {
+      "nome": "Restaurante Alcides",
+      "tipo": "tradicional",
+      "distancia": "6 minutos",
+      "perfil": "clássico, tradicional e muito lembrado no Guarujá",
+      "ideal_para": ["almoço", "jantar", "quem quer algo mais clássico"],
+      "faixa_preco": "medio",
+      "observacao": "boa escolha para quem quer uma referência tradicional da cidade"
+    },
+    {
+      "nome": "Sushi Katoshi",
+      "tipo": "japones",
+      "distancia": "4 minutos",
+      "perfil": "boa referência para comida japonesa",
+      "ideal_para": ["jantar", "sushi", "quem gosta de japonês"],
+      "faixa_preco": "medio",
+      "observacao": "boa opção quando bate vontade de comida japonesa"
+    },
+    {
+      "nome": "Kopenhagen",
+      "tipo": "doce",
+      "distancia": "4 minutos",
+      "perfil": "boa opção para chocolate, sobremesa ou lembrança",
+      "ideal_para": ["sobremesa", "doce", "lembrança"],
+      "faixa_preco": "medio",
+      "observacao": "boa pedida para um mimo ou algo gostoso depois do jantar"
+    }
+  ],
+  "mercados": [
+    {
+      "nome": "Mercado Dia",
+      "tipo": "rapido",
+      "distancia": "ao lado",
+      "perfil": "ideal para compras rápidas, água, bebida ou emergência",
+      "ideal_para": ["água", "bebida", "compra rápida", "emergência"],
+      "faixa_preco": "baixo-medio",
+      "observacao": "melhor escolha quando a ideia é praticidade"
+    },
+    {
+      "nome": "Pão de Açúcar",
+      "tipo": "completo",
+      "distancia": "3 minutos",
+      "perfil": "mais confortável e organizado para compras completas",
+      "ideal_para": ["compra mais completa", "mais conforto", "mais organização"],
+      "faixa_preco": "medio-alto",
+      "observacao": "boa opção para quem quer mais conforto e variedade"
+    },
+    {
+      "nome": "Extra",
+      "tipo": "completo",
+      "distancia": "5 minutos",
+      "perfil": "boa opção para compra maior",
+      "ideal_para": ["compra grande", "mais variedade"],
+      "faixa_preco": "medio",
+      "observacao": "faz sentido quando a ideia é abastecer melhor"
+    },
+    {
+      "nome": "Carrefour",
+      "tipo": "completo",
+      "distancia": "5 minutos",
+      "perfil": "boa opção para compra mais completa",
+      "ideal_para": ["compra completa", "mais itens"],
+      "faixa_preco": "medio",
+      "observacao": "alternativa boa para compra maior"
+    }
+  ],
+  "padaria": {
+    "nome": "Padaria Pitangueiras",
+    "distancia": "300m do apartamento",
+    "perfil": "boa referência para café da manhã ou algo prático",
+    "ideal_para": ["café da manhã", "lanche", "algo rápido"],
+    "observacao": "boa opção para começar o dia com praticidade"
+  },
+  "garagem": {
+    "info": "A vaga não é fixa 😊\n\nAo chegar, um funcionário do prédio pode te orientar sobre qual utilizar.\n\nCaso você tenha interesse, por algum motivo, de estacionar em outra vaga além daquela que lhe foi indicada, havendo vagas disponíveis, é só conversar com um funcionário do prédio 👍",
+    "observacao": "em caso de dúvida, vale sempre confirmar com um funcionário do prédio"
+  },
+  "acesso": {
+    "portaria": "24h",
+    "chaves": "Você tem a opção, caso queira, de deixar a chave na portaria quando for sair e não quiser carregar peso. A portaria é 24h e sempre terá alguém para abrir o portão. Mas caso prefiram ficar com elas, o portão social pode ser aberto utilizando a tag magnética presente no seu molho de chaves 🙂",
+    "observacao": "essa flexibilidade costuma ajudar bastante durante a estadia"
+  },
+  "condominio": {
+    "zelador": "Paulo",
+    "mensagem": "Caso vocês precisem de algum auxílio, podem contar com ele.",
+    "observacao": "é uma boa referência de apoio no prédio"
+  },
+  "proximidades": {
+    "upa_enseada": {
+      "nome": "UPA Enseada",
+      "tempo_carro": "4 a 6 minutos de carro",
+      "perfil": "referência mais rápida para urgência"
+    },
+    "hospital_santo_amaro": {
+      "nome": "Hospital Santo Amaro",
+      "tempo_carro": "10 a 15 minutos de carro",
+      "perfil": "boa referência hospitalar na região"
+    },
+    "acqua_mundo": {
+      "nome": "Acqua Mundo",
+      "observacao": "Costuma funcionar muito bem para famílias e também em dias de chuva.",
+      "ideal_para": ["família", "dias de chuva", "passeio leve"]
+    }
+  },
+  "surf": {
+    "praias": [
+      {
+        "nome": "Praia do Tombo",
+        "perfil": "mais tradicional, com ondas mais fortes",
+        "nivel": "intermediário a avançado",
+        "observacao": "boa referência para quem já curte surf com mais intensidade"
+      },
+      {
+        "nome": "Praia da Enseada",
+        "perfil": "mais acessível em alguns dias e prática para quem está hospedado por perto",
+        "nivel": "variável",
+        "observacao": "mais prática pela proximidade"
+      },
+      {
+        "nome": "Pitangueiras",
+        "perfil": "opção urbana para quem quer algo mais central",
+        "nivel": "variável",
+        "observacao": "boa para quem quer conciliar surf e praticidade"
+      },
+      {
+        "nome": "Pernambuco / Mar Casado",
+        "perfil": "pode render bem dependendo do mar",
+        "nivel": "variável",
+        "observacao": "também agrada quem quer um visual bonito"
+      }
+    ]
+  },
+  "bares": [
+    {
+      "nome": "Dona Eva Bar & Chopperia",
+      "perfil": "mais descontraído"
+    },
+    {
+      "nome": "Bali Hai",
+      "perfil": "boa opção para curtir a noite"
+    },
+    {
+      "nome": "Quiosques da Orla da Enseada",
+      "perfil": "mais leve e informal"
+    },
+    {
+      "nome": "Boteco da Orla",
+      "perfil": "clima mais casual"
+    }
+  ],
+  "clima": {
+    "latitude": -23.9786,
+    "longitude": -46.2337,
+    "referencia": "região da Enseada, Guarujá"
+  },
+  "extras": {
+    "anfitriao": "Bruno",
+    "concierge_nome": "Gepetto",
+    "descricao_curta": "Concierge do apartamento 14B para orientar hóspedes durante a estadia"
   }
 }
