@@ -486,6 +486,7 @@ def mensagem_boas_vindas():
             "I am **Gepetto**, your personal concierge during your stay.\n\n"
             "I can help with:\n"
             "• **Apartment and building guidance**\n"
+            "• **House and building rules**\n"
             "• **Restaurant recommendations**\n"
             "• **Markets and convenience**\n"
             "• **Beach, local tips and activities**\n"
@@ -501,6 +502,7 @@ def mensagem_boas_vindas():
         "Eu sou o **Gepetto**, seu concierge pessoal durante a estadia.\n\n"
         "Posso te ajudar com:\n"
         "• **Guia do apartamento e do condomínio**\n"
+        "• **Regras da casa e do condomínio**\n"
         "• **Recomendações de restaurantes**\n"
         "• **Mercados e conveniências**\n"
         "• **Praia, passeios e dicas locais**\n"
@@ -520,7 +522,7 @@ def proactive_prompt(guest):
             return "If you want, I can already point you to a nice **dessert/chocolate option** nearby 🍫"
         if top_pref == "praia":
             return "If you want, I can already guide you about the **beach** and beach service here 🏖️"
-        return "If you want, I can already help with **restaurants**, **markets**, **beach** or **weather today** 😉"
+        return "If you want, I can already help with **restaurants**, **markets**, **beach**, **house rules** or **weather today** 😉"
 
     if top_pref == "japones":
         return "Se quiser, já posso te indicar um **japonês** muito bom por aqui 🍣"
@@ -536,7 +538,8 @@ def proactive_prompt(guest):
             "Se quiser, posso te indicar agora:\n"
             "• uma boa opção de **restaurante** 🍽️\n"
             "• um **mercado próximo** 🛒\n"
-            "• ou te explicar rapidinho como funciona a **praia** 🏖️"
+            "• como funciona a **praia** 🏖️\n"
+            "• ou as principais **regras da casa** 📋"
         )
 
     if grupo == "amigos":
@@ -544,7 +547,8 @@ def proactive_prompt(guest):
             "Se quiser, posso te indicar agora:\n"
             "• um lugar bom pra **comer ou jantar** 🍽️\n"
             "• uma opção rápida de **mercado** 🛒\n"
-            "• ou já te passar como funciona a **praia** 🏖️"
+            "• como funciona a **praia** 🏖️\n"
+            "• ou te passar as principais **regras da casa** 📋"
         )
 
     if grupo == "casal":
@@ -552,13 +556,14 @@ def proactive_prompt(guest):
             "Se quiser, posso te indicar agora:\n"
             "• um restaurante mais **especial** ✨\n"
             "• uma opção rápida de **mercado** 🛒\n"
-            "• ou te orientar sobre a **praia** 🏖️"
+            "• te orientar sobre a **praia** 🏖️\n"
+            "• ou te passar as principais **regras da casa** 📋"
         )
 
     options = [
-        "Se quiser, posso te indicar agora um **restaurante**, um **mercado**, a **praia** ou até a **previsão do tempo** 😉",
-        "Posso te ajudar agora com **praia**, **mercado**, **restaurantes**, **clima** ou qualquer dúvida do apartamento 😄",
-        "Se preferir, já posso começar te orientando sobre **praia**, **comida**, **compras rápidas** ou **tempo hoje** 👍"
+        "Se quiser, posso te indicar agora um **restaurante**, um **mercado**, a **praia**, te passar as **regras da casa** ou até a **previsão do tempo** 😉",
+        "Posso te ajudar agora com **praia**, **mercado**, **restaurantes**, **regras da casa**, **clima** ou qualquer dúvida do apartamento 😄",
+        "Se preferir, já posso começar te orientando sobre **praia**, **comida**, **compras rápidas**, **regras da casa** ou **tempo hoje** 👍"
     ]
     return random.choice(options)
 
@@ -694,19 +699,6 @@ def best_closest_item(items):
     return sorted(items, key=lambda x: distance_sort_key(x.get("distancia", "")))[0]
 
 
-def format_profile_suffix(item):
-    if not isinstance(item, dict):
-        return ""
-    parts = []
-    if item.get("perfil"):
-        parts.append(item["perfil"])
-    if item.get("observacao"):
-        parts.append(item["observacao"])
-    if not parts:
-        return ""
-    return " " + " ".join(parts)
-
-
 # =========================
 # INTENÇÃO / CONTEXTO
 # =========================
@@ -794,17 +786,26 @@ def score_intents(text_raw, last_topic=""):
         "fogo", "incendio", "incêndio", "fumaca", "fumaça", "gas", "gás",
         "curto", "cheiro de queimado", "queimando", "vazamento", "sem energia",
         "porta nao abre", "porta não abre", "queimou", "queimado",
-        "sofa queimando", "sofá queimando", "pegando fogo"
+        "sofa queimando", "sofá queimando", "pegando fogo",
+        "defeito", "quebrou", "quebrado", "parou de funcionar", "nao funciona", "não funciona",
+        "nao esta funcionando", "não está funcionando", "nao esta abrindo", "não está abrindo",
+        "nao liga", "não liga", "travou", "bugou", "problema", "estragou",
+        "microondas", "micro-ondas", "chuveiro", "ar condicionado", "ar-condicionado", "ar",
+        "televisao", "televisão", "tv", "fogao", "fogão", "geladeira", "forno",
+        "acabou o gas", "acabou o gás", "gas da cozinha", "gás da cozinha",
+        "botijao de gas", "botijão de gás", "botijao", "botijão"
     ]):
-        add("incidente", 14)
+        add("incidente", 12)
 
     if has_any(text_n, ["wifi", "wi-fi", "wi fi", "internet", "senha da internet", "senha do wifi"]):
         add("wifi", 12)
 
     if has_any(text_n, [
-        "regra", "regras", "condominio", "condomínio", "silencio", "areia", "lixo",
-        "fumar", "festa", "festas", "reciclagem", "reciclavel", "reciclável",
-        "pode fumar", "pode festa"
+        "regra", "regras", "condominio", "condomínio", "silencio", "silêncio",
+        "barulho", "som alto", "musica", "música", "musica alta", "música alta",
+        "caixa de som", "ruido", "ruído", "areia", "lixo", "fumar", "festa", "festas",
+        "reciclagem", "reciclavel", "reciclável", "pode fumar", "pode festa",
+        "horario de silencio", "horário de silêncio"
     ]):
         add("regras", 10)
 
@@ -846,7 +847,12 @@ def score_intents(text_raw, last_topic=""):
     if has_any(text_n, ["chave", "chaves", "portaria", "tag", "portao", "portão", "deixar a chave"]):
         add("chaves", 10)
 
-    if has_any(text_n, ["checkout", "check-out", "check out", "qual horario do checkout", "qual horário do checkout"]):
+    if has_any(text_n, [
+        "checkout", "check-out", "check out",
+        "antes do checkout", "antes do check-out",
+        "ir embora", "antes de sair", "o que fazer antes de sair",
+        "avisos antes do checkout", "preciso fazer algo antes de sair"
+    ]):
         add("checkout", 9)
 
     if has_any(text_n, ["bruno", "anfitriao", "anfitrião", "host"]):
@@ -925,8 +931,13 @@ def classify_incident(text):
     medium = [
         "chuveiro", "ar nao funciona", "ar não funciona", "tv nao liga", "tv não liga",
         "wifi nao funciona", "wifi não funciona", "internet nao funciona", "internet não funciona",
-        "parou de funcionar", "quebrou", "defeito", "nao funciona", "não funciona",
-        "queimou", "queimado", "esquentando demais", "travou", "bugou"
+        "parou de funcionar", "quebrou", "quebrado", "defeito", "problema",
+        "nao funciona", "não funciona", "nao esta funcionando", "não está funcionando",
+        "nao liga", "não liga", "nao esta abrindo", "não está abrindo",
+        "queimou", "queimado", "esquentando demais", "travou", "bugou",
+        "microondas", "micro-ondas", "fogao", "fogão", "geladeira", "forno",
+        "acabou o gas", "acabou o gás", "gas da cozinha", "gás da cozinha",
+        "botijao de gas", "botijão de gás", "botijao", "botijão"
     ]
 
     if has_any(text_n, high):
@@ -1085,19 +1096,47 @@ def get_wifi_reply():
     )
 
 
-def get_regras_reply():
+def get_regras_reply(text=""):
     regras = knowledge().get("regras", {})
+    text_n = normalize_text(text)
+
+    silencio = regras.get("silencio", "23h às 7h")
+    areia = regras.get("areia", "usar lava-pés antes de entrar no elevador")
+    lixo = regras.get("lixo", "há ponto de descarte no térreo (possui coleta de recicláveis ♻️)")
+    fumar = regras.get("fumar", "proibido fumar nas dependências internas do apartamento 🚭")
+    festas = regras.get("festas", "não são permitidas festas ou eventos")
     obs = regras.get("observacao", "")
-    suffix = f"\n\n{obs}" if obs else ""
+
+    if has_any(text_n, ["fumar", "cigarro", "pode fumar", "posso fumar"]):
+        return f"Não. {fumar}"
+
+    if has_any(text_n, ["festa", "festas", "evento", "eventos", "pode fazer festa", "posso fazer festa"]):
+        return f"Não. {festas}"
+
+    if has_any(text_n, ["reciclagem", "reciclavel", "reciclável", "lixo", "onde joga o lixo", "coleta", "onde descarta o lixo"]):
+        return f"Sobre o lixo: {lixo}"
+
+    if has_any(text_n, [
+        "silencio", "silêncio", "barulho", "som alto", "musica alta", "música alta",
+        "caixa de som", "ruido", "ruído", "perturbar", "incomodar vizinhos",
+        "horario de silencio", "horário de silêncio", "pode musica", "pode música",
+        "posso por musica", "posso pôr música", "posso colocar musica", "posso colocar música",
+        "pode som alto", "posso som alto"
+    ]):
+        return f"O horário de silêncio é {silencio}."
+
+    if has_any(text_n, ["areia", "lava pes", "lava-pes", "lava pés", "e a areia"]):
+        return f"Sobre a areia: {areia}"
+
     return (
         "Claro 😊\n\n"
         "Algumas informações importantes:\n"
-        f"• Silêncio: {regras.get('silencio', '23h às 7h')}\n"
-        f"• Areia: {regras.get('areia', 'usar lava-pés antes de entrar no elevador')}\n"
-        f"• Lixo: {regras.get('lixo', 'há ponto de descarte no térreo (possui coleta de recicláveis ♻️)')}\n"
-        f"• Fumar: {regras.get('fumar', 'proibido fumar nas dependências internas do apartamento 🚭')}\n"
-        f"• Festas: {regras.get('festas', 'não são permitidas festas ou eventos')}"
-        f"{suffix}"
+        f"• Silêncio: {silencio}\n"
+        f"• Areia: {areia}\n"
+        f"• Lixo: {lixo}\n"
+        f"• Fumar: {fumar}\n"
+        f"• Festas: {festas}"
+        + (f"\n\n{obs}" if obs else "")
     )
 
 
@@ -1218,11 +1257,17 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-        return (
+
+        reply = (
             "Boa 😄\n\n"
-            f"Uma opção prática nesse estilo é o **{nome}**, que fica a cerca de **{dist}**.\n\n"
-            f"{perfil}." if perfil else f"Uma opção prática nesse estilo é o **{nome}**, que fica a cerca de **{dist}**.\n\n"
-        ) + (f"\n\n{obs}" if obs else "") + "\n\nSe quiser, também posso te sugerir algo mais tradicional ou mais especial 😉"
+            f"Uma opção prática nesse estilo é o **{nome}**, que fica a cerca de **{dist}**."
+        )
+        if perfil:
+            reply += f"\n\n{perfil}."
+        if obs:
+            reply += f"\n\n{obs}"
+        reply += "\n\nSe quiser, também posso te sugerir algo mais tradicional ou mais especial 😉"
+        return reply
 
     if has_any(text_n, ["especial", "romantico", "romântico", "sofisticado", "premium"]):
         item = especial or {}
@@ -1231,11 +1276,17 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-        return (
+
+        reply = (
             "Boa 😄\n\n"
-            f"Se quiser algo mais especial, o **{nome}** costuma ser uma ótima pedida ✨\n\n"
-            f"{perfil}." if perfil else f"Se quiser algo mais especial, o **{nome}** costuma ser uma ótima pedida ✨\n\n"
-        ) + (f"\n\n{obs}" if obs else "") + f"\n\nSe preferir algo mais clássico e tradicional, o **{alt}** também é uma excelente escolha."
+            f"Se quiser algo mais especial, o **{nome}** costuma ser uma ótima pedida ✨"
+        )
+        if perfil:
+            reply += f"\n\n{perfil}."
+        if obs:
+            reply += f"\n\n{obs}"
+        reply += f"\n\nSe preferir algo mais clássico e tradicional, o **{alt}** também é uma excelente escolha."
+        return reply
 
     if has_any(text_n, ["japones", "japonês", "japonesa", "sushi"]):
         item = japones or {}
@@ -1244,12 +1295,16 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-        return (
+
+        reply = (
             "Se a vontade for comida japonesa 🍣\n\n"
             f"Uma boa referência é o **{nome}**, que fica a cerca de **{dist}**."
-            + (f"\n\n{perfil}." if perfil else "")
-            + (f"\n\n{obs}" if obs else "")
         )
+        if perfil:
+            reply += f"\n\n{perfil}."
+        if obs:
+            reply += f"\n\n{obs}"
+        return reply
 
     if has_any(text_n, ["hamburguer", "hambúrguer", "lanche", "mcdonald", "mcdonald's", "burger"]):
         item = rapido or {}
@@ -1265,12 +1320,16 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-        return (
+
+        reply = (
             "Se a ideia for um doce ou uma lembrança gostosa 🍫\n\n"
             f"A **{nome}** fica a cerca de **{dist}**."
-            + (f"\n\n{perfil}." if perfil else "")
-            + (f"\n\n{obs}" if obs else "")
         )
+        if perfil:
+            reply += f"\n\n{perfil}."
+        if obs:
+            reply += f"\n\n{obs}"
+        return reply
 
     if restaurantes:
         linhas = []
@@ -1280,7 +1339,7 @@ def get_restaurantes_reply(text):
             dist = format_distance(r.get("distancia", ""))
             perfil = r.get("perfil", "")
             if tipo == "tradicional":
-                linhas.append(f"• **{nome}** → {perfil or 'clássico, tradicional e muito lembrado no Guarujá'}" + (" 🦐" if not perfil else "") )
+                linhas.append(f"• **{nome}** → {perfil or 'clássico, tradicional e muito lembrado no Guarujá'}")
             elif tipo == "especial":
                 linhas.append(f"• **{nome}** → {perfil or 'vibe mais especial e experiência mais sofisticada'} ✨")
             elif tipo == "japones":
@@ -1291,6 +1350,7 @@ def get_restaurantes_reply(text):
                 linhas.append(f"• **{nome}** → {perfil or 'chocolateria'}, a cerca de **{dist or '4 minutos de carro'}** 🍫")
             else:
                 linhas.append(f"• **{nome}**")
+
         return (
             "Boa 😄\n\n"
             "Aqui vão algumas boas referências por perto:\n\n"
@@ -1324,13 +1384,17 @@ def get_mercado_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="mercado", last_recommendation_name=nome)
-        return (
+
+        reply = (
             "Pra algo rápido 🛒\n\n"
             f"• **{nome}** → {dist}"
-            + (f"\n\n{perfil}." if perfil else "")
-            + (f"\n\n{obs}" if obs else "")
-            + "\n\nPerfeito pra água, bebida ou emergência 👍"
         )
+        if perfil:
+            reply += f"\n\n{perfil}."
+        if obs:
+            reply += f"\n\n{obs}"
+        reply += "\n\nPerfeito pra água, bebida ou emergência 👍"
+        return reply
 
     if has_any(text_n, ["completo", "grande", "variedade"]):
         if completos:
@@ -1340,6 +1404,7 @@ def get_mercado_reply(text):
                 dist = format_distance(m.get("distancia", ""))
                 perfil = m.get("perfil", "")
                 linhas.append(f"• **{nome}** → cerca de **{dist}**" + (f" | {perfil}" if perfil else ""))
+
             update_session(last_recommendation_type="mercado", last_recommendation_name=completos[0].get("nome", "Pão de Açúcar"))
             return (
                 "Se quiser um mercado mais completo:\n\n"
@@ -1388,12 +1453,15 @@ def get_padaria_reply():
     padaria = knowledge().get("padaria", {})
     perfil = padaria.get("perfil", "")
     obs = padaria.get("observacao", "")
-    return (
+    reply = (
         "Se você quiser padaria ou café da manhã 😊\n\n"
         f"Uma referência prática é a **{padaria.get('nome', 'Padaria Pitangueiras')}**, a cerca de **{padaria.get('distancia', '300m do apartamento')}**."
-        + (f"\n\n{perfil}." if perfil else "")
-        + (f"\n\n{obs}" if obs else "")
     )
+    if perfil:
+        reply += f"\n\n{perfil}."
+    if obs:
+        reply += f"\n\n{obs}"
+    return reply
 
 
 def get_farmacia_reply():
@@ -1440,6 +1508,19 @@ def get_zelador_reply():
 def get_checkout_reply(guest):
     checkout = guest.get("checkout") or knowledge().get("apartamento", {}).get("checkout", "11h")
     return f"O check-out está configurado para: **{checkout}** 😊"
+
+
+def get_checkout_aviso_reply(guest):
+    checkout = guest.get("checkout") or knowledge().get("apartamento", {}).get("checkout", "11h")
+    return (
+        f"Antes do check-out, peço por gentileza que verifiquem estes pontos 😊\n\n"
+        f"• Verifique se janelas e porta de entrada ficarão travadas\n"
+        f"• Favor retirar o lixo\n"
+        f"• Apague as luzes e desligue os ventiladores\n"
+        f"• Devolva as chaves na portaria do prédio\n"
+        f"• Não deixem louça suja\n\n"
+        f"O check-out está configurado para **{checkout}**."
+    )
 
 
 def get_bruno_reply():
@@ -1497,6 +1578,7 @@ def get_acqua_mundo_reply():
     ideal_text = ""
     if ideal:
         ideal_text = "\n\nIdeal para: " + ", ".join(ideal)
+
     return (
         f"Uma boa opção por aqui é o **{acqua.get('nome', 'Acqua Mundo')}** 😊\n\n"
         f"{acqua.get('observacao', 'Costuma funcionar muito bem para famílias e também em dias de chuva.')}"
@@ -1529,6 +1611,7 @@ def get_surf_reply():
                 extra.append(p.get("observacao"))
             extra_text = f" ({'; '.join(extra)})" if extra else ""
             linhas.append(f"• **{p.get('nome', '')}** → {p.get('perfil', '')}{extra_text}")
+
         return (
             "Se você curte surf, posso te ajudar com uma orientação geral sobre os picos mais lembrados por aqui 🌊\n\n"
             + "\n".join(linhas)
@@ -1661,15 +1744,20 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["mais perto", "perto"]):
             item = best_closest_item(restaurantes)
             if item:
-                return (
-                    f"Se a prioridade for proximidade, eu iria no **{item.get('nome', '')}**, que fica a cerca de **{format_distance(item.get('distancia', ''))}**.\n\n"
-                    + (f"{item.get('perfil', '')}.\n\n" if item.get("perfil") else "")
-                    + "Se quiser, eu também posso te dizer qual eu escolheria pelo custo-benefício."
+                reply = (
+                    f"Se a prioridade for proximidade, eu iria no **{item.get('nome', '')}**, que fica a cerca de **{format_distance(item.get('distancia', ''))}**."
                 )
+                if item.get("perfil"):
+                    reply += f"\n\n{item.get('perfil')}."
+                reply += "\n\nSe quiser, eu também posso te dizer qual eu escolheria pelo custo-benefício."
+                return reply
+
         if has_any(text_n, ["mais barato", "barato", "economico", "econômico", "leve"]):
             return get_restaurantes_reply("barato")
+
         if has_any(text_n, ["mais especial", "especial", "romantico", "romântico", "sofisticado"]):
             return get_restaurantes_reply("especial")
+
         if has_any(text_n, ["qual melhor", "qual voce indica", "qual você indica", "qual vc indica", "qual voce recomenda", "qual você recomenda", "qual vc recomenda", "compensa", "vale a pena"]):
             return (
                 "Se eu tivesse que te direcionar sem erro 😊\n\n"
@@ -1678,22 +1766,28 @@ def get_followup_reply(text, last_topic, guest):
                 "• **McDonald's** → se a ideia for praticidade\n"
                 "• **Sushi Katoshi** → se estiver com vontade de japonês 🍣"
             )
+
         if text_n in ["esse", "essa", "pode ser", "quero esse", "quero essa"] and last_rec_name:
             return f"Boa escolha 😄\n\nSe eu fosse por esse caminho, iria de **{last_rec_name}**."
 
     if topic == "mercado":
         mercados = get_markets_data()
+
         if has_any(text_n, ["mais completo", "completo", "grande", "variedade"]):
             return get_mercado_reply("completo")
+
         if has_any(text_n, ["mais perto", "perto", "rapido", "rápido"]):
             item = best_closest_item(mercados)
             if item:
-                return (
-                    f"Se a prioridade for praticidade, eu iria no **{item.get('nome', '')}**, que fica **{format_distance(item.get('distancia', ''))}**.\n\n"
-                    + (f"{item.get('perfil', '')}.\n\n" if item.get("perfil") else "")
-                    + "É a melhor opção para resolver algo rápido."
+                reply = (
+                    f"Se a prioridade for praticidade, eu iria no **{item.get('nome', '')}**, que fica **{format_distance(item.get('distancia', ''))}**."
                 )
+                if item.get("perfil"):
+                    reply += f"\n\n{item.get('perfil')}."
+                reply += "\n\nÉ a melhor opção para resolver algo rápido."
+                return reply
             return get_mercado_reply("rapido")
+
         if has_any(text_n, ["qual melhor", "qual voce recomenda", "qual você recomenda", "qual vc recomenda", "compensa"]):
             return (
                 "Depende do que você precisa 😊\n\n"
@@ -1721,6 +1815,7 @@ def get_followup_reply(text, last_topic, guest):
             if calm:
                 return f"Se a ideia for algo mais tranquilo, eu começaria por **{calm.get('nome', '')}** → {calm.get('perfil', '')} 😊"
             return "Se a ideia for algo mais tranquilo, eu priorizaria uma saída leve, sem muita agitação, só pra curtir a noite com calma 😊"
+
         if has_any(text_n, ["mais animado", "animado"]):
             return "Se vocês quiserem algo mais animado, eu buscaria uma opção mais voltada para noite e movimento na orla 🍻"
 
@@ -2071,7 +2166,7 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "wifi", get_wifi_reply(), remembered, intent_for_session="wifi")
 
     if intent == "regras":
-        return finalize_and_log(guest, text_raw, "regras", get_regras_reply(), remembered, intent_for_session="regras")
+        return finalize_and_log(guest, text_raw, "regras", get_regras_reply(text_raw), remembered, intent_for_session="regras")
 
     if intent == "praia_local":
         return finalize_and_log(guest, text_raw, "praia", get_servico_praia_localizacao_reply(), remembered, intent_for_session="praia_local")
@@ -2110,7 +2205,16 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "chaves", get_chaves_reply(), remembered, intent_for_session="chaves")
 
     if intent == "checkout":
-        return finalize_and_log(guest, text_raw, "checkout", get_checkout_reply(guest), remembered, intent_for_session="checkout")
+        if has_any(text, [
+            "antes do checkout", "antes do check-out",
+            "ir embora", "antes de sair", "o que fazer antes de sair",
+            "avisos antes do checkout", "preciso fazer algo antes de sair"
+        ]):
+            reply = get_checkout_aviso_reply(guest)
+        else:
+            reply = get_checkout_reply(guest)
+
+        return finalize_and_log(guest, text_raw, "checkout", reply, remembered, intent_for_session="checkout")
 
     if intent == "bruno":
         return finalize_and_log(guest, text_raw, "bruno", get_bruno_reply(), remembered, intent_for_session="bruno")
