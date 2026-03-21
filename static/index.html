@@ -22,7 +22,6 @@
   --user:#d9ebff;
   --bot:#ffffff;
   --shadow:0 10px 30px rgba(33, 79, 140, 0.08);
-  --header-h:150px;
 }
 
 *{ box-sizing:border-box; }
@@ -48,8 +47,8 @@ body{
   position:relative;
   width:100%;
   max-width:680px;
-  height:100dvh;
-  min-height:100dvh;
+  height:100svh;
+  min-height:100svh;
   display:flex;
   flex-direction:column;
   background:linear-gradient(180deg, #edf5ff 0%, #e4f0ff 100%);
@@ -65,7 +64,7 @@ body{
   background-repeat:no-repeat;
   background-position:center 72%;
   background-size:72%;
-  opacity:.08;
+  opacity:.11;
   pointer-events:none;
   z-index:0;
 }
@@ -94,6 +93,20 @@ body{
 
 .brand{
   min-width:0;
+}
+
+.brand-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.brand-sticker{
+  width:44px;
+  height:44px;
+  object-fit:contain;
+  flex:0 0 auto;
+  filter:drop-shadow(0 3px 8px rgba(33, 79, 140, 0.10));
 }
 
 .brand h1{
@@ -312,6 +325,11 @@ button.send:hover{
     max-width:140px;
   }
 
+  .brand-sticker{
+    width:38px;
+    height:38px;
+  }
+
   .quick{
     grid-template-columns:1fr 1fr;
   }
@@ -333,7 +351,7 @@ button.send:hover{
   .app::before{
     background-size:88%;
     background-position:center 76%;
-    opacity:.075;
+    opacity:.10;
   }
 }
 </style>
@@ -346,8 +364,11 @@ button.send:hover{
   <div class="header">
     <div class="header-top">
       <div class="brand">
-        <h1>Gepetto</h1>
-        <p>🏖️ Concierge do Apto 14B à sua disposição!</p>
+        <div class="brand-title">
+          <img class="brand-sticker" src="/static/gepetto-sticker.png" alt="Gepetto" onerror="this.style.display='none'">
+          <h1>Gepetto</h1>
+        </div>
+        <p>Concierge do Apto 14B à sua disposição!</p>
       </div>
 
       <div class="host-note">Hospedagem administrada por Bruno Bressanin</div>
@@ -476,8 +497,16 @@ window.addEventListener("load", () => {
   setTimeout(() => scrollToBottom(true), 80);
 });
 
-window.addEventListener("resize", () => {
-  setTimeout(() => scrollToBottom(true), 120);
+const input = document.getElementById("msg");
+
+input.addEventListener("focus", () => {
+  setTimeout(() => {
+    const chat = document.getElementById("chat");
+    chat.scrollTo({
+      top: chat.scrollHeight,
+      behavior: "smooth"
+    });
+  }, 250);
 });
 
 start();
