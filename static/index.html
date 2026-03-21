@@ -22,14 +22,11 @@
   --user:#d9ebff;
   --bot:#ffffff;
   --shadow:0 10px 30px rgba(33, 79, 140, 0.08);
-  --app-height:100svh;
 }
 
 *{ box-sizing:border-box; }
 
 html, body{
-  position:fixed;
-  inset:0;
   margin:0;
   padding:0;
   width:100%;
@@ -49,13 +46,12 @@ body{
 }
 
 .app{
-  position:fixed;
-  inset:0;
+  position:relative;
   width:100%;
   max-width:680px;
   margin:0 auto;
-  height:var(--app-height, 100svh);
-  min-height:var(--app-height, 100svh);
+  height:100svh;
+  min-height:100svh;
   display:flex;
   flex-direction:column;
   background:linear-gradient(180deg, #edf5ff 0%, #e4f0ff 100%);
@@ -438,11 +434,6 @@ button.send:hover{
 </div>
 
 <script>
-function setAppHeight(){
-  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  document.documentElement.style.setProperty('--app-height', `${vh}px`);
-}
-
 function format(text){
   return (text || "")
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -542,18 +533,8 @@ async function start(){
   }
 }
 
-setAppHeight();
-
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', setAppHeight);
-  window.visualViewport.addEventListener('scroll', setAppHeight);
-} else {
-  window.addEventListener('resize', setAppHeight);
-}
-
 window.addEventListener("load", () => {
   setTimeout(() => {
-    setAppHeight();
     scrollToBottom(true);
   }, 80);
 });
