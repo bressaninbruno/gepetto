@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>🏖️ Gepetto</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,11 +22,14 @@
   --user:#d9ebff;
   --bot:#ffffff;
   --shadow:0 10px 30px rgba(33, 79, 140, 0.08);
+  --app-height:100svh;
 }
 
 *{ box-sizing:border-box; }
 
 html, body{
+  position:fixed;
+  inset:0;
   margin:0;
   padding:0;
   width:100%;
@@ -36,19 +39,23 @@ html, body{
   color:var(--text);
   -webkit-text-size-adjust:100%;
   overflow:hidden;
+  touch-action:manipulation;
 }
 
 body{
   display:flex;
   justify-content:center;
+  overscroll-behavior:none;
 }
 
 .app{
-  position:relative;
+  position:fixed;
+  inset:0;
   width:100%;
   max-width:680px;
-  height:100svh;
-  min-height:100svh;
+  margin:0 auto;
+  height:var(--app-height, 100svh);
+  min-height:var(--app-height, 100svh);
   display:flex;
   flex-direction:column;
   background:linear-gradient(180deg, #edf5ff 0%, #e4f0ff 100%);
@@ -64,7 +71,7 @@ body{
   background-repeat:no-repeat;
   background-position:center 72%;
   background-size:72%;
-  opacity:.13;
+  opacity:.11;
   pointer-events:none;
   z-index:0;
 }
@@ -195,6 +202,7 @@ body{
   overflow-y:auto;
   overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
   scroll-behavior:smooth;
   padding:14px 14px 120px;
   display:flex;
@@ -235,7 +243,7 @@ body{
 }
 
 .msg{
-  max-width:82%;
+  max-width:86%;
   padding:12px 14px;
   border-radius:18px;
   font-size:14px;
@@ -246,6 +254,7 @@ body{
 }
 
 .msg.bot{
+  max-width:82%;
   background:rgba(255,255,255,0.96);
   border:1px solid var(--border);
   color:var(--text);
@@ -253,6 +262,7 @@ body{
 }
 
 .msg.user{
+  max-width:90%;
   background:var(--user);
   border:1px solid #bdd6f7;
   color:var(--text);
@@ -295,6 +305,7 @@ body{
   line-height:1.2;
   padding:10px 8px;
   min-width:0;
+  transform:translateZ(0);
 }
 
 #msg::placeholder{
@@ -365,8 +376,15 @@ button.send:hover{
   }
 
   .msg{
-    max-width:88%;
     font-size:14px;
+  }
+
+  .msg.bot{
+    max-width:88%;
+  }
+
+  .msg.user{
+    max-width:92%;
   }
 
   .bot-wrap{
@@ -420,6 +438,11 @@ button.send:hover{
 </div>
 
 <script>
+function setAppHeight(){
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  document.documentElement.style.setProperty('--app-height', `${vh}px`);
+}
+
 function format(text){
   return (text || "")
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -519,8 +542,20 @@ async function start(){
   }
 }
 
+setAppHeight();
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', setAppHeight);
+  window.visualViewport.addEventListener('scroll', setAppHeight);
+} else {
+  window.addEventListener('resize', setAppHeight);
+}
+
 window.addEventListener("load", () => {
-  setTimeout(() => scrollToBottom(true), 80);
+  setTimeout(() => {
+    setAppHeight();
+    scrollToBottom(true);
+  }, 80);
 });
 
 start();
