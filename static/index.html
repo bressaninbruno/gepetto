@@ -532,12 +532,14 @@ async function start(){
     const data = await res.json();
 
     const partes = (data.message || "").split("\n\n").filter(Boolean);
-    partes.forEach(p => add("bot", p));
-    scrollToBottom(true);
+    partes.forEach(p => add("bot", p, false));
+
+    const chat = document.getElementById("chat");
+    chat.scrollTop = 0;
   }catch(e){
     console.error("Erro no start:", e);
-    add("bot", "Olá 😊 Eu sou o Gepetto.");
-    scrollToBottom(true);
+    add("bot", "Olá 😊 Eu sou o Gepetto.", false);
+    document.getElementById("chat").scrollTop = 0;
   }
 }
 
