@@ -200,7 +200,7 @@ body{
   -webkit-overflow-scrolling:touch;
   overscroll-behavior:contain;
   scroll-behavior:smooth;
-  padding:14px 14px 120px;
+  padding:24px 14px 120px;
   display:flex;
   flex-direction:column;
   gap:12px;
@@ -457,7 +457,7 @@ function scrollToBottom(force = false){
   });
 }
 
-function add(role, text){
+function add(role, text, shouldScroll = true){
   const chat = document.getElementById("chat");
   let html = "";
 
@@ -477,6 +477,13 @@ function add(role, text){
       </div>
     `;
   }
+
+  chat.insertAdjacentHTML("beforeend", html);
+
+  if (shouldScroll) {
+    scrollToBottom();
+  }
+}
 
   chat.insertAdjacentHTML("beforeend", html);
   scrollToBottom();
