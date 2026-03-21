@@ -367,9 +367,9 @@ button.send:hover{
   }
 
   .quick button{
-   font-size:12.5px;
-   min-height:32px;
-   padding:5px 8px;
+    font-size:12.5px;
+    min-height:32px;
+    padding:5px 8px;
   }
 
   .msg{
@@ -485,10 +485,6 @@ function add(role, text, shouldScroll = true){
   }
 }
 
-  chat.insertAdjacentHTML("beforeend", html);
-  scrollToBottom();
-}
-
 function quick(q){
   document.getElementById("msg").value = q;
   send();
@@ -545,7 +541,7 @@ async function start(){
 
 window.addEventListener("load", () => {
   setTimeout(() => {
-    scrollToBottom(true);
+    document.getElementById("chat").scrollTop = 0;
   }, 80);
 });
 
