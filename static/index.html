@@ -99,6 +99,7 @@ body{
   display:flex;
   align-items:center;
   gap:8px;
+  flex-wrap:wrap;
 }
 
 .brand-sticker{
@@ -118,6 +119,21 @@ body{
   font-weight:400;
   color:var(--accent);
   text-shadow:0 2px 0 rgba(255,255,255,0.65);
+}
+
+.beta-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:3px 8px;
+  border-radius:999px;
+  background:rgba(47, 111, 179, 0.10);
+  border:1px solid rgba(47, 111, 179, 0.18);
+  color:var(--accent);
+  font-size:11px;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:.2px;
 }
 
 .brand p{
@@ -180,7 +196,7 @@ body{
   overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
   scroll-behavior:smooth;
-  padding:14px 14px 10px;
+  padding:14px 14px 120px;
   display:flex;
   flex-direction:column;
   gap:12px;
@@ -245,9 +261,13 @@ body{
 
 /* INPUT */
 #inputWrap{
-  position:sticky;
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
   bottom:0;
   z-index:25;
+  width:100%;
+  max-width:680px;
   padding:10px 12px calc(10px + env(safe-area-inset-bottom));
   background:rgba(248, 251, 255, 0.95);
   backdrop-filter:blur(12px);
@@ -330,6 +350,11 @@ button.send:hover{
     height:38px;
   }
 
+  .beta-badge{
+    font-size:10px;
+    padding:3px 7px;
+  }
+
   .quick{
     grid-template-columns:1fr 1fr;
   }
@@ -367,6 +392,7 @@ button.send:hover{
         <div class="brand-title">
           <img class="brand-sticker" src="/static/gepetto-sticker.png" alt="Gepetto" onerror="this.style.display='none'">
           <h1>Gepetto</h1>
+          <span class="beta-badge">v1.01 beta</span>
         </div>
         <p>Concierge do Apto 14B à sua disposição!</p>
       </div>
@@ -495,18 +521,6 @@ async function start(){
 
 window.addEventListener("load", () => {
   setTimeout(() => scrollToBottom(true), 80);
-});
-
-const input = document.getElementById("msg");
-
-input.addEventListener("focus", () => {
-  setTimeout(() => {
-    const chat = document.getElementById("chat");
-    chat.scrollTo({
-      top: chat.scrollHeight,
-      behavior: "smooth"
-    });
-  }, 250);
 });
 
 start();
