@@ -874,8 +874,8 @@ def infer_contextual_followup(text_raw, last_topic):
         "qual vc recomenda", "mais tranquilo", "mais animado",
         "vale a pena", "compensa", "e esse", "e essa",
         "supermercados", "mercados", "outro mercado", "outros mercados",
-        "outro restaurante", "outros restaurantes", "restaurantes",
-        "farmacia", "farmácia", "upa", "hospital"
+        "restaurantes", "outro restaurante", "outros restaurantes",
+        "farmacia", "farmácia", "upa", "hospital", "todos"
     ]):
         return last_topic
 
@@ -886,8 +886,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "esse", "essa", "entao", "então", "vc indica",
         "localizacao", "localização", "horario", "horário",
         "servico", "serviço", "envie", "manda", "pode mandar",
-        "farmacia", "farmácia", "upa", "hospital",
-        "restaurantes"
+        "farmacia", "farmácia", "upa", "hospital", "todos"
     ]
     if text_n in very_short_contextual:
         return last_topic
@@ -914,7 +913,7 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "vc indica", "vcs indicam", "envie", "enviar", "mandar", "mande",
         "pode avisar", "avise", "avisar", "encaminhe", "encaminhar",
         "rapido", "rápido", "em conta", "farmacia", "farmácia", "upa", "hospital",
-        "restaurantes", "outros restaurantes"
+        "restaurantes", "outros restaurantes", "todos"
     ]
     if text_n in exact_short:
         return True
@@ -946,7 +945,9 @@ def score_intents(text_raw, last_topic=""):
     ]):
         add("localizacao", 11)
 
-    if has_any(text_n, ["upa", "hospital", "hospital santo amaro", "upa enseada"]):
+    if has_any(text_n, [
+        "upa", "hospital", "hospital santo amaro", "upa enseada"
+    ]):
         add("localizacao", 10)
 
     if has_any(text_n, [
@@ -995,11 +996,7 @@ def score_intents(text_raw, last_topic=""):
 
     if has_any(text_n, [
         "restaurante", "restaurantes", "outro restaurante", "outros restaurantes",
-        "jantar", "almoco", "almoço", "comer", "comida", "fome",
-        "sushi", "japones", "japonês", "japonesa", "lanche",
-        "hamburguer", "hambúrguer", "chocolate", "sobremesa", "doce",
-        "kopenhagen", "mcdonald", "mcdonald's", "burger",
-        "em conta", "mais em conta"
+        "almoco", "almoço", "jantar", "comer", "comida", "fome"
     ]):
         add("restaurantes", 9)
 
@@ -1014,11 +1011,22 @@ def score_intents(text_raw, last_topic=""):
     if phrase_in_text(text_n, "dia") and last_topic == "mercado":
         add("mercado", 7)
 
-    if has_any(text_n, ["padaria", "padarias", "cafe da manha", "café da manhã", "cafe", "café", "cafes", "cafés"]):
+    if has_any(text_n, ["padaria", "padarias", "cafe da manha", "café da manhã", "cafe", "café"]):
         add("padaria", 8)
 
-    if has_any(text_n, ["farmacia", "farmácia", "farmacias", "farmácias", "remedio", "remédio", "remedios", "remédios", "dor de cabeca", "dor de cabeça", "droga raia"]):
+    if has_any(text_n, ["farmacia", "farmácia", "farmacias", "farmácias", "remedio", "remédio", "dor de cabeca", "dor de cabeça", "droga raia"]):
         add("farmacia", 8)
+
+    if has_any(text_n, [
+        "quem contactar no predio", "quem contactar no prédio",
+        "quem pode ajudar no predio", "quem pode ajudar no prédio",
+        "auxilio no predio", "auxílio no prédio",
+        "apoio no predio", "apoio no prédio",
+        "funcionarios do predio", "funcionários do prédio",
+        "quem me ajuda no predio", "quem me ajuda no prédio",
+        "portaria pode ajudar", "ajuda no predio", "ajuda no prédio"
+    ]):
+        add("apoio_predio", 9)
 
     if has_any(text_n, ["garagem", "vaga", "estacionar", "estacionamento", "trocar de vaga"]):
         add("garagem", 9)
@@ -1061,8 +1069,8 @@ def score_intents(text_raw, last_topic=""):
     if has_any(text_n, ["surf", "ondas", "mar", "pico de surf", "surfar"]):
         add("surf", 8)
 
-    if has_any(text_n, ["zelador", "paulo", "funcionario", "funcionário", "alguem no predio", "alguém no prédio"]):
-        add("zelador", 8)
+    if has_any(text_n, ["zelador", "paulo", "claudio", "cláudio", "edson", "funcionario", "funcionário", "alguem no predio", "alguém no prédio"]):
+        add("apoio_predio", 8)
 
     contextual = infer_contextual_followup(text_raw, last_topic)
     if contextual:
@@ -1079,8 +1087,8 @@ def infer_primary_intent(text_raw, last_topic=""):
     priority = [
         "incidente", "saude", "localizacao", "wifi", "regras", "praia_local",
         "praia", "chaves", "restaurantes", "mercado", "tempo", "padaria", "farmacia",
-        "garagem", "checkout", "roteiro", "surf", "bares", "shopping", "feira",
-        "passeio", "eventos", "zelador", "bruno", "identidade"
+        "apoio_predio", "garagem", "checkout", "roteiro", "surf", "bares", "shopping",
+        "feira", "passeio", "eventos", "bruno", "identidade"
     ]
 
     best_score = max(scores.values())
@@ -1890,6 +1898,40 @@ def get_farmacia_reply():
     return reply
 
 
+def get_apoio_predio_reply():
+    apoio = knowledge().get("apoio_predio", {})
+    pessoas = apoio.get("pessoas", [])
+    fechamento = apoio.get("fechamento", "")
+    intro = apoio.get("intro", "Se precisar de apoio no prédio, vocês podem contar com a equipe por aqui 😊")
+
+    if pessoas:
+        linhas = []
+        for p in pessoas:
+            nome = p.get("nome", "")
+            funcao = p.get("funcao", "")
+            obs = p.get("observacao", "")
+
+            linha = f"• **{nome}**"
+            if funcao:
+                linha += f" → {funcao}"
+            if obs:
+                linha += f" ({obs})"
+            linhas.append(linha)
+
+        reply = f"{intro}\n\n" + "\n".join(linhas)
+        if fechamento:
+            reply += f"\n\n{fechamento}"
+        return reply
+
+    return (
+        "Se precisar de apoio no prédio, vocês podem contar com a equipe por aqui 😊\n\n"
+        "O **Paulo**, que é o zelador, pode ajudar, assim como outros funcionários do condomínio, como o **Cláudio** e o **Edson**.\n"
+        "O **Edson** fica no período **noturno na portaria**.\n\n"
+        "Se quiser, eu também posso te orientar sobre quando vale falar com a portaria, com a equipe do prédio ou comigo por aqui.\n\n"
+        "**E, se for necessário, também posso avisar rapidamente o seu anfitrião, Bruno.**"
+    )
+
+
 def get_garagem_reply():
     garagem = knowledge().get("garagem", {})
     info = garagem.get("info", "")
@@ -1917,11 +1959,7 @@ def get_chaves_reply():
 
 
 def get_zelador_reply():
-    cond = knowledge().get("condominio", {})
-    nome = cond.get("zelador", "Paulo")
-    msg = cond.get("mensagem", "Caso vocês precisem de algum auxílio, podem contar com ele.")
-    obs = cond.get("observacao", "")
-    return f"Se precisar de auxílio no prédio, você pode contar com o zelador, o {nome} 😊\n\n{msg}" + (f"\n\n{obs}" if obs else "")
+    return get_apoio_predio_reply()
 
 
 def get_checkout_reply(guest):
@@ -1977,19 +2015,33 @@ def notify_bruno_request(guest, raw_message=""):
 
 def get_health_reply(text):
     sev = classify_health(text)
+    text_n = normalize_text(text)
+
     if sev == "alta":
         return (
             "Isso parece importante ⚠️\n\n"
             "Se for uma situação urgente, priorize atendimento imediato.\n\n"
             "Posso te orientar rapidamente para **UPA**, **hospital** ou **farmácia**."
         )
+
+    if has_any(text_n, ["todos"]):
+        return (
+            "Claro 😊\n\n"
+            "Aqui vão as opções de apoio à saúde na região:\n\n"
+            "• **farmácia** → opção prática para medicação e itens básicos\n"
+            "• **UPA** → atendimento de urgência mais próximo\n"
+            "• **hospital** → atendimento hospitalar\n\n"
+            "Se quiser, eu posso te detalhar qualquer uma delas."
+        )
+
     return (
         "Entendi 😕\n\n"
         "Se você não estiver se sentindo bem, posso te orientar para:\n"
         "• **farmácia**\n"
         "• **UPA**\n"
         "• **hospital**\n\n"
-        "É só me responder com uma dessas opções e eu sigo por aqui 👍"
+        "É só me responder com uma dessas opções e eu sigo por aqui 👍\n\n"
+        "Se preferir, também pode responder **todos**."
     )
 
 
@@ -2200,6 +2252,9 @@ def get_followup_reply(text, last_topic, guest):
     if topic == "restaurantes":
         restaurantes = get_restaurants_data()
 
+        if has_any(text_n, ["todos"]):
+            return get_restaurantes_reply("restaurantes")
+
         if has_any(text_n, ["outro restaurante", "outros restaurantes", "restaurantes"]):
             return get_restaurantes_reply("restaurantes")
 
@@ -2233,8 +2288,11 @@ def get_followup_reply(text, last_topic, guest):
     if topic == "mercado":
         mercados = get_markets_data()
 
+        if has_any(text_n, ["todos"]):
+            return get_mercado_reply("mercados")
+
         if has_any(text_n, ["outro mercado", "outros mercados", "outras opcoes", "outras opções", "supermercados", "mercados"]):
-            return get_mercado_reply("completo")
+            return get_mercado_reply("mercados")
 
         if has_any(text_n, ["mais completo", "completo", "grande", "variedade"]):
             return get_mercado_reply("completo")
@@ -2258,6 +2316,8 @@ def get_followup_reply(text, last_topic, guest):
             )
 
     if topic == "saude":
+        if has_any(text_n, ["todos"]):
+            return get_health_reply("todos")
         if has_any(text_n, ["farmacia", "farmácia"]):
             return get_farmacia_reply()
         if has_any(text_n, ["upa"]):
@@ -2327,7 +2387,8 @@ def get_guided_reply(intent):
             "Pra eu te direcionar melhor, você quer algo:\n"
             "• mais **rápido**\n"
             "• mais **especial**\n"
-            "• ou mais **em conta**?"
+            "• ou mais **em conta**?\n\n"
+            "Se preferir, também pode responder **todos**."
         )
 
     if intent == "mercado":
@@ -2335,7 +2396,8 @@ def get_guided_reply(intent):
             "Posso te ajudar nisso 👍\n\n"
             "Você quer algo:\n"
             "• **rápido**\n"
-            "• ou um mercado mais **completo**?"
+            "• ou um mercado mais **completo**?\n\n"
+            "Se preferir, também pode responder **todos**."
         )
 
     if intent == "bares":
@@ -2352,6 +2414,16 @@ def get_guided_reply(intent):
             "• **localização**\n"
             "• **horário**\n"
             "• ou como funciona o **serviço de praia**?"
+        )
+
+    if intent == "saude":
+        return (
+            "Entendi 😕\n\n"
+            "Posso te orientar para:\n"
+            "• **farmácia**\n"
+            "• **UPA**\n"
+            "• **hospital**\n\n"
+            "Se preferir, também pode responder **todos**."
         )
 
     return ""
@@ -2674,12 +2746,16 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "localizacao", get_localizacao_reply(text_raw), remembered, intent_for_session="localizacao")
 
     if intent == "saude":
-        base_reply = get_health_reply(text_raw)
+        if len(text.split()) <= 3 and has_any(text, ["doente", "mal", "passando mal", "saude", "saúde"]):
+            reply = get_guided_reply("saude")
+        else:
+            reply = get_health_reply(text_raw)
+
         ok, _ = maybe_notify("saude", text_raw, guest, classify_health(text_raw))
         if ok:
-            reply = base_reply + "\n\nJá deixei isso sinalizado por aqui e enviei uma solicitação de acompanhamento ao Bruno. Ele entrará em contato com você o quanto antes 😊"
+            reply = reply + "\n\nJá deixei isso sinalizado por aqui e enviei uma solicitação de acompanhamento ao Bruno. Ele entrará em contato com você o quanto antes 😊"
         else:
-            reply = base_reply + "\n\nJá deixei isso sinalizado por aqui, mas não consegui enviar a solicitação de acompanhamento ao Bruno neste momento."
+            reply = reply + "\n\nJá deixei isso sinalizado por aqui, mas não consegui enviar a solicitação de acompanhamento ao Bruno neste momento."
         return finalize_and_log(guest, text_raw, "saude", reply, remembered, intent_for_session="saude")
 
     if intent == "incidente":
@@ -2735,6 +2811,9 @@ def gepetto_responde(msg):
     if intent == "farmacia":
         return finalize_and_log(guest, text_raw, "farmacia", get_farmacia_reply(), remembered, intent_for_session="farmacia")
 
+    if intent == "apoio_predio":
+        return finalize_and_log(guest, text_raw, "apoio_predio", get_apoio_predio_reply(), remembered, intent_for_session="apoio_predio")
+
     if intent == "garagem":
         return finalize_and_log(guest, text_raw, "garagem", get_garagem_reply(), remembered, intent_for_session="garagem")
 
@@ -2779,9 +2858,6 @@ def gepetto_responde(msg):
 
     if intent == "surf":
         return finalize_and_log(guest, text_raw, "surf", get_surf_reply(), remembered, intent_for_session="surf")
-
-    if intent == "zelador":
-        return finalize_and_log(guest, text_raw, "zelador", get_zelador_reply(), remembered, intent_for_session="zelador")
 
     reply = get_fallback_reply(guest)
     return finalize_and_log(guest, text_raw, "fallback", reply, remembered, intent_for_session="fallback")
