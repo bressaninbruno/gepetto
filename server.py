@@ -1200,6 +1200,49 @@ def weather_code_to_text(code):
     return mapping.get(code, "tempo variável")
 
 
+def build_weather_recommendation(temp=None, apparent=None, weather_code=None, weather_text="", rain=None):
+    text = normalize_text(weather_text)
+
+    rainy_codes = [51, 53, 55, 61, 63, 65, 80, 81, 82, 95]
+    is_rainy = (
+        (isinstance(rain, (int, float)) and rain > 0)
+        or (weather_code in rainy_codes)
+        or has_any(text, ["chuva", "garoa", "pancadas", "trovoadas", "instavel", "instável"])
+    )
+
+    base_temp = None
+    if isinstance(apparent, (int, float)):
+        base_temp = apparent
+    elif isinstance(temp, (int, float)):
+        base_temp = temp
+
+    is_hot = base_temp is not None and base_temp >= 28
+    is_very_hot = base_temp is not None and base_temp >= 30
+    is_cold = base_temp is not None and base_temp <= 22
+
+    if is_hot and is_rainy:
+        if is_very_hot:
+            return "\n\n**Não esqueça do protetor solar** e, se for sair, **um guarda-chuva pode ajudar** se o tempo virar. ☀️☔"
+        return "\n\n**Vale usar protetor solar** e, se for sair, **levar um guarda-chuva** também. ☀️☔"
+
+    if is_cold and is_rainy:
+        return "\n\n**Recomendo se agasalhar** e **levar guarda-chuva** se for sair. 🧥☔"
+
+    if is_very_hot:
+        return "\n\n**Não esqueça do protetor solar** e tente se hidratar bem ao longo do dia. ☀️"
+
+    if is_hot:
+        return "\n\n**Vale usar protetor solar** se você for sair durante o dia. ☀️"
+
+    if is_cold:
+        return "\n\n**Recomendo se agasalhar** se for sair, principalmente no começo da manhã, à noite ou se ventar mais. 🧥"
+
+    if is_rainy:
+        return "\n\n**Um guarda-chuva é recomendado** se você for sair. ☔"
+
+    return ""
+
+
 def get_weather_reply():
     k = knowledge()
     clima = k.get("clima", {})
@@ -1240,7 +1283,8 @@ def get_weather_reply():
             chuva_hint = "\n\nSe quiser, hoje faz sentido pensar em algo fora da praia ou sair com mais flexibilidade ☔"
 
         referencia = clima.get("referencia", "região")
-        return (
+
+        weather_response = (
             f"🌦️ **Clima agora na {referencia}**\n\n"
             f"• Condição: {cond}\n"
             f"• Temperatura: **{temp}°C**\n"
@@ -1248,6 +1292,17 @@ def get_weather_reply():
             f"• Vento: **{wind} km/h**"
             f"{chuva_hint}"
         )
+
+        weather_tip = build_weather_recommendation(
+            temp=temp,
+            apparent=apparent,
+            weather_code=code,
+            weather_text=weather_response,
+            rain=rain
+        )
+
+        return weather_response + weather_tip
+
     except Exception:
         return (
             "No momento eu não consegui consultar a previsão em tempo real 🌦️\n\n"
