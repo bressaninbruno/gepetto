@@ -139,6 +139,8 @@ def default_session():
         "last_recommendation_type": "",
         "last_recommendation_name": "",
         "pending_bruno_contact": False,
+        "pending_incident_context": False,
+        "last_incident_context": "",
         "updated_at": ""
     }
 
@@ -188,6 +190,17 @@ def update_session(
 def set_bruno_pending(value: bool):
     sess = load_session()
     sess["pending_bruno_contact"] = value
+    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    save_session(sess)
+
+
+def set_incident_pending(value: bool, context: str = ""):
+    sess = load_session()
+    sess["pending_incident_context"] = value
+    if context:
+        sess["last_incident_context"] = context
+    elif not value:
+        sess["last_incident_context"] = ""
     sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
     save_session(sess)
 
@@ -242,7 +255,7 @@ def update_guest_insights(message):
         inc("japones")
     if has_any(msg, ["mercado", "supermercado", "mercados", "supermercados", "compras", "mercado dia", "supermercado dia", "dia"]):
         inc("mercado")
-    if has_any(msg, ["praia", "guarda-sol", "cadeira de praia"]):
+    if has_any(msg, ["praia", "praias", "guarda-sol", "cadeira de praia"]):
         inc("praia")
     if has_any(msg, ["bar", "bares", "cerveja", "drink", "drinks", "noite"]):
         inc("noite")
@@ -250,7 +263,7 @@ def update_guest_insights(message):
         inc("doce")
     if has_any(msg, ["surf", "ondas", "surfar"]):
         inc("surf")
-    if has_any(msg, ["restaurante", "comer", "jantar", "almoco", "almoço"]):
+    if has_any(msg, ["restaurante", "restaurantes", "comer", "jantar", "almoco", "almoço"]):
         inc("restaurantes")
 
     write_json(INSIGHT_FILE, insights)
@@ -464,7 +477,7 @@ def update_guest_preferences(text_raw):
         inc("restaurantes")
     if has_any(text_n, ["doce", "sobremesa", "chocolate", "kopenhagen"]):
         inc("doce")
-    if has_any(text_n, ["praia", "guarda-sol", "servico de praia", "serviço de praia"]):
+    if has_any(text_n, ["praia", "praias", "guarda-sol", "servico de praia", "serviço de praia"]):
         inc("praia")
     if has_any(text_n, ["mercado", "mercados", "supermercado", "supermercados", "compras", "mercado dia", "supermercado dia", "dia"]):
         inc("mercado")
@@ -472,7 +485,7 @@ def update_guest_preferences(text_raw):
         inc("surf")
     if has_any(text_n, ["bar", "bares", "drink", "drinks", "cerveja", "noite"]):
         inc("noite")
-    if has_any(text_n, ["restaurante", "comer", "jantar", "almoco", "almoço"]):
+    if has_any(text_n, ["restaurante", "restaurantes", "comer", "jantar", "almoco", "almoço"]):
         inc("restaurantes")
 
     guest["preferencias"] = prefs
@@ -861,6 +874,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "qual vc recomenda", "mais tranquilo", "mais animado",
         "vale a pena", "compensa", "e esse", "e essa",
         "supermercados", "mercados", "outro mercado", "outros mercados",
+        "outro restaurante", "outros restaurantes", "restaurantes",
         "farmacia", "farmácia", "upa", "hospital"
     ]):
         return last_topic
@@ -872,7 +886,8 @@ def infer_contextual_followup(text_raw, last_topic):
         "esse", "essa", "entao", "então", "vc indica",
         "localizacao", "localização", "horario", "horário",
         "servico", "serviço", "envie", "manda", "pode mandar",
-        "farmacia", "farmácia", "upa", "hospital"
+        "farmacia", "farmácia", "upa", "hospital",
+        "restaurantes"
     ]
     if text_n in very_short_contextual:
         return last_topic
@@ -898,7 +913,8 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "quero essa", "qual", "melhor", "barato", "perto", "especial",
         "vc indica", "vcs indicam", "envie", "enviar", "mandar", "mande",
         "pode avisar", "avise", "avisar", "encaminhe", "encaminhar",
-        "rapido", "rápido", "em conta", "farmacia", "farmácia", "upa", "hospital"
+        "rapido", "rápido", "em conta", "farmacia", "farmácia", "upa", "hospital",
+        "restaurantes", "outros restaurantes"
     ]
     if text_n in exact_short:
         return True
@@ -971,14 +987,15 @@ def score_intents(text_raw, last_topic=""):
     if phrase_in_text(text_n, "onde fica a praia") or (phrase_in_text(text_n, "onde fica") and phrase_in_text(text_n, "servico de praia")):
         add("praia_local", 12)
 
-    if has_any(text_n, ["praia", "servico de praia", "serviço de praia", "guarda-sol", "guarda sol", "cadeira de praia"]):
+    if has_any(text_n, ["praia", "praias", "servico de praia", "serviço de praia", "guarda-sol", "guarda sol", "cadeira de praia"]):
         add("praia", 9)
 
     if has_any(text_n, ["roteiro", "o que fazer hoje", "plano pro dia", "sugestao de roteiro", "sugestão de roteiro", "o que fazer agora"]):
         add("roteiro", 9)
 
     if has_any(text_n, [
-        "restaurante", "jantar", "almoco", "almoço", "comer", "comida", "fome",
+        "restaurante", "restaurantes", "outro restaurante", "outros restaurantes",
+        "jantar", "almoco", "almoço", "comer", "comida", "fome",
         "sushi", "japones", "japonês", "japonesa", "lanche",
         "hamburguer", "hambúrguer", "chocolate", "sobremesa", "doce",
         "kopenhagen", "mcdonald", "mcdonald's", "burger",
@@ -997,10 +1014,10 @@ def score_intents(text_raw, last_topic=""):
     if phrase_in_text(text_n, "dia") and last_topic == "mercado":
         add("mercado", 7)
 
-    if has_any(text_n, ["padaria", "cafe da manha", "café da manhã", "cafe", "café"]):
+    if has_any(text_n, ["padaria", "padarias", "cafe da manha", "café da manhã", "cafe", "café", "cafes", "cafés"]):
         add("padaria", 8)
 
-    if has_any(text_n, ["farmacia", "farmácia", "remedio", "remédio", "dor de cabeca", "dor de cabeça", "droga raia"]):
+    if has_any(text_n, ["farmacia", "farmácia", "farmacias", "farmácias", "remedio", "remédio", "remedios", "remédios", "dor de cabeca", "dor de cabeça", "droga raia"]):
         add("farmacia", 8)
 
     if has_any(text_n, ["garagem", "vaga", "estacionar", "estacionamento", "trocar de vaga"]):
@@ -1023,10 +1040,10 @@ def score_intents(text_raw, last_topic=""):
     if has_any(text_n, ["bar", "bares", "pub", "cerveja", "noite", "beber", "drink", "drinks"]):
         add("bares", 8)
 
-    if has_any(text_n, ["shopping", "la plage"]):
+    if has_any(text_n, ["shopping", "shoppings", "la plage"]):
         add("shopping", 8)
 
-    if has_any(text_n, ["feira", "artesanato", "feirinha"]):
+    if has_any(text_n, ["feira", "feiras", "artesanato", "feirinha", "feirinhas"]):
         add("feira", 7)
 
     if has_any(text_n, [
@@ -1169,6 +1186,113 @@ def maybe_notify(kind, raw_message, guest, severity):
 
 def is_incident_like_message(text):
     return infer_primary_intent(text, get_last_topic()) == "incidente"
+
+
+def detect_incident_context_reply(text):
+    text_n = normalize_text(text)
+
+    if has_any(text_n, [
+        "do nada",
+        "aconteceu agora",
+        "foi agora",
+        "agora pouco",
+        "acabou de acontecer",
+        "acabou de rolar",
+        "aconteceu do nada",
+        "foi do nada",
+        "agora",
+        "neste momento"
+    ]):
+        return "O hóspede informou que aconteceu agora / de repente."
+
+    if has_any(text_n, [
+        "ja estava assim",
+        "já estava assim",
+        "ja estava",
+        "já estava",
+        "ja veio assim",
+        "já veio assim",
+        "ja tinha percebido",
+        "já tinha percebido",
+        "percebemos antes",
+        "percebi antes",
+        "desde antes",
+        "isso ja estava assim",
+        "isso já estava assim"
+    ]):
+        return "O hóspede informou que isso já estava assim antes."
+
+    if has_any(text_n, [
+        "esta totalmente sem funcionar",
+        "está totalmente sem funcionar",
+        "totalmente sem funcionar",
+        "nao funciona nada",
+        "não funciona nada",
+        "parou de vez"
+    ]):
+        return "O hóspede informou que está totalmente sem funcionar."
+
+    if has_any(text_n, [
+        "funciona parcialmente",
+        "ainda funciona",
+        "ainda funciona parcialmente",
+        "funciona mais ou menos",
+        "meio funcionando"
+    ]):
+        return "O hóspede informou que ainda funciona parcialmente."
+
+    return ""
+
+
+def append_incident_context_record(raw_message, guest, detail):
+    payload = {
+        "tipo": "incidente_complemento",
+        "gravidade": "info",
+        "mensagem": raw_message,
+        "detalhe": detail,
+        "hospede": guest.get("nome", ""),
+        "grupo": guest.get("grupo", ""),
+        "checkout": guest.get("checkout", ""),
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "status": "complemento"
+    }
+    append_incident(payload)
+    return payload
+
+
+def notify_incident_context_to_telegram(guest, raw_message, detail):
+    nome = guest.get("nome", "").strip() or "Hóspede sem nome definido"
+    agora = datetime.now().isoformat(timespec="seconds")
+
+    msg = (
+        "🛠️ COMPLEMENTO DE INCIDENTE — APTO 14B\n\n"
+        f"Hóspede: {nome}\n"
+        f"Detalhe: {detail}\n"
+        f"Mensagem original do hóspede: {raw_message}\n"
+        f"Horário: {agora}"
+    )
+    return send_telegram_message(msg)
+
+
+def handle_incident_context_followup(guest, text_raw):
+    detail = detect_incident_context_reply(text_raw)
+    if not detail:
+        return ""
+
+    append_incident_context_record(text_raw, guest, detail)
+    ok, _ = notify_incident_context_to_telegram(guest, text_raw, detail)
+    set_incident_pending(False)
+
+    if ok:
+        return (
+            "Perfeito 😊\n\n"
+            "Já registrei essa informação complementar no acompanhamento e deixei isso sinalizado por aqui."
+        )
+
+    return (
+        "Perfeito 😊\n\n"
+        "Já registrei essa informação complementar por aqui, embora eu não tenha conseguido atualizar a notificação neste momento."
+    )
 
 
 # =========================
@@ -1565,6 +1689,34 @@ def get_restaurantes_reply(text):
         if obs:
             reply += f"\n\n{obs}"
         return reply
+
+    if has_any(text_n, ["restaurantes", "outro restaurante", "outros restaurantes", "opcoes de restaurante", "opções de restaurante"]):
+        if restaurantes:
+            linhas = []
+            for r in restaurantes:
+                nome = r.get("nome", "")
+                tipo = normalize_text(r.get("tipo", ""))
+                dist = format_distance(r.get("distancia", ""))
+                perfil = r.get("perfil", "")
+                if tipo == "tradicional":
+                    linhas.append(f"• **{nome}** → {perfil or 'clássico, tradicional e muito lembrado no Guarujá'}")
+                elif tipo == "especial":
+                    linhas.append(f"• **{nome}** → {perfil or 'vibe mais especial e experiência mais sofisticada'} ✨")
+                elif tipo == "japones":
+                    linhas.append(f"• **{nome}** → {perfil or 'comida japonesa'}, a cerca de **{dist or '4 minutos de carro'}** 🍣")
+                elif tipo == "rapido":
+                    linhas.append(f"• **{nome}** → {perfil or 'opção prática'}, a cerca de **{dist or '5 minutos de carro'}** 🍔")
+                elif tipo == "doce":
+                    linhas.append(f"• **{nome}** → {perfil or 'chocolateria'}, a cerca de **{dist or '4 minutos de carro'}** 🍫")
+                else:
+                    linhas.append(f"• **{nome}**")
+
+            return (
+                "Claro 😊\n\n"
+                "Aqui vão algumas boas referências de restaurantes por perto:\n\n"
+                + "\n".join(linhas)
+                + "\n\nSe quiser, também posso te sugerir uma opção mais **rápida**, mais **especial** ou mais **tradicional** 😉"
+            )
 
     if restaurantes:
         linhas = []
@@ -2048,6 +2200,9 @@ def get_followup_reply(text, last_topic, guest):
     if topic == "restaurantes":
         restaurantes = get_restaurants_data()
 
+        if has_any(text_n, ["outro restaurante", "outros restaurantes", "restaurantes"]):
+            return get_restaurantes_reply("restaurantes")
+
         if has_any(text_n, ["mais perto", "perto"]):
             item = best_closest_item(restaurantes)
             if item:
@@ -2468,6 +2623,20 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "saudacao", reply, remembered, intent_for_session="saudacao")
 
     sess = load_session()
+
+    if sess.get("pending_incident_context"):
+        incident_context_reply = handle_incident_context_followup(guest, text_raw)
+        if incident_context_reply:
+            return finalize_and_log(
+                guest,
+                text_raw,
+                "incidente",
+                incident_context_reply,
+                remembered,
+                used_followup=True,
+                intent_for_session="incidente_contexto"
+            )
+
     if sess.get("pending_bruno_contact"):
         followup = get_followup_reply(text_raw, "bruno", guest)
         if followup:
@@ -2514,12 +2683,20 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "saude", reply, remembered, intent_for_session="saude")
 
     if intent == "incidente":
+        severity = classify_incident(text_raw)
         base_reply = get_problem_reply(text_raw)
-        ok, _ = maybe_notify("incidente", text_raw, guest, classify_incident(text_raw))
+        ok, _ = maybe_notify("incidente", text_raw, guest, severity)
+
+        if severity in ["media", "baixa"]:
+            set_incident_pending(True)
+        else:
+            set_incident_pending(False)
+
         if ok:
             reply = base_reply + "\n\nJá deixei isso sinalizado por aqui e enviei uma solicitação de acompanhamento ao Bruno. Ele entrará em contato com você o quanto antes 😊"
         else:
             reply = base_reply + "\n\nJá deixei isso sinalizado por aqui, mas não consegui enviar a solicitação de acompanhamento ao Bruno neste momento."
+
         return finalize_and_log(guest, text_raw, "incidente", reply, remembered, intent_for_session="incidente")
 
     if intent == "wifi":
@@ -2532,14 +2709,14 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "praia", get_servico_praia_localizacao_reply(), remembered, intent_for_session="praia_local")
 
     if intent == "praia":
-        reply = get_guided_reply("praia") if len(text.split()) <= 2 and has_any(text, ["praia"]) else get_praia_reply()
+        reply = get_guided_reply("praia") if len(text.split()) <= 2 and has_any(text, ["praia", "praias"]) else get_praia_reply()
         return finalize_and_log(guest, text_raw, "praia", reply, remembered, intent_for_session="praia")
 
     if intent == "roteiro":
         return finalize_and_log(guest, text_raw, "roteiro", get_roteiro_reply(guest), remembered, intent_for_session="roteiro")
 
     if intent == "restaurantes":
-        if len(text.split()) <= 3 and has_any(text, ["comer", "jantar", "restaurante", "fome"]):
+        if len(text.split()) <= 3 and has_any(text, ["comer", "jantar", "restaurante", "restaurantes", "fome"]):
             reply = get_guided_reply("restaurantes")
         else:
             reply = get_restaurantes_reply(text_raw)
