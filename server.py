@@ -240,7 +240,7 @@ def update_guest_insights(message):
 
     if has_any(msg, ["sushi", "japones", "japonês", "japonesa"]):
         inc("japones")
-    if has_any(msg, ["mercado", "supermercado", "compras", "mercado dia", "supermercado dia", "dia"]):
+    if has_any(msg, ["mercado", "supermercado", "mercados", "supermercados", "compras", "mercado dia", "supermercado dia", "dia"]):
         inc("mercado")
     if has_any(msg, ["praia", "guarda-sol", "cadeira de praia"]):
         inc("praia")
@@ -466,7 +466,7 @@ def update_guest_preferences(text_raw):
         inc("doce")
     if has_any(text_n, ["praia", "guarda-sol", "servico de praia", "serviço de praia"]):
         inc("praia")
-    if has_any(text_n, ["mercado", "supermercado", "compras", "mercado dia", "supermercado dia", "dia"]):
+    if has_any(text_n, ["mercado", "mercados", "supermercado", "supermercados", "compras", "mercado dia", "supermercado dia", "dia"]):
         inc("mercado")
     if has_any(text_n, ["surf", "ondas", "surfar"]):
         inc("surf")
@@ -859,7 +859,9 @@ def infer_contextual_followup(text_raw, last_topic):
         "qual melhor", "qual voce indica", "qual você indica",
         "qual vc indica", "qual voce recomenda", "qual você recomenda",
         "qual vc recomenda", "mais tranquilo", "mais animado",
-        "vale a pena", "compensa", "e esse", "e essa"
+        "vale a pena", "compensa", "e esse", "e essa",
+        "supermercados", "mercados", "outro mercado", "outros mercados",
+        "farmacia", "farmácia", "upa", "hospital"
     ]):
         return last_topic
 
@@ -869,7 +871,8 @@ def infer_contextual_followup(text_raw, last_topic):
         "rapido", "rápido", "em conta",
         "esse", "essa", "entao", "então", "vc indica",
         "localizacao", "localização", "horario", "horário",
-        "servico", "serviço", "envie", "manda", "pode mandar"
+        "servico", "serviço", "envie", "manda", "pode mandar",
+        "farmacia", "farmácia", "upa", "hospital"
     ]
     if text_n in very_short_contextual:
         return last_topic
@@ -894,8 +897,8 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "sim", "isso", "esse", "essa", "pode ser", "manda", "quero esse",
         "quero essa", "qual", "melhor", "barato", "perto", "especial",
         "vc indica", "vcs indicam", "envie", "enviar", "mandar", "mande",
-        "pode avisar", "avise", "encaminhe", "encaminhar",
-        "rapido", "rápido", "em conta"
+        "pode avisar", "avise", "avisar", "encaminhe", "encaminhar",
+        "rapido", "rápido", "em conta", "farmacia", "farmácia", "upa", "hospital"
     ]
     if text_n in exact_short:
         return True
@@ -920,17 +923,21 @@ def score_intents(text_raw, last_topic=""):
 
     if has_any(text_n, [
         "onde estamos", "qual o endereco", "qual o endereço", "me passa o endereco",
-        "me passa o endereço", "endereco daqui", "endereço daqui", "onde fica aqui"
+        "me passa o endereço", "endereco daqui", "endereço daqui", "onde fica aqui",
+        "endereco para delivery", "endereço para delivery",
+        "endereco para entrega", "endereço para entrega",
+        "para entrega", "pro delivery", "para o delivery"
     ]):
         add("localizacao", 11)
-    if has_any(text_n, ["upa", "hospital"]) and has_any(text_n, ["onde fica", "endereco", "endereço"]):
-        add("localizacao", 9)
+
+    if has_any(text_n, ["upa", "hospital", "hospital santo amaro", "upa enseada"]):
+        add("localizacao", 10)
 
     if has_any(text_n, [
         "desmaiou", "desmaio", "nao consegue respirar", "não consegue respirar",
         "falta de ar", "dor no peito", "muita dor", "dor forte", "sangrando",
         "dor", "doente", "febre", "passando mal", "mal estar", "mal-estar",
-        "vomito", "vômito", "enjoo", "to mal", "tô mal"
+        "vomito", "vômito", "enjoo", "to mal", "tô mal", "estou doente"
     ]):
         add("saude", 10)
 
@@ -980,8 +987,10 @@ def score_intents(text_raw, last_topic=""):
         add("restaurantes", 9)
 
     if has_any(text_n, [
-        "mercado", "supermercado", "compras", "pao de acucar", "pão de açúcar",
-        "carrefour", "extra", "agua", "água", "mercado dia", "supermercado dia"
+        "mercado", "mercados", "supermercado", "supermercados", "compras",
+        "pao de acucar", "pão de açúcar", "carrefour", "extra",
+        "agua", "água", "mercado dia", "supermercado dia",
+        "outro mercado", "outros mercados", "outras opcoes de mercado", "outras opções de mercado"
     ]):
         add("mercado", 9)
 
@@ -1111,7 +1120,7 @@ def classify_health(text):
 
     medium = [
         "dor", "doente", "febre", "passando mal", "mal estar", "mal-estar",
-        "enjoo", "vomito", "vômito", "cansaco", "cansaço"
+        "enjoo", "vomito", "vômito", "cansaco", "cansaço", "estou doente"
     ]
 
     if has_any(text_n, high):
@@ -1337,7 +1346,22 @@ def get_localizacao_reply(text):
     upa = proximidades.get("upa_enseada", {})
     hospital = proximidades.get("hospital_santo_amaro", {})
 
-    if has_any(text_n, ["upa"]):
+    if has_any(text_n, [
+        "endereco para delivery", "endereço para delivery",
+        "endereco para entrega", "endereço para entrega",
+        "para entrega", "pro delivery", "para o delivery"
+    ]):
+        return (
+            "Claro 😊\n\n"
+            f"📍 **{apt.get('nome', 'Residencial Volare – Apto 14B')}**\n"
+            f"{endereco.get('rua', 'Avenida da Saudade, 335')}\n"
+            f"{endereco.get('bairro', 'Jardim São Miguel')}\n"
+            f"{endereco.get('cidade', 'Praia da Enseada, Guarujá')}\n"
+            f"CEP: {endereco.get('cep', '11440-180')}\n\n"
+            "Se quiser, também posso te passar um texto pronto para copiar no app de delivery 👍"
+        )
+
+    if has_any(text_n, ["upa", "upa enseada"]):
         perfil = upa.get("perfil", "")
         suffix = f"\n\n{perfil}" if perfil else ""
         return (
@@ -1347,7 +1371,7 @@ def get_localizacao_reply(text):
             "Se quiser, eu também posso te orientar para hospital ou farmácia."
         )
 
-    if has_any(text_n, ["hospital"]):
+    if has_any(text_n, ["hospital", "hospital santo amaro"]):
         perfil = hospital.get("perfil", "")
         suffix = f"\n\n{perfil}" if perfil else ""
         return (
@@ -1533,7 +1557,10 @@ def get_mercado_reply(text):
     rapido = find_item_by_type(mercados, "rapido")
     completos = [m for m in mercados if normalize_text(m.get("tipo", "")) == "completo"]
 
-    if has_any(text_n, ["rapido", "rápido", "perto", "urgente", "mercado dia", "supermercado dia"]) or (phrase_in_text(text_n, "dia") and not has_any(text_n, ["bom dia"])):
+    if has_any(text_n, [
+        "rapido", "rápido", "perto", "urgente",
+        "mercado dia", "supermercado dia"
+    ]) or (phrase_in_text(text_n, "dia") and not has_any(text_n, ["bom dia"])):
         item = rapido or {}
         nome = item.get("nome", "Mercado Dia")
         dist = format_distance(item.get("distancia", "ao lado"))
@@ -1547,6 +1574,26 @@ def get_mercado_reply(text):
             reply += f"\n\n{obs}"
         reply += "\n\nPerfeito pra água, bebida ou emergência 👍"
         return reply
+
+    if has_any(text_n, ["mercados", "supermercados", "outro mercado", "outros mercados", "outras opcoes", "outras opções"]):
+        if mercados:
+            linhas = []
+            for m in mercados:
+                nome = m.get("nome", "")
+                dist = format_distance(m.get("distancia", ""))
+                tipo = normalize_text(m.get("tipo", ""))
+                perfil = m.get("perfil", "")
+                if tipo == "rapido":
+                    linhas.append(f"• **{nome}** → {dist}" + (f" | {perfil}" if perfil else ""))
+                else:
+                    linhas.append(f"• **{nome}** → cerca de **{dist}**" + (f" | {perfil}" if perfil else ""))
+
+            return (
+                "Claro 😊\n\n"
+                "Aqui vão outras opções de mercado por perto:\n\n"
+                + "\n".join(linhas)
+                + "\n\nSe quiser, eu também posso te dizer qual faz mais sentido para algo rápido ou para compra mais completa 😉"
+            )
 
     if has_any(text_n, ["completo", "grande", "variedade"]):
         if completos:
@@ -1727,12 +1774,15 @@ def get_health_reply(text):
         return (
             "Isso parece importante ⚠️\n\n"
             "Se for uma situação urgente, priorize atendimento imediato.\n\n"
-            "Posso te orientar rapidamente para **UPA Enseada** ou **Hospital Santo Amaro**."
+            "Posso te orientar rapidamente para **UPA**, **hospital** ou **farmácia**."
         )
     return (
         "Entendi 😕\n\n"
-        "Se você não estiver se sentindo bem, posso te orientar para farmácia ou atendimento na região.\n\n"
-        "Se quiser, já te digo qual caminho faz mais sentido."
+        "Se você não estiver se sentindo bem, posso te orientar para:\n"
+        "• **farmácia**\n"
+        "• **UPA**\n"
+        "• **hospital**\n\n"
+        "É só me responder com uma dessas opções e eu sigo por aqui 👍"
     )
 
 
@@ -1865,7 +1915,7 @@ def get_roteiro_reply(guest):
     if parte_do_dia == "manhã":
         if grupo == "família":
             return (
-                "Se eu fosse montar um roteiro leve para hoje, faria assim 😊\n\n"
+                "Se eu fosse montar um roteiro leve para hoje 😊\n\n"
                 "☀️ **Manhã**\n"
                 "• aproveitar a praia e o serviço montado\n\n"
                 "🍽️ **Almoço**\n"
@@ -1973,6 +2023,9 @@ def get_followup_reply(text, last_topic, guest):
     if topic == "mercado":
         mercados = get_markets_data()
 
+        if has_any(text_n, ["outro mercado", "outros mercados", "outras opcoes", "outras opções", "supermercados", "mercados"]):
+            return get_mercado_reply("completo")
+
         if has_any(text_n, ["mais completo", "completo", "grande", "variedade"]):
             return get_mercado_reply("completo")
 
@@ -1995,6 +2048,12 @@ def get_followup_reply(text, last_topic, guest):
             )
 
     if topic == "saude":
+        if has_any(text_n, ["farmacia", "farmácia"]):
+            return get_farmacia_reply()
+        if has_any(text_n, ["upa"]):
+            return get_localizacao_reply("upa")
+        if has_any(text_n, ["hospital"]):
+            return get_localizacao_reply("hospital")
         return get_health_reply(text)
 
     if topic == "incidente":
@@ -2432,7 +2491,7 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "restaurantes", reply, remembered, intent_for_session="restaurantes")
 
     if intent == "mercado":
-        if len(text.split()) <= 3 and has_any(text, ["mercado", "compras", "supermercado", "mercado dia", "supermercado dia"]):
+        if len(text.split()) <= 3 and has_any(text, ["mercado", "mercados", "compras", "supermercado", "supermercados", "mercado dia", "supermercado dia"]):
             reply = get_guided_reply("mercado")
         else:
             reply = get_mercado_reply(text_raw)
@@ -2527,10 +2586,6 @@ def welcome():
         print("ERRO NO WELCOME:", e)
         return json_response({"message": "Olá 😊"})
 
-
-# =========================
-# START
-# =========================
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
