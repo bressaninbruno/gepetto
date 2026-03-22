@@ -141,6 +141,25 @@
     "mensagem": "Caso vocês precisem de algum auxílio, podem contar com ele.",
     "observacao": "é uma boa referência de apoio no prédio"
   },
+  "apoio_predio": {
+  "intro": "Se precisar de apoio no prédio, vocês podem contar com a equipe por aqui 😊",
+  "pessoas": [
+    {
+      "nome": "Paulo",
+      "funcao": "zelador"
+    },
+    {
+      "nome": "Cláudio",
+      "funcao": "funcionário de apoio"
+    },
+    {
+      "nome": "Edson",
+      "funcao": "portaria",
+      "observacao": "fica no período noturno"
+    }
+  ],
+  "fechamento": "Se quiser, eu também posso te orientar sobre quando vale falar com a portaria, com a equipe do prédio ou comigo por aqui.\n\n**E, se for necessário, também posso avisar rapidamente o seu anfitrião, Bruno.**"
+},
   "proximidades": {
     "upa_enseada": {
       "nome": "UPA Enseada",
