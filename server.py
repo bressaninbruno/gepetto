@@ -527,6 +527,92 @@ def notify_conversation_to_telegram(guest, message, intent, response):
     return send_telegram_log("NOVA INTERAÇÃO — GEPETTO", lines)
 
 
+# =========================
+# VOZ / MICROCOPY GEPETTO
+# =========================
+
+def gepetto_line(key):
+    lines = {
+        "welcome_1": "Olá 😊 Eu sou o Gepetto — seu concierge digital durante a estadia.\nFui projetado para ajudar com praia, comida, conforto e imprevistos leves. Mergulho, por enquanto, segue indisponível.",
+        "welcome_2": "Bem-vindo 😊\nEu sou o Gepetto: um robô de praia surpreendentemente útil e rigorosamente não impermeável.",
+        "welcome_3": "Olá 😊 Eu sou o Gepetto, concierge digital do Apto 14B.\nEstou por aqui para tornar sua experiência mais prática, leve e bem cuidada — com um toque de camisa de praia.",
+        "welcome_4": "Olá 😊 Eu sou o Gepetto.\nPosso te ajudar com Wi-Fi, praia, mercados, restaurantes, regras da casa e qualquer dúvida útil da estadia.",
+        "welcome_5": "Bem-vindo 😊\nSou o Gepetto — metade concierge, metade personagem improvável da sua viagem.",
+
+        "incident_1": "Entendi 👍 Já deixei isso encaminhado por aqui.\nSó me ajuda com uma informação: isso aconteceu agora ou vocês já tinham percebido antes?",
+        "incident_2": "Entendi 👍 Já deixei isso sinalizado por aqui.\nEu não subo até o apartamento, mas faço a informação subir bem rápido.",
+        "incident_3": "Entendi 😊 Já deixei o acompanhamento acionado por aqui.\nMe ajuda só com um detalhe para registrar melhor: isso aconteceu do nada ou já estava assim antes?",
+        "incident_4": "Perfeito, já deixei isso encaminhado por aqui.\nSó preciso confirmar: está totalmente sem funcionar ou ainda funciona parcialmente?",
+        "incident_5": "Entendi 👍 Já deixei isso em acompanhamento.\nSe puder, me diga só se isso aconteceu agora ou se vocês já haviam notado antes.",
+
+        "fallback_1": "Não entendi perfeitamente 😅\nSe você me contar de outro jeito, eu tento te ajudar melhor.",
+        "fallback_2": "Ainda estou em fase beta — mas com ótima vontade e excelente camisa de praia 😄\nSe puder reformular, eu sigo com você.",
+        "fallback_3": "Não peguei exatamente o que você quis dizer 😊\nPode me escrever de outro jeito ou me dizer se o assunto é praia, comida, mercado, regras ou apartamento?",
+        "fallback_4": "Não entendi muito bem essa parte 😅\nSe me der um pouco mais de contexto, eu consigo te orientar melhor.",
+        "fallback_5": "Posso te ajudar melhor se você me disser o tema principal 😊\nPraia, restaurante, mercado, regras, incidente ou falar com Bruno?",
+
+        "bruno_1": "Claro 😊 Posso avisar o Bruno agora.\nTem algum assunto que você queira que eu adiante na notificação?",
+        "bruno_2": "Claro 😊 Eu faço a ponte com o Bruno agora.\nSe quiser, já me diga o assunto que eu adianto tudo por aqui.",
+        "bruno_3": "Claro 😊 Posso acionar o Bruno agora.\nSe quiser, já me passe o contexto e eu deixo a notificação mais completa.",
+        "bruno_4": "Claro 😊 Posso avisá-lo agora.\nSe preferir, também pode só me responder: **envie**.",
+        "bruno_5": "Claro 😊 Eu cuido da ponte com o Bruno.\nSe quiser, já me diga o assunto e eu adianto isso por aqui.",
+
+        "praia_1": "Boa escolha 😄\nPosso te orientar sobre localização, horário e como funciona o serviço de praia — sem me aproximar demais da água, por razões técnicas.",
+        "praia_2": "Praia eu conheço bem — à distância segura 😊\nSe quiser, te explico rapidinho como funciona o serviço.",
+        "praia_3": "Posso te passar a localização da praia, o horário do serviço e a forma mais prática de aproveitar 👍",
+        "praia_4": "Se quiser, eu te oriento sobre a praia de forma bem objetiva: onde fica, como funciona e o melhor jeito de aproveitar.",
+        "praia_5": "Praia eu acompanho muito bem. Entrar no mar, ainda não 😄\nMas te explico tudo que você precisa saber.",
+
+        "checkout_1": "Claro 😊 Posso te lembrar dos principais pontos antes do check-out.\nA ideia é deixar tudo simples e sem correria no fim da estadia.",
+        "checkout_2": "Quando chegar a hora, eu também posso te ajudar com os avisos antes da saída 😊\nSou melhor em organização do que em esportes aquáticos.",
+        "checkout_3": "Se quiser, eu já te passo os avisos importantes para antes do check-out 👍",
+        "checkout_4": "Posso te orientar sobre os pontos finais da saída para que o check-out fique leve e organizado 😊",
+        "checkout_5": "Também acompanho o check-out 😊\nMeu trabalho é fazer a estadia terminar bem — e não dramaticamente.",
+
+        "identity_1": "Eu sou o Gepetto 😊\nSeu concierge digital durante a estadia.",
+        "identity_2": "Eu sou o Gepetto — um robô de praia com habilidades surpreendentemente úteis.",
+        "identity_3": "Eu sou o Gepetto 😊\nMetade concierge, metade lembrança improvável da sua viagem.",
+        "identity_4": "Eu sou o Gepetto, concierge digital do Apto 14B.\nSempre por aqui para facilitar a estadia.",
+        "identity_5": "Eu sou o Gepetto 😊\nPouco resistente à água salgada, bastante comprometido com a sua experiência.",
+
+        "social_1": "Tudo certo por aqui 😊 E com você?\nSe precisar, estou por aqui para ajudar no que for útil durante a estadia.",
+        "social_2": "Tudo bem por aqui 😄 Sempre à disposição.\nSe quiser, já posso te ajudar com praia, comida, mercado ou qualquer dúvida do apartamento."
+    }
+    return lines.get(key, "")
+
+
+def get_gepetto_welcome_line():
+    return gepetto_line("welcome_1")
+
+
+def get_gepetto_fallback_line():
+    return gepetto_line("fallback_2")
+
+
+def get_gepetto_identity_line():
+    return gepetto_line("identity_2")
+
+
+def get_gepetto_praia_line():
+    return gepetto_line("praia_1")
+
+
+def get_gepetto_checkout_line():
+    return gepetto_line("checkout_1")
+
+
+def get_gepetto_incident_ack():
+    return gepetto_line("incident_3")
+
+
+def get_gepetto_bruno_intro():
+    return gepetto_line("bruno_5")
+
+
+def get_social_reply():
+    return gepetto_line("social_1")
+
+
 def mensagem_boas_vindas():
     guest = load_guest()
     inicio = saudacao_personalizada(guest)
@@ -552,9 +638,7 @@ def mensagem_boas_vindas():
     return (
         f"{inicio}\n\n"
         f"{especial}"
-        "🌴 Bem-vindo à praia da Enseada!\n\n"
-        "É uma honra ter você hospedado aqui 😊 Espero que tenha feito uma ótima viagem!\n\n"
-        "Eu sou o **Gepetto**, seu concierge pessoal durante a estadia.\n\n"
+        f"{get_gepetto_welcome_line()}\n\n"
         "Posso te ajudar com:\n"
         "• **Guia do apartamento e do condomínio**\n"
         "• **Regras da casa e do condomínio**\n"
@@ -739,6 +823,23 @@ def best_closest_item(items):
     return sorted(items, key=lambda x: distance_sort_key(x.get("distancia", "")))[0]
 
 
+def is_social_checkin(text_raw):
+    text_n = normalize_text(text_raw)
+
+    exacts = {
+        "tudo bem", "td bem", "como vai", "como vc ta", "como voce ta",
+        "como vc esta", "como voce esta", "como você tá", "como você está",
+        "ta tudo bem", "tá tudo bem", "vc ta bem", "você tá bem"
+    }
+    if text_n in exacts:
+        return True
+
+    return has_any(text_n, [
+        "tudo bem?", "td bem?", "como vai?", "como vc ta?", "como voce ta?",
+        "como vc esta?", "como voce esta?", "como você tá?", "como você está?"
+    ])
+
+
 # =========================
 # INTENÇÃO / CONTEXTO
 # =========================
@@ -752,7 +853,9 @@ def infer_contextual_followup(text_raw, last_topic):
     if has_any(text_n, [
         "mais perto", "perto", "mais barato", "barato",
         "mais especial", "especial", "mais completo", "completo",
-        "mais rapido", "mais rápido", "algo leve", "algo melhor",
+        "mais rapido", "mais rápido", "rapido", "rápido",
+        "em conta", "mais em conta",
+        "algo leve", "algo melhor",
         "qual melhor", "qual voce indica", "qual você indica",
         "qual vc indica", "qual voce recomenda", "qual você recomenda",
         "qual vc recomenda", "mais tranquilo", "mais animado",
@@ -763,7 +866,7 @@ def infer_contextual_followup(text_raw, last_topic):
     very_short_contextual = [
         "qual", "melhor", "barato", "perto", "especial",
         "completo", "tranquilo", "animado", "leve",
-        "rapido", "rápido",
+        "rapido", "rápido", "em conta",
         "esse", "essa", "entao", "então", "vc indica",
         "localizacao", "localização", "horario", "horário",
         "servico", "serviço", "envie", "manda", "pode mandar"
@@ -792,7 +895,7 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "quero essa", "qual", "melhor", "barato", "perto", "especial",
         "vc indica", "vcs indicam", "envie", "enviar", "mandar", "mande",
         "pode avisar", "avise", "encaminhe", "encaminhar",
-        "rapido", "rápido"
+        "rapido", "rápido", "em conta"
     ]
     if text_n in exact_short:
         return True
@@ -809,7 +912,9 @@ def score_intents(text_raw, last_topic=""):
 
     if has_any(text_n, [
         "gepetto", "gepeto", "qual seu nome", "como voce chama", "como você chama",
-        "quem e voce", "quem é você", "quem te fez", "quem te criou", "qm e voce", "qm é você"
+        "quem e voce", "quem é você", "quem te fez", "quem te criou",
+        "quem fez voce", "quem fez você", "quem criou voce", "quem criou você",
+        "qm e voce", "qm é você"
     ]):
         add("identidade", 12)
 
@@ -869,14 +974,14 @@ def score_intents(text_raw, last_topic=""):
         "restaurante", "jantar", "almoco", "almoço", "comer", "comida", "fome",
         "sushi", "japones", "japonês", "japonesa", "lanche",
         "hamburguer", "hambúrguer", "chocolate", "sobremesa", "doce",
-        "kopenhagen", "mcdonald", "mcdonald's", "burger"
+        "kopenhagen", "mcdonald", "mcdonald's", "burger",
+        "em conta", "mais em conta"
     ]):
         add("restaurantes", 9)
 
     if has_any(text_n, [
         "mercado", "supermercado", "compras", "pao de acucar", "pão de açúcar",
-        "carrefour", "extra", "agua", "água", "mercado dia", "supermercado dia",
-        "rapido", "rápido"
+        "carrefour", "extra", "agua", "água", "mercado dia", "supermercado dia"
     ]):
         add("mercado", 9)
 
@@ -1207,11 +1312,18 @@ def get_identidade_reply(text):
     concierge_nome = extras.get("concierge_nome", "Gepetto")
     anfitriao = extras.get("anfitriao", "Bruno")
 
-    if has_any(text_n, ["quem te fez", "quem te criou", "qm te criou"]):
-        return f"O **{anfitriao}** me criou para proporcionar a melhor experiência possível para vocês ✨"
+    if has_any(text_n, [
+        "quem te fez", "quem te criou", "qm te criou",
+        "quem fez voce", "quem fez você", "quem criou voce", "quem criou você"
+    ]):
+        return f"O **{anfitriao}** me criou para proporcionar a melhor experiência possível por aqui ✨"
 
-    if has_any(text_n, ["qual seu nome", "como voce chama", "como você chama", "quem e voce", "quem é você", "gepetto", "gepeto", "qm e voce", "qm é você"]):
-        return f"Eu sou o **{concierge_nome}**, seu concierge particular 😊"
+    if has_any(text_n, [
+        "qual seu nome", "como voce chama", "como você chama",
+        "quem e voce", "quem é você", "gepetto", "gepeto",
+        "qm e voce", "qm é você"
+    ]):
+        return get_gepetto_identity_line()
 
     return f"Oi 😊 Eu sou o **{concierge_nome}**. Em que posso te ajudar?"
 
@@ -1283,13 +1395,12 @@ def get_praia_reply():
         extra_text = "\n\n" + "\n".join(extra_parts)
 
     return (
-        "Boa escolha 😄\n\n"
+        f"{gepetto_line('praia_5')}\n\n"
         f"A praia fica a {praia.get('distancia', '280 metros (4 a 5 minutos a pé)')}.\n"
         f"O serviço de praia funciona das {servico.get('horario', '9h às 17h')}.\n"
         f"Ele fica {servico.get('localizacao', 'ao lado do Thai Lounge, em frente ao Casa Grande Hotel')}.\n\n"
         f"{servico.get('como_funciona', 'Os itens ficam montados na areia durante o horário do serviço.')}"
-        f"{extra_text}\n\n"
-        "Se quiser, eu também posso te explicar rapidinho como aproveitar melhor esse primeiro dia de praia 😉"
+        f"{extra_text}"
     )
 
 
@@ -1311,7 +1422,7 @@ def get_restaurantes_reply(text):
     japones = find_item_by_type(restaurantes, "japones")
     doce = find_item_by_type(restaurantes, "doce")
 
-    if has_any(text_n, ["barato", "economico", "econômico", "simples", "rapido", "rápido", "leve"]):
+    if has_any(text_n, ["barato", "economico", "econômico", "simples", "rapido", "rápido", "leve", "em conta", "mais em conta"]):
         item = rapido or {}
         nome = item.get("nome", "McDonald's")
         dist = format_distance(item.get("distancia", "5 minutos"))
@@ -1567,24 +1678,19 @@ def get_checkout_reply(guest):
 def get_checkout_aviso_reply(guest):
     checkout = guest.get("checkout") or knowledge().get("apartamento", {}).get("checkout", "11h")
     return (
-        f"Antes do check-out, peço por gentileza que verifiquem estes pontos 😊\n\n"
-        f"• Verifique se janelas e porta de entrada ficarão travadas\n"
-        f"• Favor retirar o lixo\n"
-        f"• Apague as luzes e desligue os ventiladores\n"
-        f"• Devolva as chaves na portaria do prédio\n"
-        f"• Não deixem louça suja\n\n"
+        f"{get_gepetto_checkout_line()}\n\n"
+        "• Verifique se janelas e porta de entrada ficarão travadas\n"
+        "• Favor retirar o lixo\n"
+        "• Apague as luzes e desligue os ventiladores\n"
+        "• Devolva as chaves na portaria do prédio\n"
+        "• Não deixem louça suja\n\n"
         f"O check-out está configurado para **{checkout}**."
     )
 
 
 def get_bruno_reply():
-    anfitriao = knowledge().get("extras", {}).get("anfitriao", "Bruno")
     set_bruno_pending(True)
-    return (
-        f"Claro 😊 Posso avisar o {anfitriao} agora.\n\n"
-        "Tem algum assunto que você queira que eu adiante na notificação?\n\n"
-        "Se preferir, pode só me responder **envie**."
-    )
+    return get_gepetto_bruno_intro()
 
 
 def notify_bruno_request(guest, raw_message=""):
@@ -1640,17 +1746,12 @@ def get_problem_reply(text):
         )
 
     if sev == "media":
-        return (
-            "Entendi 👍\n\n"
-            "Vou te ajudar com isso.\n\n"
-            "Me conta só se aconteceu do nada ou se já estava assim antes."
-        )
+        return get_gepetto_incident_ack()
 
     return (
-        "Entendi 👍\n\n"
+        "Entendi 👍 Já deixei isso encaminhado por aqui.\n\n"
         "Me conta exatamente o que aconteceu.\n\n"
-        "Já estava assim antes ou aconteceu agora?\n\n"
-        "Enquanto isso, eu já deixo isso encaminhado por aqui."
+        "Já estava assim antes ou aconteceu agora?"
     )
 
 
@@ -1841,6 +1942,7 @@ def get_followup_reply(text, last_topic, guest):
 
     if topic == "restaurantes":
         restaurantes = get_restaurants_data()
+
         if has_any(text_n, ["mais perto", "perto"]):
             item = best_closest_item(restaurantes)
             if item:
@@ -1850,8 +1952,8 @@ def get_followup_reply(text, last_topic, guest):
                 reply += "\n\nSe quiser, eu também posso te dizer qual eu escolheria pelo custo-benefício."
                 return reply
 
-        if has_any(text_n, ["mais barato", "barato", "economico", "econômico", "leve"]):
-            return get_restaurantes_reply("barato")
+        if has_any(text_n, ["mais barato", "barato", "economico", "econômico", "leve", "em conta", "mais em conta", "rapido", "rápido"]):
+            return get_restaurantes_reply("em conta")
 
         if has_any(text_n, ["mais especial", "especial", "romantico", "romântico", "sofisticado"]):
             return get_restaurantes_reply("especial")
@@ -1976,8 +2078,7 @@ def get_guided_reply(intent):
         )
 
     if intent == "praia":
-        return (
-            "Boa 😊\n\n"
+        return get_gepetto_praia_line() + "\n\n" + (
             "Você quer saber sobre:\n"
             "• **localização**\n"
             "• **horário**\n"
@@ -2008,12 +2109,7 @@ def get_fallback_reply(guest):
         return "If you give me a little more context, I can help better 😊"
 
     nome = guest.get("nome", "").strip()
-    base = [
-        "Me diz melhor o que você precisa que eu te ajudo 😊",
-        "Posso te ajudar com **praia**, **comida**, **mercado**, **clima** ou qualquer dúvida do apartamento 👍",
-        "Se puder me dar um pouco mais de contexto, eu te ajudo melhor 😉"
-    ]
-    reply = random.choice(base)
+    reply = get_gepetto_fallback_line()
     if nome:
         return f"{nome}, {reply}"
     return reply
@@ -2234,6 +2330,10 @@ def gepetto_responde(msg):
             append_memory("user", text_raw, "admin")
             append_memory("assistant", admin_reply, "admin")
             return admin_reply
+
+    if is_social_checkin(text_raw):
+        reply = get_social_reply()
+        return finalize_and_log(guest, text_raw, "saudacao", reply, remembered, intent_for_session="saudacao_social")
 
     if has_any(text, ["oi", "ola", "olá", "cheguei", "chegamos", "boa tarde", "bom dia", "boa noite", "hello", "hi", "hey"]):
         especial = observacao_especial(guest)
