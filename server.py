@@ -1664,23 +1664,25 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
 
 
 def is_ambiguous_reference_message(text_raw):
-    text_n = normalize_text(text_raw)
+    text_n = normalize_text(text_raw).strip()
 
     exacts = {
         "esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí",
         "o outro", "a outra", "outro", "outra",
         "qual", "qual deles", "qual delas",
+        "qual?", "qual deles?", "qual delas?",
         "endereco", "endereço",
+        "endereco?", "endereço?",
         "horario", "horário", "horarios", "horários",
+        "horario?", "horário?", "horarios?", "horários?",
         "entrega", "delivery",
-        "compensa", "vale a pena"
+        "entrega?", "delivery?",
+        "compensa", "vale a pena",
+        "compensa?", "vale a pena?"
     }
 
-    if text_n in exacts:
-        return True
-
-    return False
-
+    return text_n in exacts
+      
 
 def has_reference_anchor_for_topic(last_topic):
     sess = load_session()
@@ -1790,11 +1792,13 @@ def should_ask_for_followup_reference(text_raw, last_topic, inferred_intent):
                 return True
 
     if normalize_text(text_raw) in [
-        "esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí",
-        "o outro", "a outra", "outro", "outra",
-        "qual", "qual deles", "qual delas",
-        "compensa", "vale a pena"
-    ]:
+       "esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí",
+       "o outro", "a outra", "outro", "outra",
+       "qual", "qual deles", "qual delas",
+       "qual?", "qual deles?", "qual delas?",
+       "compensa", "vale a pena",
+       "compensa?", "vale a pena?"
+]:
         if not has_reference_anchor_for_topic(last_topic):
             return True
 
@@ -1819,8 +1823,13 @@ def get_followup_reference_clarifier(text_raw, last_topic):
     if text_n in ["o outro", "a outra", "outro", "outra"]:
         return "Posso te mostrar outra opção sim 😊\n\nSó me diga de qual tema você está falando."
 
-    if text_n in ["qual", "qual deles", "qual delas", "compensa", "vale a pena"]:
-        return "Posso te ajudar a comparar isso 😊\n\nSó me diga entre quais opções ou sobre qual tema você quer que eu te oriente."
+    if text_n in [
+       "qual", "qual deles", "qual delas",
+       "qual?", "qual deles?", "qual delas?",
+       "compensa", "vale a pena",
+       "compensa?", "vale a pena?"
+]:
+       return "Posso te ajudar a comparar isso 😊\n\nSó me diga entre quais opções ou sobre qual tema você quer que eu te oriente."
 
     if topic_n in ["restaurantes", "mercado", "passeio"]:
         return "Posso seguir por aqui 😊\n\nSó me diga qual opção você quer considerar."
