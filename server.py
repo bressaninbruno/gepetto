@@ -575,6 +575,72 @@ def get_farmacias_data():
     return get_knowledge_list("farmacias")
 
 
+def get_passeios_data():
+    return get_knowledge_list("passeios")
+
+
+def filter_passeios_by_tipo_or_categoria(items, value):
+    value_n = normalize_text(value)
+    return [
+        p for p in items
+        if normalize_text(p.get("tipo", "")) == value_n
+        or normalize_text(p.get("categoria", "")) == value_n
+    ]
+
+
+def filter_passeios_by_ideal(items, target):
+    target_n = normalize_text(target)
+    result = []
+
+    for p in items:
+        ideals = p.get("ideal_para", [])
+        ideals_n = [normalize_text(i) for i in ideals if isinstance(i, str)]
+        if target_n in ideals_n:
+            result.append(p)
+
+    return result
+
+
+def filter_passeios_by_momento(items, target):
+    target_n = normalize_text(target)
+    result = []
+
+    for p in items:
+        momentos = p.get("melhor_momento", [])
+        momentos_n = [normalize_text(i) for i in momentos if isinstance(i, str)]
+        if target_n in momentos_n:
+            result.append(p)
+
+    return result
+
+
+def filter_passeios_by_clima(items, target):
+    target_n = normalize_text(target)
+    result = []
+
+    for p in items:
+        climas = p.get("clima_ideal", [])
+        climas_n = [normalize_text(i) for i in climas if isinstance(i, str)]
+        if target_n in climas_n:
+            result.append(p)
+
+    return result
+
+
+def build_passeio_line(item):
+    nome = item.get("nome", "")
+    perfil = item.get("perfil", "")
+    obs = item.get("observacao", "")
+
+    line = f"• **{nome}**"
+    if perfil:
+        line += f" → {perfil}"
+    elif obs:
+        line += f" → {obs}"
+
+    return line
+
+
 def format_distance(dist):
     if not dist:
         return ""
@@ -715,9 +781,10 @@ def entity_aliases(entity):
         "Cinema Cine Guarujá": ["cine guaruja", "cine guarujá", "cinema"],
         "Acqua Mundo - Aquário Guarujá": ["acqua mundo", "aquario", "aquário"],
         "Feira da Enseada": ["feira da enseada", "feira"],
-        "Morro do Maluf - Mirante da Campina": ["morro do maluf", "mirante da campina", "maluf"],
+        "Morro do Maluf - Mirante da Campina": ["morro do maluf", "mirante da campina", "maluf", "mirante"],
         "Dona Eva - Restaurante, Bar e Chopperia": ["dona eva"],
-        "Boteco Burgman Enseada": ["burgman", "boteco burgman"]
+        "Boteco Burgman Enseada": ["burgman", "boteco burgman"],
+        "Parque Ecológico Renan C. Teixeira": ["parque ecológico", "parque ecologico", "parque renan", "parque"]
     }
 
     for a in manual.get(name, []):
@@ -1149,7 +1216,8 @@ def infer_contextual_followup(text_raw, last_topic):
         "restaurantes", "outro restaurante", "outros restaurantes",
         "farmacia", "farmácia", "farmacias", "farmácias",
         "upa", "hospital", "todos", "todas",
-        "pizza", "japones", "japonês", "doce", "vista", "24h", "entrega"
+        "pizza", "japones", "japonês", "doce", "vista", "24h", "entrega",
+        "shopping", "cinema", "mirante", "feira", "chuva", "familia", "família"
     ]):
         return last_topic
 
@@ -1162,7 +1230,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "servico", "serviço", "envie", "manda", "pode mandar",
         "farmacia", "farmácia", "upa", "hospital", "todos", "todas",
         "pizza", "japones", "japonês", "doce", "vista",
-        "que horas", "como funciona"
+        "que horas", "como funciona", "shopping", "cinema", "mirante", "feira"
     ]
     if text_n in very_short_contextual:
         return last_topic
@@ -1195,7 +1263,7 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "pode avisar", "avise", "avisar", "encaminhe", "encaminhar",
         "rapido", "rápido", "em conta", "farmacia", "farmácia", "upa", "hospital",
         "restaurantes", "outros restaurantes", "todos", "todas", "pizza", "japones",
-        "japonês", "doce", "vista", "24h", "entrega"
+        "japonês", "doce", "vista", "24h", "entrega", "shopping", "cinema", "mirante", "feira"
     ]
     if text_n in exact_short:
         return True
@@ -1351,8 +1419,14 @@ def score_intents(text_raw, last_topic=""):
     ]):
         add("tempo", 10)
 
-    if has_any(text_n, ["crianca", "criança", "chuva", "passeio", "passeios", "aquario", "aquário", "acqua mundo"]):
-        add("passeio", 7)
+    if has_any(text_n, [
+        "passeio", "passeios", "o que fazer", "o que fazer hoje",
+        "o que fazer agora", "algum passeio", "alguma ideia de passeio",
+        "lugar para ir", "lugares para ir", "algo para fazer",
+        "o que fazer com chuva", "o que fazer se chover",
+        "mirante", "cinema"
+    ]):
+        add("passeio", 9)
 
     if has_any(text_n, ["evento", "eventos", "show", "shows", "festa na cidade"]):
         add("eventos", 7)
@@ -1383,8 +1457,8 @@ def infer_primary_intent(text_raw, last_topic=""):
     priority = [
         "incidente", "saude", "localizacao", "wifi", "regras", "praia_local",
         "praia", "chaves", "restaurantes", "mercado", "tempo", "padaria", "farmacia",
-        "apoio_predio", "garagem", "checkout", "roteiro", "surf", "bares", "shopping",
-        "feira", "passeio", "eventos", "bruno", "identidade"
+        "apoio_predio", "garagem", "checkout", "roteiro", "passeio", "surf", "bares",
+        "shopping", "feira", "eventos", "bruno", "identidade"
     ]
 
     best_score = max(scores.values())
@@ -2081,6 +2155,115 @@ def get_restaurantes_reply(text):
     return "Posso te ajudar com restaurantes 😊 Se quiser, me diga se procura algo rápido, especial, japonês, pizza ou todos."
 
 
+def get_passeios_reply(text=""):
+    text_n = normalize_text(text)
+    passeios = get_passeios_data()
+
+    if not passeios:
+        return (
+            "Posso te ajudar com passeios 😊\n\n"
+            "Mas ainda não encontrei opções cadastradas na base neste momento."
+        )
+
+    if has_any(text_n, ["chuva", "chovendo", "dia de chuva", "com chuva"]):
+        items = filter_passeios_by_ideal(passeios, "chuva")
+        if not items:
+            items = filter_passeios_by_clima(passeios, "chuva")
+
+        if items:
+            linhas = [build_passeio_line(p) for p in items]
+            return (
+                "Se a ideia for algo bom para **chuva** ☔\n\n"
+                + "\n".join(linhas)
+                + "\n\nSe quiser, eu também posso te sugerir o melhor para **família**, **cinema** ou **shopping**."
+            )
+
+    if has_any(text_n, ["familia", "família", "crianca", "criança", "criancas", "crianças"]):
+        items = filter_passeios_by_ideal(passeios, "familia")
+        if not items:
+            items = filter_passeios_by_ideal(passeios, "criancas")
+
+        if items:
+            linhas = [build_passeio_line(p) for p in items]
+            return (
+                "Se quiser algo legal para **família** 😊\n\n"
+                + "\n".join(linhas)
+                + "\n\nSe quiser, eu também posso separar algo melhor para **chuva**, **fim de tarde** ou **passeio leve**."
+            )
+
+    if has_any(text_n, ["mirante", "vista", "por do sol", "pôr do sol", "foto", "fotos"]):
+        items = filter_passeios_by_tipo_or_categoria(passeios, "mirante")
+        if items:
+            item = items[0]
+            set_last_entity(item.get("nome", ""), "passeio")
+            return (
+                f"Se a ideia for **vista** ou **mirante** ✨\n\n"
+                f"Uma ótima referência é o **{item.get('nome', 'Morro do Maluf - Mirante da Campina')}**.\n\n"
+                f"{item.get('observacao', 'Boa escolha para fotos e fim de tarde.')}"
+            )
+
+    if has_any(text_n, ["cinema"]):
+        items = filter_passeios_by_tipo_or_categoria(passeios, "cinema")
+        if items:
+            item = items[0]
+            set_last_entity(item.get("nome", ""), "passeio")
+            return (
+                f"Se quiser **cinema** 🎬\n\n"
+                f"Uma boa opção é o **{item.get('nome', 'Cinema Cine Guarujá')}**.\n\n"
+                f"{item.get('perfil', item.get('observacao', 'Boa opção para passeio coberto.'))}"
+            )
+
+    if has_any(text_n, ["shopping", "shoppings"]):
+        items = filter_passeios_by_tipo_or_categoria(passeios, "shopping")
+        if items:
+            linhas = [build_passeio_line(p) for p in items]
+            return (
+                "Se quiser **shopping** 🛍️\n\n"
+                + "\n".join(linhas)
+                + "\n\nSe quiser, eu também posso te dizer qual faz mais sentido para **chuva**, **família** ou combinar com **cinema**."
+            )
+
+    if has_any(text_n, ["feira", "feirinha", "feiras"]):
+        items = filter_passeios_by_tipo_or_categoria(passeios, "feira")
+        if items:
+            item = items[0]
+            set_last_entity(item.get("nome", ""), "passeio")
+            return (
+                f"Se quiser algo mais local 😊\n\n"
+                f"Uma boa pedida é a **{item.get('nome', 'Feira da Enseada')}**.\n\n"
+                f"{item.get('perfil', item.get('observacao', 'Boa opção para passeio leve no fim do dia.'))}"
+            )
+
+    if has_any(text_n, ["parque", "ao ar livre", "ar livre", "natureza"]):
+        items = filter_passeios_by_tipo_or_categoria(passeios, "parque")
+        if items:
+            item = items[0]
+            set_last_entity(item.get("nome", ""), "passeio")
+            return (
+                f"Se a ideia for algo mais ao ar livre 🌿\n\n"
+                f"Uma referência legal é o **{item.get('nome', 'Parque Ecológico Renan C. Teixeira')}**.\n\n"
+                f"{item.get('perfil', item.get('observacao', 'Boa opção para passeio leve.'))}"
+            )
+
+    if has_any(text_n, ["aquario", "aquário", "acqua mundo"]):
+        items = filter_passeios_by_tipo_or_categoria(passeios, "aquario")
+        if items:
+            item = items[0]
+            set_last_entity(item.get("nome", ""), "passeio")
+            return (
+                f"Uma boa opção por aqui é o **{item.get('nome', 'Acqua Mundo - Aquário Guarujá')}** 😊\n\n"
+                f"{item.get('perfil', item.get('observacao', 'Costuma funcionar muito bem para famílias e dias de chuva.'))}"
+            )
+
+    linhas = [build_passeio_line(p) for p in passeios[:6]]
+    return (
+        "Se quiser passeio por aqui 😊\n\n"
+        "Aqui vão algumas boas opções:\n\n"
+        + "\n".join(linhas)
+        + "\n\nSe quiser, eu também posso filtrar por **chuva**, **família**, **shopping**, **cinema**, **mirante** ou **feira**."
+    )
+
+
 def get_mercado_reply(text):
     text_n = normalize_text(text)
     mercados = get_markets_data()
@@ -2459,10 +2642,7 @@ def get_problem_reply(text):
 
 
 def get_acqua_mundo_reply():
-    return (
-        "Uma boa opção por aqui é o **Acqua Mundo** 😊\n\n"
-        "Se quiser, depois eu também posso te ajudar melhor com passeios e o que fazer no Guarujá."
-    )
+    return get_passeios_reply("acqua mundo")
 
 
 def get_eventos_reply():
@@ -2523,17 +2703,11 @@ def get_bares_reply():
 
 
 def get_shopping_reply():
-    return (
-        "Se quiser shopping, uma referência útil é o **Shopping La Plage** 🛍️\n\n"
-        "Ele costuma ser uma boa opção para passeio, lojas e alimentação."
-    )
+    return get_passeios_reply("shopping")
 
 
 def get_feira_reply():
-    return (
-        "Se quiser algo mais local, também vale procurar a **Feira da Enseada** 😊\n\n"
-        "Ela costuma ser uma boa opção para artesanato, lembranças e um passeio mais leve no fim do dia."
-    )
+    return get_passeios_reply("feira")
 
 
 def get_tempo_reply():
@@ -2740,6 +2914,25 @@ def get_followup_reply(text, last_topic, guest):
 
     if topic == "incidente":
         return get_problem_reply(text)
+
+    if topic == "passeio":
+        if has_any(text_n, ["chuva", "chovendo", "dia de chuva"]):
+            return get_passeios_reply("chuva")
+
+        if has_any(text_n, ["familia", "família", "crianca", "criança", "criancas", "crianças"]):
+            return get_passeios_reply("familia")
+
+        if has_any(text_n, ["shopping"]):
+            return get_passeios_reply("shopping")
+
+        if has_any(text_n, ["cinema"]):
+            return get_passeios_reply("cinema")
+
+        if has_any(text_n, ["mirante", "vista", "por do sol", "pôr do sol"]):
+            return get_passeios_reply("mirante")
+
+        if has_any(text_n, ["feira", "feirinha"]):
+            return get_passeios_reply("feira")
 
     if topic == "tempo":
         if has_any(text_n, ["e pra praia", "compensa", "vale a pena", "e hoje"]):
@@ -3328,7 +3521,7 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "tempo", get_tempo_reply(), remembered, intent_for_session="tempo")
 
     if intent == "passeio":
-        return finalize_and_log(guest, text_raw, "passeio", get_acqua_mundo_reply(), remembered, intent_for_session="passeio")
+        return finalize_and_log(guest, text_raw, "passeio", get_passeios_reply(text_raw), remembered, intent_for_session="passeio")
 
     if intent == "eventos":
         return finalize_and_log(guest, text_raw, "eventos", get_eventos_reply(), remembered, intent_for_session="eventos")
