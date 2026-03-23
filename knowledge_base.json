@@ -122,7 +122,7 @@
       "ideal_para": [
         "pizza",
         "jantar",
-        "família",
+        "familia",
         "grupo"
       ],
       "faixa_preco": "medio",
@@ -178,7 +178,7 @@
         "jantar",
         "hambúrguer artesanal",
         "pizza",
-        "família"
+        "familia"
       ],
       "faixa_preco": "medio",
       "observacao": "fica na beira da praia e possui espaço kids"
@@ -251,6 +251,181 @@
       ],
       "faixa_preco": "medio",
       "observacao": "tem visual muito bonito e vale pela experiência"
+    }
+  ],
+  "passeios": [
+    {
+      "nome": "Acqua Mundo - Aquário Guarujá",
+      "tipo": "aquario",
+      "categoria": "coberto",
+      "endereco": "Av. Miguel Estefno, 2001 - Jardim Tres Marias, Guarujá - SP, 11440-532",
+      "horario": "Segunda-feira à Sexta-feira: 10h às 18h. Sábado: 10h às 21h. Domingo: 10h às 18h",
+      "telefone": "(13) 3398-3000 / (13) 3379-2708",
+      "whatsapp": "(13) 3398-3003",
+      "email": "agendamento@acquamundo.com.br",
+      "perfil": "boa opção de passeio coberto e costuma funcionar muito bem para famílias",
+      "ideal_para": [
+        "familia",
+        "criancas",
+        "chuva",
+        "passeio leve"
+      ],
+      "melhor_momento": [
+        "manha",
+        "tarde"
+      ],
+      "clima_ideal": [
+        "chuva",
+        "nublado",
+        "qualquer_tempo"
+      ],
+      "observacao": "ótima pedida para dias de chuva ou para quem quer um passeio mais leve"
+    },
+    {
+      "nome": "Shopping Enseada",
+      "tipo": "shopping",
+      "categoria": "coberto",
+      "endereco": "R. Argentina, 50 - Enseada, Guarujá - SP, 11440-370",
+      "horario": "Domingo à Quinta-feira: 10h às 20h. Sexta-feira e Sábado: 10h às 22h",
+      "site": "http://www.shoppingenseada.com.br",
+      "perfil": "bom espaço para a família com conveniências, lojas e alimentação",
+      "ideal_para": [
+        "familia",
+        "chuva",
+        "compras",
+        "passeio leve"
+      ],
+      "melhor_momento": [
+        "tarde",
+        "fim_de_tarde",
+        "noite"
+      ],
+      "clima_ideal": [
+        "chuva",
+        "nublado",
+        "qualquer_tempo"
+      ],
+      "observacao": "boa opção para quem quer passeio coberto com praticidade"
+    },
+    {
+      "nome": "Shopping La Plage",
+      "tipo": "shopping",
+      "categoria": "coberto",
+      "endereco": "Av. Mal. Deodoro da Fonseca, 885 - Pitangueiras, Guarujá - SP, 11410-221",
+      "horario": "10h às 22h",
+      "telefone": "(13) 3386-6819",
+      "perfil": "shopping com cinema, lojas e praça de alimentação",
+      "ideal_para": [
+        "chuva",
+        "compras",
+        "cinema",
+        "passeio leve"
+      ],
+      "melhor_momento": [
+        "tarde",
+        "fim_de_tarde",
+        "noite"
+      ],
+      "clima_ideal": [
+        "chuva",
+        "nublado",
+        "qualquer_tempo"
+      ],
+      "observacao": "boa opção para combinar passeio coberto com cinema ou alimentação"
+    },
+    {
+      "nome": "Cinema Cine Guarujá",
+      "tipo": "cinema",
+      "categoria": "coberto",
+      "endereco": "Shopping La Plage - Av. Mal. Deodoro da Fonseca, 885 - Loja 56 - Centro, Guarujá - SP, 11410-221",
+      "horario": "10h às 22h",
+      "telefone": "(13) 3386-6905",
+      "perfil": "boa opção para passeio coberto e mais tranquilo",
+      "ideal_para": [
+        "chuva",
+        "casal",
+        "familia",
+        "noite"
+      ],
+      "melhor_momento": [
+        "tarde",
+        "noite"
+      ],
+      "clima_ideal": [
+        "chuva",
+        "nublado",
+        "qualquer_tempo"
+      ],
+      "observacao": "faz sentido para quem quer um programa mais leve ou noturno"
+    },
+    {
+      "nome": "Feira da Enseada",
+      "tipo": "feira",
+      "categoria": "aberto",
+      "endereco": "Av. Miguel Estefno, 1817 - Jardim Vitoria, Guarujá - SP, 11440-532",
+      "horario": "Domingo: 14h às 22h. Segunda-feira: 14h às 23h. Terça-feira e Quarta-feira: fechado. Quinta-feira e Sexta-feira: 16h às 00h. Sábado: 14h às 00h",
+      "perfil": "passeio mais leve com lojas, restaurantes, bares e atividades infantis",
+      "ideal_para": [
+        "familia",
+        "fim_de_tarde",
+        "noite",
+        "passeio leve"
+      ],
+      "melhor_momento": [
+        "fim_de_tarde",
+        "noite"
+      ],
+      "clima_ideal": [
+        "tempo_firme",
+        "sol",
+        "nublado"
+      ],
+      "observacao": "boa opção para passear no fim do dia e curtir algo mais local"
+    },
+    {
+      "nome": "Morro do Maluf - Mirante da Campina",
+      "tipo": "mirante",
+      "categoria": "aberto",
+      "endereco": "Rua Morro do Maluf, 240, Enseada, Guarujá, 11440-530",
+      "perfil": "mirante público com vista panorâmica muito bonita da orla",
+      "ideal_para": [
+        "casal",
+        "fotos",
+        "por_do_sol",
+        "passeio leve"
+      ],
+      "melhor_momento": [
+        "fim_de_tarde",
+        "por_do_sol"
+      ],
+      "clima_ideal": [
+        "sol",
+        "tempo_firme",
+        "nublado_sem_chuva"
+      ],
+      "observacao": "boa escolha para fotos, vista e fim de tarde"
+    },
+    {
+      "nome": "Parque Ecológico Renan C. Teixeira",
+      "tipo": "parque",
+      "categoria": "aberto",
+      "endereco": "R. Bolívia, 377 - Enseada I, Guarujá - SP, 11441-080",
+      "perfil": "parque público para passeio ao ar livre",
+      "ideal_para": [
+        "familia",
+        "passeio leve",
+        "ar_livre"
+      ],
+      "melhor_momento": [
+        "manha",
+        "tarde"
+      ],
+      "clima_ideal": [
+        "sol",
+        "tempo_firme",
+        "nublado_sem_chuva"
+      ],
+      "observacao": "boa opção para quem quer algo mais tranquilo e ao ar livre"
     }
   ],
   "mercados": [
@@ -431,149 +606,6 @@
     ],
     "fechamento": "Se quiser, eu também posso te orientar sobre quando vale falar com a portaria, com a equipe do prédio ou comigo por aqui.\n\n**E, se for necessário, também posso avisar rapidamente o seu anfitrião, Bruno.**"
   },
-  "passeios": [
-    {
-      "nome": "Acqua Mundo - Aquário Guarujá",
-      "categoria": "aquario",
-      "tipo": "familia",
-      "endereco": "Av. Miguel Estefno, 2001 - Jardim Tres Marias, Guarujá - SP, 11440-532",
-      "horario": "Segunda-feira à sexta: 10h às 18h | Sábado: 10h às 21h | Domingo: 10h às 18h",
-      "telefones": [
-        "(13) 3398-3000",
-        "(13) 3379-2708"
-      ],
-      "whatsapp": "(13) 3398-3003",
-      "email": "agendamento@acquamundo.com.br",
-      "coberto": true,
-      "ideal_para": [
-        "família",
-        "dias de chuva",
-        "passeio leve"
-      ],
-      "periodo": [
-        "manhã",
-        "tarde"
-      ],
-      "observacao": "costuma funcionar muito bem para famílias e também em dias de chuva"
-    },
-    {
-      "nome": "Feira da Enseada",
-      "categoria": "feira",
-      "tipo": "passeio",
-      "endereco": "Av. Miguel Estefno, 1817 - Jardim Vitoria, Guarujá - SP, 11440-532",
-      "horario": "Domingo: 14h às 22h | Segunda-feira: 14h às 23h | Terça e quarta: fechado | Quinta e sexta: 16h às 00h | Sábado: 14h às 00h",
-      "coberto": false,
-      "ideal_para": [
-        "família",
-        "fim de tarde",
-        "passeio informal",
-        "crianças"
-      ],
-      "periodo": [
-        "tarde",
-        "noite"
-      ],
-      "observacao": "complexo de lojas, restaurantes, bares e atividades infantis"
-    },
-    {
-      "nome": "Shopping Enseada",
-      "categoria": "shopping",
-      "tipo": "familia",
-      "endereco": "R. Argentina, 50 - Enseada, Guarujá - SP, 11440-370",
-      "horario": "Domingo à quinta: 10h às 20h | Sexta e sábado: 10h às 22h",
-      "site": "http://www.shoppingenseada.com.br",
-      "coberto": true,
-      "ideal_para": [
-        "família",
-        "chuva",
-        "compras",
-        "passeio leve"
-      ],
-      "periodo": [
-        "manhã",
-        "tarde",
-        "noite"
-      ],
-      "observacao": "ótimo espaço para a família com conveniências, boutique de carnes, restaurantes, lojas de presentes, utilidades, moda praia, esportes e muito mais"
-    },
-    {
-      "nome": "Shopping La Plage",
-      "categoria": "shopping",
-      "tipo": "passeio",
-      "endereco": "Av. Mal. Deodoro da Fonseca, 885 - Pitangueiras, Guarujá - SP, 11410-221",
-      "horario": "10h às 22h",
-      "telefone": "(13) 3386-6819",
-      "coberto": true,
-      "ideal_para": [
-        "chuva",
-        "shopping",
-        "cinema",
-        "praça de alimentação"
-      ],
-      "periodo": [
-        "manhã",
-        "tarde",
-        "noite"
-      ],
-      "observacao": "possui cinema, lojas e praça de alimentação"
-    },
-    {
-      "nome": "Cinema Cine Guarujá",
-      "categoria": "cinema",
-      "tipo": "chuva",
-      "endereco": "Shopping La Plage - Av. Mal. Deodoro da Fonseca, 885 - Loja 56 - Centro, Guarujá - SP, 11410-221",
-      "horario": "10h às 22h",
-      "telefone": "(13) 3386-6905",
-      "coberto": true,
-      "ideal_para": [
-        "chuva",
-        "casal",
-        "família",
-        "noite leve"
-      ],
-      "periodo": [
-        "tarde",
-        "noite"
-      ],
-      "observacao": "boa opção de passeio coberto"
-    },
-    {
-      "nome": "Parque Ecológico Renan C. Teixeira",
-      "categoria": "parque",
-      "tipo": "ao_ar_livre",
-      "endereco": "R. Bolívia, 377 - Enseada I, Guarujá - SP, 11441-080",
-      "coberto": false,
-      "ideal_para": [
-        "família",
-        "passeio leve",
-        "ao ar livre"
-      ],
-      "periodo": [
-        "manhã",
-        "tarde"
-      ],
-      "observacao": "parque público"
-    },
-    {
-      "nome": "Morro do Maluf - Mirante da Campina",
-      "categoria": "mirante",
-      "tipo": "vista",
-      "endereco": "Rua Morro do Maluf, 240, Enseada, Guarujá, 11440-530",
-      "coberto": false,
-      "ideal_para": [
-        "fotos",
-        "vista",
-        "pôr do sol",
-        "passeio",
-        "mirante"
-      ],
-      "periodo": [
-        "tarde",
-        "fim de tarde"
-      ],
-      "observacao": "ponto turístico gratuito e icônico, com vista panorâmica da orla; ideal para fotos, pôr do sol, rapel e voo livre"
-    }
-  ],
   "surf": {
     "praias": [
       {
@@ -630,7 +662,7 @@
       "perfil": "mais animado, familiar e com entretenimento",
       "ideal_para": [
         "grupo",
-        "família",
+        "familia",
         "noite",
         "boliche",
         "música ao vivo"
