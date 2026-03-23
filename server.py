@@ -874,6 +874,38 @@ def get_entity_detail_reply(entity, field):
     )
 
 
+def get_entity_summary_reply(entity):
+    if not entity:
+        return ""
+
+    item = entity.get("item", {})
+    category = entity.get("category", "")
+    nome = item.get("nome", "Local")
+    perfil = item.get("perfil", "")
+    obs = item.get("observacao", "")
+    endereco = item.get("endereco", "")
+    horario = item.get("horario", "")
+
+    set_last_entity(nome, category)
+
+    reply = f"Claro 😊\n\n**{nome}**"
+    if perfil:
+        reply += f"\n\n{perfil}."
+    elif obs:
+        reply += f"\n\n{obs}"
+
+    details = []
+    if endereco:
+        details.append(f"• Endereço: {endereco}")
+    if horario:
+        details.append(f"• Horário: {horario}")
+
+    if details:
+        reply += "\n\n" + "\n".join(details)
+
+    return reply
+
+
 def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
     text_n = normalize_text(text_raw)
     field = get_requested_detail_field(text_raw)
@@ -885,46 +917,19 @@ def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
     if explicit_entity:
         return True
 
-    blocking_intents = ["regras", "praia", "apoio_predio", "restaurantes", "mercado", "saude", "farmacia", "bruno", "incidente", "checkout"]
-    if inferred_intent in blocking_intents:
-        return False
-
-    if has_any(text_n, [
-        "horario de silencio", "horário de silêncio",
-        "servico de praia", "serviço de praia",
-        "contato no predio", "contato no prédio",
-        "com quem falar no predio", "com quem falar no prédio",
-        "quem contactar no predio", "quem contactar no prédio",
-        "ajuda no condominio", "ajuda no condomínio",
-        "ajuda no predio", "ajuda no prédio"
-    ]):
-        return False
-
     sess = load_session()
     has_last_entity = bool((sess.get("last_entity_name") or "").strip())
-    if not has_last_entity:
-        return False
-
-    short_followups = [
-        "e o endereco", "e o endereço",
-        "e o horario", "e o horário",
-        "e o telefone",
-        "e o site",
-        "e o instagram",
-        "e o whatsapp",
-        "e o delivery",
-        "e a entrega",
-        "e a retirada",
-        "e o drive through",
-        "qual o endereco", "qual o endereço",
-        "qual o horario", "qual o horário",
-        "qual o telefone",
-        "qual o site",
-        "qual o instagram",
-        "qual o whatsapp"
-    ]
-
-    if text_n in short_followups or text_n.startswith("e o ") or text_n.startswith("e a "):
+    if has_last_entity:
+        if has_any(text_n, [
+            "horario de silencio", "horário de silêncio",
+            "servico de praia", "serviço de praia",
+            "contato no predio", "contato no prédio",
+            "com quem falar no predio", "com quem falar no prédio",
+            "quem contactar no predio", "quem contactar no prédio",
+            "ajuda no condominio", "ajuda no condomínio",
+            "ajuda no predio", "ajuda no prédio"
+        ]):
+            return False
         return True
 
     return False
@@ -1424,7 +1429,9 @@ def score_intents(text_raw, last_topic=""):
         "o que fazer agora", "algum passeio", "alguma ideia de passeio",
         "lugar para ir", "lugares para ir", "algo para fazer",
         "o que fazer com chuva", "o que fazer se chover",
-        "mirante", "cinema"
+        "mirante", "cinema", "acqua mundo", "aquario", "aquário",
+        "parque", "morro do maluf", "shopping la plage",
+        "shopping enseada", "feira da enseada"
     ]):
         add("passeio", 9)
 
@@ -2424,7 +2431,7 @@ def get_farmacia_reply(text=""):
                 nome = f.get("nome", "")
                 horario = f.get("horario", "")
                 obs = f.get("observacao", "")
-                linha = f"• **{nome}**"
+                                linha = f"• **{nome}**"
                 if horario:
                     linha += f" → {horario}"
                 if obs:
@@ -3379,6 +3386,20 @@ def gepetto_responde(msg):
                 intent_for_session="detalhe_local"
             )
 
+    explicit_entity = resolve_entity_from_text(text_raw)
+    if explicit_entity and not looks_like_detail_question(text_raw):
+        summary_reply = get_entity_summary_reply(explicit_entity)
+        if summary_reply:
+            return finalize_and_log(
+                guest,
+                text_raw,
+                explicit_entity.get("category", "local"),
+                summary_reply,
+                remembered,
+                used_followup=True,
+                intent_for_session="entidade_explicita"
+            )
+
     inferred_intent = inferred_intent_preview
 
     if is_followup_candidate(text_raw, last_topic, inferred_intent):
@@ -3568,3 +3589,4 @@ def welcome():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
+               
