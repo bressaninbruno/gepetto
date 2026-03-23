@@ -1125,6 +1125,16 @@ def infer_contextual_followup(text_raw, last_topic):
     if not last_topic:
         return ""
 
+    if last_topic == "praia":
+        if has_any(text_n, [
+            "onde fica", "localizacao", "localização",
+            "servico de praia", "serviço de praia",
+            "horario", "horário", "que horas", "que horas funciona",
+            "funciona que horas", "ate que horas", "até que horas",
+            "como funciona", "funciona"
+        ]):
+            return "praia"
+
     if has_any(text_n, [
         "mais perto", "perto", "mais barato", "barato",
         "mais especial", "especial", "mais completo", "completo",
@@ -1151,7 +1161,8 @@ def infer_contextual_followup(text_raw, last_topic):
         "localizacao", "localização", "horario", "horário",
         "servico", "serviço", "envie", "manda", "pode mandar",
         "farmacia", "farmácia", "upa", "hospital", "todos", "todas",
-        "pizza", "japones", "japonês", "doce", "vista"
+        "pizza", "japones", "japonês", "doce", "vista",
+        "que horas", "como funciona"
     ]
     if text_n in very_short_contextual:
         return last_topic
@@ -2594,7 +2605,7 @@ def get_followup_reply(text, last_topic, guest):
     session = load_session()
     last_rec_name = session.get("last_recommendation_name", "")
 
-    if topic == "praia":
+    if last_topic == "praia" or topic == "praia":
         if has_any(text_n, [
             "onde fica", "localizacao", "localização",
             "servico de praia", "serviço de praia"
@@ -2608,9 +2619,14 @@ def get_followup_reply(text, last_topic, guest):
             servico = knowledge().get("praia", {}).get("servico_praia", {})
             return f"Claro 😊\n\nO serviço de praia funciona das **{servico.get('horario', '9h às 17h')}**."
 
-        if has_any(text_n, ["como funciona", "funciona", "servico", "serviço"]):
+        if has_any(text_n, [
+            "como funciona", "funciona", "servico", "serviço"
+        ]):
             servico = knowledge().get("praia", {}).get("servico_praia", {})
             return f"Claro 😊\n\n{servico.get('como_funciona', 'Os itens ficam montados na areia durante o horário do serviço.')}"
+
+        if has_any(text_n, ["mais tarde", "ainda hoje"]):
+            return "Se for ainda hoje, eu aproveitaria enquanto o serviço está funcionando e já deixaria o fim do dia mais leve 😉"
 
     if topic == "restaurantes":
         restaurantes = get_restaurants_data()
