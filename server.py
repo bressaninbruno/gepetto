@@ -1061,19 +1061,6 @@ def resolve_last_entity_from_session():
     return None
 
 
-def get_alternative_item(items, current_name=""):
-    if not items:
-        return None
-
-    current_n = normalize_text(current_name)
-    for item in items:
-        nome = normalize_text(item.get("nome", ""))
-        if nome and nome != current_n:
-            return item
-
-    return None
-
-
 def get_entity_detail_reply(entity, field):
     if not entity or not field:
         return ""
@@ -1162,7 +1149,8 @@ def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
         return False
 
     if last_topic == "praia" and has_any(text_n, [
-        "horario", "horário", "que horas", "que horas funciona",
+        "horario", "horário", "horarios", "horários",
+        "que horas", "que horas funciona",
         "funciona que horas", "ate que horas", "até que horas",
         "onde fica", "localizacao", "localização",
         "endereco", "endereço",
@@ -1194,7 +1182,7 @@ def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
         ]):
             return False
 
-        if field in ["delivery", "takeout", "drive_through"] and last_topic not in ["farmacia", "restaurantes", "mercado", "saude"]:
+        if not is_safe_context_for_generic_detail(last_topic, field) and not resolve_entity_from_text(text_raw):
             return False
 
         return True
@@ -1635,6 +1623,12 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
     if not last_topic:
         return False
 
+    if should_prefer_new_intent_over_context(text_raw, last_topic, inferred_intent):
+        return False
+
+    if should_ask_for_followup_reference(text_raw, last_topic, inferred_intent):
+        return False
+
     text_n = normalize_text(text_raw)
 
     strong_new_intents = [
@@ -1667,6 +1661,163 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         return True
 
     return False
+
+
+def is_ambiguous_reference_message(text_raw):
+    text_n = normalize_text(text_raw)
+
+    exacts = {
+        "esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí",
+        "o outro", "a outra", "outro", "outra",
+        "qual", "qual deles", "qual delas",
+        "endereco", "endereço",
+        "horario", "horário", "horarios", "horários",
+        "entrega", "delivery",
+        "compensa", "vale a pena"
+    }
+
+    if text_n in exacts:
+        return True
+
+    return False
+
+
+def has_reference_anchor_for_topic(last_topic):
+    sess = load_session()
+
+    if last_topic in ["restaurantes", "mercado", "passeio"]:
+        current_active = get_current_active_recommendation(last_topic)
+        if current_active:
+            return True
+
+    if (sess.get("last_entity_name") or "").strip():
+        return True
+
+    if (sess.get("last_recommendation_name") or "").strip():
+        return True
+
+    return False
+
+
+def is_safe_context_for_generic_detail(last_topic, field):
+    topic_n = normalize_text(last_topic)
+
+    if field in ["endereco", "horario"]:
+        return topic_n in [
+            "praia", "localizacao", "saude",
+            "restaurantes", "mercado", "farmacia",
+            "padaria", "passeio"
+        ]
+
+    if field in ["delivery", "takeout", "drive_through"]:
+        return topic_n in ["restaurantes", "mercado", "farmacia", "saude"]
+
+    if field in ["telefone", "site", "instagram", "whatsapp"]:
+        return topic_n in [
+            "restaurantes", "mercado", "farmacia",
+            "padaria", "passeio", "saude"
+        ]
+
+    return False
+
+
+def should_prefer_new_intent_over_context(text_raw, last_topic, inferred_intent):
+    if not last_topic or not inferred_intent:
+        return False
+
+    if inferred_intent == last_topic:
+        return False
+
+    text_n = normalize_text(text_raw)
+
+    explicit_markers = {
+        "wifi": ["wifi", "wi-fi", "internet", "senha do wifi", "senha da internet"],
+        "regras": ["regra", "regras", "silencio", "silêncio", "barulho", "lixo", "fumar", "festa"],
+        "localizacao": [
+            "qual o endereco", "qual o endereço", "endereco daqui", "endereço daqui",
+            "endereco para entrega", "endereço para entrega",
+            "endereco para delivery", "endereço para delivery",
+            "onde estamos", "onde fica aqui"
+        ],
+        "saude": ["estou doente", "doente", "passando mal", "mal estar", "mal-estar", "dor", "febre", "vomito", "vômito", "enjoo"],
+        "incidente": ["quebrou", "nao funciona", "não funciona", "problema", "defeito", "porta nao abre", "porta não abre", "sem energia"],
+        "checkout": ["checkout", "check-out", "ir embora", "antes de sair"],
+        "chaves": ["chave", "chaves", "tag", "portao", "portão", "portaria"],
+        "garagem": ["garagem", "vaga", "estacionar", "estacionamento"],
+        "bruno": ["bruno", "anfitriao", "anfitrião", "host"],
+        "praia": ["praia", "servico de praia", "serviço de praia", "guarda-sol", "cadeira de praia"],
+        "farmacia": ["farmacia", "farmácia", "farmacias", "farmácias", "remedio", "remédio"],
+        "mercado": ["mercado", "mercados", "supermercado", "supermercados", "compras"],
+        "restaurantes": ["restaurante", "restaurantes", "jantar", "comer", "pizza", "japones", "japonês", "sushi"],
+        "tempo": ["tempo", "clima", "vai chover", "previsao", "previsão"],
+        "passeio": ["o que fazer", "passeio", "passeios", "cinema", "mirante", "shopping", "feira", "chuva"],
+        "shopping": ["shopping", "la plage"],
+        "feira": ["feira", "feirinha"],
+        "bares": ["bar", "bares", "drink", "drinks", "noite", "cerveja"]
+    }
+
+    markers = explicit_markers.get(inferred_intent, [])
+    if markers and has_any(text_n, markers):
+        return True
+
+    return False
+
+
+def should_ask_for_followup_reference(text_raw, last_topic, inferred_intent):
+    if not last_topic:
+        return False
+
+    if should_prefer_new_intent_over_context(text_raw, last_topic, inferred_intent):
+        return False
+
+    if not is_ambiguous_reference_message(text_raw):
+        return False
+
+    field = get_requested_detail_field(text_raw)
+
+    if field:
+        if not is_safe_context_for_generic_detail(last_topic, field):
+            return True
+
+        if field in ["endereco", "horario", "telefone", "site", "instagram", "whatsapp"]:
+            if not has_reference_anchor_for_topic(last_topic) and last_topic not in ["praia", "localizacao", "saude"]:
+                return True
+
+        if field in ["delivery", "takeout", "drive_through"]:
+            if not has_reference_anchor_for_topic(last_topic) and last_topic not in ["saude"]:
+                return True
+
+    if normalize_text(text_raw) in [
+        "esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí",
+        "o outro", "a outra", "outro", "outra",
+        "qual", "qual deles", "qual delas",
+        "compensa", "vale a pena"
+    ]:
+        if not has_reference_anchor_for_topic(last_topic):
+            return True
+
+    return False
+
+
+def get_followup_reference_clarifier(text_raw, last_topic):
+    field = get_requested_detail_field(text_raw)
+    topic_n = normalize_text(last_topic)
+
+    if field == "endereco":
+        return "Posso te passar isso sim 😊\n\nSó me diga de qual lugar você quer o **endereço**."
+    if field == "horario":
+        return "Posso te passar isso sim 😊\n\nSó me diga de qual lugar você quer o **horário**."
+    if field in ["delivery", "takeout", "drive_through"]:
+        return "Posso verificar isso 😊\n\nSó me diga de qual lugar ou opção você quer esse detalhe."
+
+    if topic_n in ["restaurantes", "mercado", "passeio"]:
+        return "Posso seguir por aqui 😊\n\nSó me diga qual opção você quer considerar."
+    if topic_n == "farmacia":
+        return "Posso seguir por aqui 😊\n\nSó me diga qual farmácia ou qual tipo de opção você quer considerar."
+    if topic_n == "saude":
+        return "Posso seguir por aqui 😊\n\nSó me diga se você quer **farmácia**, **UPA** ou **hospital**."
+
+    return "Posso te ajudar com isso 😊\n\nSó me diga qual local ou opção você quer que eu detalhe."
 
 
 def score_intents(text_raw, last_topic=""):
@@ -4150,6 +4301,18 @@ def gepetto_responde(msg):
                 used_followup=True,
                 intent_for_session=last_topic or "followup"
             )
+
+    if should_ask_for_followup_reference(text_raw, last_topic, inferred_intent):
+        clarify_reply = get_followup_reference_clarifier(text_raw, last_topic)
+        return finalize_and_log(
+            guest,
+            text_raw,
+            last_topic or "clarificacao_contexto",
+            clarify_reply,
+            remembered,
+            used_followup=True,
+            intent_for_session="clarificacao_contexto"
+        )
 
     intent = inferred_intent
 
