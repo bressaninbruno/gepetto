@@ -2431,7 +2431,8 @@ def get_farmacia_reply(text=""):
                 nome = f.get("nome", "")
                 horario = f.get("horario", "")
                 obs = f.get("observacao", "")
-                                linha = f"• **{nome}**"
+
+                linha = f"• **{nome}**"
                 if horario:
                     linha += f" → {horario}"
                 if obs:
