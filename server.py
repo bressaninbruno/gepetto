@@ -874,6 +874,19 @@ def resolve_last_entity_from_session():
     return None
 
 
+def get_alternative_item(items, current_name=""):
+    if not items:
+        return None
+
+    current_n = normalize_text(current_name)
+    for item in items:
+        nome = normalize_text(item.get("nome", ""))
+        if nome and nome != current_n:
+            return item
+
+    return None
+
+
 def get_entity_detail_reply(entity, field):
     if not entity or not field:
         return ""
@@ -965,6 +978,7 @@ def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
         "horario", "horário", "que horas", "que horas funciona",
         "funciona que horas", "ate que horas", "até que horas",
         "onde fica", "localizacao", "localização",
+        "endereco", "endereço",
         "servico de praia", "serviço de praia",
         "como funciona", "funciona"
     ]):
@@ -985,7 +999,6 @@ def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
             "quem contactar no predio", "quem contactar no prédio",
             "ajuda no condominio", "ajuda no condomínio",
             "ajuda no predio", "ajuda no prédio",
-            "entrega", "delivery",
             "todos", "todas",
             "farmacia", "farmácia", "farmacias", "farmácias",
             "restaurantes", "mercados", "supermercados",
@@ -993,6 +1006,10 @@ def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
             "upa", "hospital"
         ]):
             return False
+
+        if field in ["delivery", "takeout", "drive_through"] and last_topic not in ["farmacia", "restaurantes", "mercado", "saude"]:
+            return False
+
         return True
 
     return False
@@ -1268,9 +1285,18 @@ def infer_contextual_followup(text_raw, last_topic):
             "funciona que horas", "ate que horas", "até que horas",
             "como funciona", "funciona",
             "e o horario", "e o horário",
-            "e o endereco", "e o endereço"
+            "e o endereco", "e o endereço",
+            "endereco", "endereço"
         ]):
             return "praia"
+
+    if last_topic == "saude":
+        if has_any(text_n, [
+            "farmacia", "farmácia", "farmacias", "farmácias",
+            "upa", "hospital", "todos", "todas",
+            "24h", "vinte e quatro", "entrega", "delivery"
+        ]):
+            return "saude"
 
     if has_any(text_n, [
         "mais perto", "perto", "mais barato", "barato",
@@ -1292,6 +1318,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "upa", "hospital", "todos", "todas",
         "pizza", "japones", "japonês", "doce", "vista", "24h", "entrega",
         "shopping", "cinema", "mirante", "feira", "chuva", "familia", "família",
+        "tradicional", "classico", "clássico",
         "e o endereco", "e o endereço", "e o horario", "e o horário",
         "e entrega", "e delivery"
     ]):
@@ -1310,8 +1337,9 @@ def infer_contextual_followup(text_raw, last_topic):
         "o outro", "a outra", "outro", "outra",
         "esse lugar", "essa opcao", "essa opção",
         "esse ai", "esse aí", "essa ai", "essa aí",
-        "qual deles", "qual delas",
-        "endereco", "endereço", "entrega", "delivery"
+        "qual deles", "qual delas", "tem outro", "tem outra",
+        "endereco", "endereço",
+        "tradicional", "familia", "família", "chuva"
     ]
     if text_n in very_short_contextual:
         return last_topic
@@ -1433,7 +1461,8 @@ def score_intents(text_raw, last_topic=""):
         "almoco", "almoço", "jantar", "comer", "comida", "fome",
         "pizza", "japones", "japonês", "sushi", "doce", "sobremesa",
         "kopenhagen", "cacau show", "mcdonald", "burger", "burguer king",
-        "alcides", "thai lounge", "atlantico signature", "atlântico signature", "dati"
+        "alcides", "thai lounge", "atlantico signature", "atlântico signature", "dati",
+        "tradicional", "classico", "clássico", "frutos do mar"
     ]):
         add("restaurantes", 9)
 
@@ -1512,7 +1541,7 @@ def score_intents(text_raw, last_topic=""):
         "o que fazer com chuva", "o que fazer se chover",
         "mirante", "cinema", "acqua mundo", "aquario", "aquário",
         "parque", "morro do maluf", "shopping la plage",
-        "shopping enseada", "feira da enseada"
+        "shopping enseada", "feira da enseada", "familia", "família", "chuva"
     ]):
         add("passeio", 9)
 
@@ -2871,7 +2900,8 @@ def get_followup_reply(text, last_topic, guest):
     if last_topic == "praia" or topic == "praia":
         if has_any(text_n, [
             "onde fica", "localizacao", "localização",
-            "servico de praia", "serviço de praia"
+            "servico de praia", "serviço de praia",
+            "endereco", "endereço", "e o endereco", "e o endereço"
         ]):
             return get_servico_praia_localizacao_reply()
 
@@ -2900,6 +2930,19 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["outro restaurante", "outros restaurantes", "restaurantes"]):
             return get_restaurantes_reply("restaurantes")
 
+        if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
+            alt = get_alternative_item(restaurantes, last_rec_name)
+            if alt:
+                nome = alt.get("nome", "")
+                set_last_entity(nome, "restaurantes")
+                update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+                reply = f"Claro 😊\n\nUma outra boa opção é o **{nome}**."
+                if alt.get("perfil"):
+                    reply += f"\n\n{alt.get('perfil')}."
+                if alt.get("observacao"):
+                    reply += f"\n\n{alt.get('observacao')}"
+                return reply
+
         if has_any(text_n, ["mais perto", "perto"]):
             item = best_closest_item(restaurantes)
             if item:
@@ -2919,6 +2962,9 @@ def get_followup_reply(text, last_topic, guest):
 
         if has_any(text_n, ["mais especial", "especial", "romantico", "romântico", "sofisticado"]):
             return get_restaurantes_reply("especial")
+
+        if has_any(text_n, ["tradicional", "classico", "clássico", "frutos do mar"]):
+            return get_restaurantes_reply("tradicional")
 
         if has_any(text_n, ["pizza", "pizzaria"]):
             return get_restaurantes_reply("pizza")
@@ -2955,6 +3001,21 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["outro mercado", "outros mercados", "outras opcoes", "outras opções", "supermercados", "mercados"]):
             return get_mercado_reply("mercados")
 
+        if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
+            alt = get_alternative_item(mercados, last_rec_name)
+            if alt:
+                nome = alt.get("nome", "")
+                set_last_entity(nome, "mercado")
+                update_session(last_recommendation_type="mercado", last_recommendation_name=nome)
+                reply = f"Claro 😊\n\nUma outra boa opção é o **{nome}**."
+                if alt.get("distancia"):
+                    reply += f"\n• Distância: {format_distance(alt.get('distancia', ''))}"
+                if alt.get("perfil"):
+                    reply += f"\n\n{alt.get('perfil')}."
+                if alt.get("observacao"):
+                    reply += f"\n\n{alt.get('observacao')}"
+                return reply
+
         if has_any(text_n, ["mais completo", "completo", "grande", "variedade"]):
             return get_mercado_reply("completo")
 
@@ -2985,7 +3046,7 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["todos", "todas"]):
             return get_health_reply("todos")
         if has_any(text_n, ["farmacia", "farmácia", "farmacias", "farmácias"]):
-            return get_farmacia_reply(text)
+            return get_farmacia_reply("farmacia")
         if has_any(text_n, ["upa"]):
             return get_localizacao_reply("upa")
         if has_any(text_n, ["hospital"]):
@@ -3022,6 +3083,17 @@ def get_followup_reply(text, last_topic, guest):
 
         if has_any(text_n, ["feira", "feirinha"]):
             return get_passeios_reply("feira")
+
+        if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
+            passeios = get_passeios_data()
+            alt = get_alternative_item(passeios, session.get("last_entity_name", ""))
+            if alt:
+                set_last_entity(alt.get("nome", ""), "passeio")
+                return (
+                    f"Claro 😊\n\n"
+                    f"Uma outra boa opção é **{alt.get('nome', 'esse passeio')}**.\n\n"
+                    f"{alt.get('perfil', alt.get('observacao', 'Pode ser uma boa alternativa por aqui.'))}"
+                )
 
     if topic == "tempo":
         if has_any(text_n, ["e pra praia", "compensa", "vale a pena", "e hoje"]):
@@ -3448,6 +3520,12 @@ def gepetto_responde(msg):
             )
 
     inferred_intent_preview = infer_primary_intent(text_raw, last_topic)
+
+    if last_topic == "saude" and has_any(text, [
+        "farmacia", "farmácia", "farmacias", "farmácias",
+        "upa", "hospital", "todos", "todas"
+    ]):
+        inferred_intent_preview = "saude"
 
     if should_use_entity_detail_mode(text_raw, inferred_intent_preview, last_topic):
         preferred_category = contextual_entity_category(last_topic, inferred_intent_preview)
