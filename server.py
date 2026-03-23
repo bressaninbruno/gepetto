@@ -1305,6 +1305,69 @@ def get_social_reply():
     return gepetto_line("social_1")
 
 
+def pick_confirmation_intro():
+    options = [
+        "Boa escolha 😊",
+        "Ótima escolha 😊",
+        "Boa 😊",
+        "Perfeito 😊"
+    ]
+    return random.choice(options)
+
+
+def pick_alternative_intro():
+    options = [
+        "Claro 😊",
+        "Sem problema 😊",
+        "Com certeza 😊",
+        "Boa 😊"
+    ]
+    return random.choice(options)
+
+
+def pick_comparison_intro():
+    options = [
+        "Depende mais do estilo que você quer 😊",
+        "Depende do que faria mais sentido para agora 😊",
+        "As opções mudam bastante conforme o momento 😊",
+        "Dá para te direcionar melhor dependendo do perfil que você quer 😊"
+    ]
+    return random.choice(options)
+
+
+def pick_followup_soft_close(topic=""):
+    closes = {
+        "restaurantes": [
+            "Se quiser, eu também posso afinar isso pelo estilo que você está procurando.",
+            "Se quiser, eu posso te dizer qual combina mais com o momento.",
+            "Se quiser, eu também posso te indicar o que eu escolheria sem erro."
+        ],
+        "mercado": [
+            "Se quiser, eu também posso resumir qual faz mais sentido agora.",
+            "Se quiser, eu afino isso para praticidade ou variedade.",
+            "Se quiser, eu também posso te dizer qual seria a melhor escolha para o que você precisa."
+        ],
+        "passeio": [
+            "Se quiser, eu também posso afinar isso por clima ou perfil.",
+            "Se quiser, eu posso te dizer qual combina mais com chuva, família ou algo mais leve.",
+            "Se quiser, eu também posso te direcionar para a opção mais prática agora."
+        ],
+        "farmacia": [
+            "Se quiser, eu também posso te direcionar pela urgência ou praticidade.",
+            "Se quiser, eu posso te dizer qual faz mais sentido para agora.",
+            "Se quiser, eu sigo por aqui e afino isso melhor."
+        ],
+        "generic": [
+            "Se quiser, eu sigo por aqui.",
+            "Se quiser, eu posso te afinar isso melhor.",
+            "Se quiser, eu continuo com você nessa."
+        ]
+    }
+
+    pool = closes.get(topic, closes["generic"])
+    return random.choice(pool)
+
+
 def mensagem_boas_vindas():
     guest = load_guest()
     inicio = saudacao_personalizada(guest)
@@ -2308,12 +2371,12 @@ def get_restaurantes_reply(text):
             current_name=nome
         )
         set_last_entity(nome, "restaurantes")
-        reply = f"Boa 😄\n\nUma opção prática nesse estilo é o **{nome}**, que fica a cerca de **{dist}**."
+        reply = f"Se a ideia for algo mais prático, eu iria no **{nome}**, que fica a cerca de **{dist}**."
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
             reply += f"\n\n{obs}"
-        reply += "\n\nSe quiser, também posso te sugerir algo mais tradicional, pizza, japonês ou algo mais especial 😉"
+        reply += "\n\nSe quiser, eu também posso te levar para algo mais tradicional, pizza, japonês ou uma opção mais especial."
         return reply
 
     if has_any(text_n, ["especial", "romantico", "romântico", "sofisticado", "premium"]):
@@ -2329,12 +2392,12 @@ def get_restaurantes_reply(text):
             current_name=nome
         )
         set_last_entity(nome, "restaurantes")
-        reply = f"Boa 😄\n\nSe quiser algo mais especial, o **{nome}** costuma ser uma ótima pedida ✨"
+        reply = f"Se você quiser algo mais especial, o **{nome}** costuma ser uma escolha muito boa ✨"
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
             reply += f"\n\n{obs}"
-        reply += f"\n\nSe preferir algo mais clássico e tradicional, o **{alt}** também é uma excelente escolha."
+        reply += f"\n\nSe preferir uma linha mais clássica e tradicional, o **{alt}** também costuma funcionar muito bem."
         return reply
 
     if has_any(text_n, ["tradicional", "classico", "clássico", "frutos do mar"]):
@@ -2349,7 +2412,7 @@ def get_restaurantes_reply(text):
             current_name=nome
         )
         set_last_entity(nome, "restaurantes")
-        reply = f"Se a ideia for algo mais tradicional 😊\n\nUma boa referência é o **{nome}**."
+        reply = f"Se a ideia for algo mais tradicional, uma boa referência é o **{nome}**."
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
@@ -2369,7 +2432,7 @@ def get_restaurantes_reply(text):
             current_name=nome
         )
         set_last_entity(nome, "restaurantes")
-        reply = f"Se a vontade for comida japonesa 🍣\n\nUma boa referência é o **{nome}**, que fica a cerca de **{dist}**."
+        reply = f"Se a vontade for japonês 🍣\n\nUma boa referência é o **{nome}**, que fica a cerca de **{dist}**."
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
@@ -2406,7 +2469,7 @@ def get_restaurantes_reply(text):
             current_name=nome
         )
         set_last_entity(nome, "restaurantes")
-        return f"Se quiser algo mais rápido 🍔\n\nO **{nome}** fica a cerca de **{dist}**."
+        return f"Se você quiser algo mais rápido 🍔\n\nO **{nome}** fica a cerca de **{dist}**."
 
     if has_any(text_n, ["doce", "sobremesa", "chocolate", "kopenhagen", "cacau show"]):
         item = doce or {}
@@ -2421,7 +2484,7 @@ def get_restaurantes_reply(text):
             current_name=nome
         )
         set_last_entity(nome, "restaurantes")
-        reply = f"Se a ideia for um doce ou uma lembrança gostosa 🍫\n\nA **{nome}** fica a cerca de **{dist}**."
+        reply = f"Se a ideia for um doce ou uma parada gostosa 🍫\n\nA **{nome}** fica a cerca de **{dist}**."
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
@@ -2440,7 +2503,7 @@ def get_restaurantes_reply(text):
             current_name=nome
         )
         set_last_entity(nome, "restaurantes")
-        reply = f"Se a ideia for um lugar com vista ✨\n\nO **{nome}** pode ser uma ótima escolha."
+        reply = f"Se a ideia for um lugar com vista ✨\n\nO **{nome}** pode funcionar muito bem."
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
@@ -2481,7 +2544,7 @@ def get_restaurantes_reply(text):
                 "Claro 😊\n\n"
                 "Aqui vão algumas boas referências de restaurantes por perto:\n\n"
                 + "\n".join(linhas)
-                + "\n\nSe quiser, também posso te sugerir uma opção mais **rápida**, **especial**, **tradicional**, de **pizza**, **japonês** ou com **vista** 😉"
+                + "\n\nSe quiser, eu também posso filtrar isso para algo mais **rápido**, mais **especial**, mais **tradicional**, **pizza**, **japonês** ou com **vista**."
             )
 
     if restaurantes:
@@ -2501,13 +2564,13 @@ def get_restaurantes_reply(text):
             current_name=restaurantes[0].get("nome", "") if restaurantes else ""
         )
         return (
-            "Boa 😄\n\n"
+            "Claro 😊\n\n"
             "Aqui vão algumas boas referências por perto:\n\n"
             + "\n".join(linhas)
-            + "\n\nSe quiser, posso filtrar por **rápido**, **especial**, **tradicional**, **pizza**, **japonês**, **doce** ou **todos** 😉"
+            + "\n\nSe quiser, eu posso afinar isso por estilo e te deixar só as opções que mais fazem sentido."
         )
 
-    return "Posso te ajudar com restaurantes 😊 Se quiser, me diga se procura algo rápido, especial, japonês, pizza ou todos."
+    return "Posso te ajudar com restaurantes 😊 Se quiser, me diga se você procura algo rápido, especial, tradicional, japonês, pizza ou todos."
 
 
 def get_passeios_reply(text=""):
@@ -2533,9 +2596,9 @@ def get_passeios_reply(text=""):
                 current_name=items[0].get("nome", "") if items else ""
             )
             return (
-                "Se a ideia for algo bom para **chuva** ☔\n\n"
+                "Se a ideia for algo bom para um dia de chuva ☔\n\n"
                 + "\n".join(linhas)
-                + "\n\nSe quiser, eu também posso te sugerir o melhor para **família**, **cinema** ou **shopping**."
+                + "\n\nSe quiser, eu também posso te afinar isso para família, cinema ou shopping."
             )
 
     if has_any(text_n, ["familia", "família", "crianca", "criança", "criancas", "crianças"]):
@@ -2551,9 +2614,9 @@ def get_passeios_reply(text=""):
                 current_name=items[0].get("nome", "") if items else ""
             )
             return (
-                "Se quiser algo legal para **família** 😊\n\n"
+                "Se você quiser algo legal para família 😊\n\n"
                 + "\n".join(linhas)
-                + "\n\nSe quiser, eu também posso separar algo melhor para **chuva**, **fim de tarde** ou **passeio leve**."
+                + "\n\nSe quiser, eu também posso separar isso melhor para chuva, fim de tarde ou algo mais leve."
             )
 
     if has_any(text_n, ["mirante", "vista", "por do sol", "pôr do sol", "foto", "fotos"]):
@@ -2567,7 +2630,7 @@ def get_passeios_reply(text=""):
                 current_name=item.get("nome", "")
             )
             return (
-                f"Se a ideia for **vista** ou **mirante** ✨\n\n"
+                f"Se a ideia for vista ou mirante ✨\n\n"
                 f"Uma ótima referência é o **{item.get('nome', 'Morro do Maluf - Mirante da Campina')}**.\n\n"
                 f"{item.get('observacao', 'Boa escolha para fotos e fim de tarde.')}"
             )
@@ -2584,14 +2647,14 @@ def get_passeios_reply(text=""):
                     passeios,
                     preferred_tipos=["shopping", "feira", "mirante", "aquario", "parque"],
                     limit=5
-            ),
-            current_name=item.get("nome", "")
-        )
-        return (
-            f"Se quiser **cinema** 🎬\n\n"
-            f"Uma boa opção é o **{item.get('nome', 'Cinema Cine Guarujá')}**.\n\n"
-            f"{item.get('perfil', item.get('observacao', 'Boa opção para passeio coberto.'))}"
-        )
+                ),
+                current_name=item.get("nome", "")
+            )
+            return (
+                f"Se quiser cinema 🎬\n\n"
+                f"Uma boa opção é o **{item.get('nome', 'Cinema Cine Guarujá')}**.\n\n"
+                f"{item.get('perfil', item.get('observacao', 'Boa opção para passeio coberto.'))}"
+            )
 
     if has_any(text_n, ["shopping", "shoppings"]):
         items = filter_passeios_by_tipo_or_categoria(passeios, "shopping")
@@ -2603,9 +2666,9 @@ def get_passeios_reply(text=""):
                 current_name=items[0].get("nome", "") if items else ""
             )
             return (
-                "Se quiser **shopping** 🛍️\n\n"
+                "Se você quiser shopping 🛍️\n\n"
                 + "\n".join(linhas)
-                + "\n\nSe quiser, eu também posso te dizer qual faz mais sentido para **chuva**, **família** ou combinar com **cinema**."
+                + "\n\nSe quiser, eu também posso te dizer qual faz mais sentido para chuva, família ou combinar com cinema."
             )
 
     if has_any(text_n, ["feira", "feirinha", "feiras"]):
@@ -2619,7 +2682,7 @@ def get_passeios_reply(text=""):
                 current_name=item.get("nome", "")
             )
             return (
-                f"Se quiser algo mais local 😊\n\n"
+                f"Se você quiser algo mais local 😊\n\n"
                 f"Uma boa pedida é a **{item.get('nome', 'Feira da Enseada')}**.\n\n"
                 f"{item.get('perfil', item.get('observacao', 'Boa opção para passeio leve no fim do dia.'))}"
             )
@@ -2662,10 +2725,10 @@ def get_passeios_reply(text=""):
         current_name=passeios[0].get("nome", "") if passeios else ""
     )
     return (
-        "Se quiser passeio por aqui 😊\n\n"
+        "Se você quiser passeio por aqui 😊\n\n"
         "Aqui vão algumas boas opções:\n\n"
         + "\n".join(linhas)
-        + "\n\nSe quiser, eu também posso filtrar por **chuva**, **família**, **shopping**, **cinema**, **mirante** ou **feira**."
+        + "\n\nSe quiser, eu também posso filtrar isso para chuva, família, shopping, cinema, mirante ou feira."
     )
 
 
@@ -2691,12 +2754,12 @@ def get_mercado_reply(text):
             current_name=nome
         )
         set_last_entity(nome, "mercado")
-        reply = f"Pra algo rápido 🛒\n\n• **{nome}** → {dist}"
+        reply = f"Se a ideia for resolver algo rápido, eu iria no **{nome}**.\n\n• Distância: {dist}"
         if perfil:
             reply += f"\n\n{perfil}."
         if obs:
             reply += f"\n\n{obs}"
-        reply += "\n\nPerfeito pra água, bebida ou emergência 👍"
+        reply += "\n\nÉ uma escolha bem prática para água, bebida ou alguma compra mais imediata."
         return reply
 
     if has_any(text_n, ["mercados", "supermercados", "outro mercado", "outros mercados", "outras opcoes", "outras opções", "todos", "todas"]):
@@ -2719,9 +2782,9 @@ def get_mercado_reply(text):
             )
             return (
                 "Claro 😊\n\n"
-                "Aqui vão outras opções de mercado por perto:\n\n"
+                "Aqui vão algumas opções de mercado por perto:\n\n"
                 + "\n".join(linhas)
-                + "\n\nSe quiser, eu também posso te dizer qual faz mais sentido para algo rápido ou para compra mais completa 😉"
+                + "\n\nSe quiser, eu também posso te dizer qual faz mais sentido para algo rápido ou para compra mais completa."
             )
 
     if has_any(text_n, ["completo", "grande", "variedade"]):
@@ -2741,9 +2804,9 @@ def get_mercado_reply(text):
             )
             set_last_entity(completos[0].get("nome", "Pão de Açúcar - Enseada"), "mercado")
             return (
-                "Se quiser um mercado mais completo:\n\n"
+                "Se você quiser um mercado mais completo, eu olharia para estas opções:\n\n"
                 + "\n".join(linhas)
-                + "\n\nEssas opções fazem mais sentido quando você quer mais variedade 🚗"
+                + "\n\nElas costumam fazer mais sentido quando a ideia é comprar com mais variedade."
             )
 
     if mercados:
@@ -2764,12 +2827,13 @@ def get_mercado_reply(text):
             current_name=mercados[0].get("nome", "") if mercados else ""
         )
         return (
-            "Aqui vão boas opções próximas 😊\n\n"
+            "Claro 😊\n\n"
+            "Aqui vão boas opções próximas:\n\n"
             + "\n".join(linhas)
-            + "\n\nSe quiser, te indico o melhor dependendo do que você precisa 😉"
+            + "\n\nSe quiser, eu também posso resumir qual seria a melhor escolha para o que você precisa agora."
         )
 
-    return "Posso te ajudar com mercados 😊 Se quiser, me diga se procura algo rápido, completo ou todos."
+    return "Posso te ajudar com mercados 😊 Se quiser, me diga se você procura algo rápido, completo ou se prefere ver todos."
 
 
 def get_padaria_reply():
@@ -2825,7 +2889,7 @@ def get_farmacia_reply(text=""):
                 reply += f"\n• Telefone: {item.get('telefone')}"
             if item.get("observacao"):
                 reply += f"\n\n{item.get('observacao')}"
-            reply += "\n\nSe quiser, também posso te mostrar outras farmácias da região."
+            reply += "\n\nSe quiser, eu também posso te mostrar outras farmácias da região."
             return reply
 
     if has_any(text_n, ["entrega", "delivery"]):
@@ -2839,7 +2903,8 @@ def get_farmacia_reply(text=""):
                 "Claro 😊\n\n"
                 "Aqui vão farmácias com indicação de entrega:\n\n"
                 + "\n".join(linhas)
-                + "\n\nSe quiser, também posso te passar a opção 24h mais conveniente."
+                + "\n\n"
+                + pick_followup_soft_close("farmacia")
             )
 
     if has_any(text_n, ["todos", "todas", "outras", "outras farmacias", "outras farmácias", "farmacias", "farmácias"]):
@@ -2858,9 +2923,9 @@ def get_farmacia_reply(text=""):
                 linhas.append(linha)
             return (
                 "Claro 😊\n\n"
-                "Aqui vão algumas farmácias na região:\n\n"
+                "Aqui vão algumas farmácias da região:\n\n"
                 + "\n".join(linhas)
-                + "\n\nSe quiser, eu também posso te indicar uma opção **24h** ou com **entrega**."
+                + "\n\nSe quiser, eu também posso te indicar uma opção 24h ou com entrega."
             )
 
     if farmacias:
@@ -2878,7 +2943,7 @@ def get_farmacia_reply(text=""):
         reply += "."
         if item.get("observacao"):
             reply += f"\n\n{item.get('observacao')}"
-        reply += "\n\nSe for algo urgente ou mais delicado, também posso te orientar para atendimento na região 👍"
+        reply += "\n\nSe for algo mais urgente ou delicado, eu também posso te orientar para atendimento na região."
         return reply
 
     return (
@@ -3247,7 +3312,7 @@ def get_followup_reply(text, last_topic, guest):
                 set_last_entity(chosen, "restaurantes")
                 set_current_active_recommendation_by_name(chosen, "restaurantes")
                 update_session(last_recommendation_type="restaurantes", last_recommendation_name=chosen)
-                return f"Boa escolha 😄\n\nSe eu fosse por esse caminho, iria de **{chosen}**."
+                return f"{pick_confirmation_intro()}\n\nSe eu fosse te direcionar nesse caminho, iria de **{chosen}**."
 
         if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
             alt_name = active_next
@@ -3259,7 +3324,7 @@ def get_followup_reply(text, last_topic, guest):
                 set_current_active_recommendation_by_name(nome, "restaurantes")
                 update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
 
-                reply = f"Claro 😊\n\nUma outra boa opção é o **{nome}**."
+                reply = f"{pick_alternative_intro()}\n\nUma outra boa opção é o **{nome}**."
                 if alt.get("perfil"):
                     reply += f"\n\n{alt.get('perfil')}."
                 if alt.get("observacao"):
@@ -3284,9 +3349,9 @@ def get_followup_reply(text, last_topic, guest):
                         linhas.append(f"• **{nome}**")
 
                 return (
-                    "Depende do estilo que você quer 😊\n\n"
+                    f"{pick_comparison_intro()}\n\n"
                     + "\n".join(linhas)
-                    + "\n\nSe quiser, eu também posso te dizer qual faz mais sentido para algo mais **especial**, **tradicional** ou mais **prático**."
+                    + f"\n\n{pick_followup_soft_close('restaurantes')}"
                 )
 
         if has_any(text_n, ["mais perto", "perto"]):
@@ -3331,7 +3396,7 @@ def get_followup_reply(text, last_topic, guest):
             if normalize_text(active.get("type", "")) == "restaurantes" and active.get("options"):
                 current = get_current_active_recommendation("restaurantes")
                 if current:
-                    return f"Se eu tivesse que te direcionar agora 😊\n\nEu começaria pelo **{current}**."
+                    return f"Se eu fosse te orientar agora 😊\n\nEu começaria pelo **{current}**."
 
             return (
                 "Se eu tivesse que te direcionar sem erro 😊\n\n"
@@ -3345,7 +3410,7 @@ def get_followup_reply(text, last_topic, guest):
         if text_n in ["esse", "essa", "pode ser", "quero esse", "quero essa"] and last_rec_name:
             set_last_entity(last_rec_name, "restaurantes")
             set_current_active_recommendation_by_name(last_rec_name, "restaurantes")
-            return f"Boa escolha 😄\n\nSe eu fosse por esse caminho, iria de **{last_rec_name}**."
+            return f"{pick_confirmation_intro()}\n\nSe eu fosse te direcionar nesse caminho, iria de **{last_rec_name}**."
 
     if topic == "mercado":
         mercados = get_markets_data()
@@ -3364,7 +3429,7 @@ def get_followup_reply(text, last_topic, guest):
                 set_last_entity(chosen, "mercado")
                 set_current_active_recommendation_by_name(chosen, "mercado")
                 update_session(last_recommendation_type="mercado", last_recommendation_name=chosen)
-                return f"Boa 😊\n\nSe a ideia for essa, eu iria no **{chosen}**."
+                return f"{pick_confirmation_intro()}\n\nSe a ideia for essa, eu iria no **{chosen}**."
 
         if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
             alt_name = active_next
@@ -3376,7 +3441,7 @@ def get_followup_reply(text, last_topic, guest):
                 set_current_active_recommendation_by_name(nome, "mercado")
                 update_session(last_recommendation_type="mercado", last_recommendation_name=nome)
 
-                reply = f"Claro 😊\n\nUma outra boa opção é o **{nome}**."
+                reply = f"{pick_alternative_intro()}\n\nUma outra boa opção é o **{nome}**."
                 if alt.get("distancia"):
                     reply += f"\n• Distância: {format_distance(alt.get('distancia', ''))}"
                 if alt.get("perfil"):
@@ -3406,9 +3471,9 @@ def get_followup_reply(text, last_topic, guest):
                         linhas.append(f"• **{nome}**")
 
                 return (
-                    "Depende do tipo de compra 😊\n\n"
+                    "Depende do tipo de compra que você quer fazer 😊\n\n"
                     + "\n".join(linhas)
-                    + "\n\nSe quiser, eu também posso te dizer qual faz mais sentido para algo **rápido** ou mais **completo**."
+                    + f"\n\n{pick_followup_soft_close('mercado')}"
                 )
 
         if has_any(text_n, ["mais completo", "completo", "grande", "variedade"]):
@@ -3434,7 +3499,7 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["qual melhor", "qual voce recomenda", "qual você recomenda", "qual vc recomenda", "compensa"]):
             current = get_current_active_recommendation("mercado")
             if current:
-                return f"Se eu fosse te direcionar agora 😊\n\nEu começaria pelo **{current}**."
+                return f"Se eu fosse te orientar agora 😊\n\nEu começaria pelo **{current}**."
             return (
                 "Depende do que você precisa 😊\n\n"
                 "• **Mercado Dia** → se quiser algo rápido\n"
@@ -3493,7 +3558,7 @@ def get_followup_reply(text, last_topic, guest):
             if chosen:
                 set_last_entity(chosen, "passeio")
                 set_current_active_recommendation_by_name(chosen, "passeio")
-                return f"Boa 😊\n\nSe a ideia for essa, **{chosen}** pode ser uma ótima escolha."
+                return f"{pick_confirmation_intro()}\n\nSe a ideia for essa, **{chosen}** pode ser uma ótima escolha."
 
         if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
             alt_name = active_next
@@ -3504,7 +3569,7 @@ def get_followup_reply(text, last_topic, guest):
                 set_last_entity(nome, "passeio")
                 set_current_active_recommendation_by_name(nome, "passeio")
                 return (
-                    f"Claro 😊\n\n"
+                    f"{pick_alternative_intro()}\n\n"
                     f"Uma outra boa opção é **{nome}**.\n\n"
                     f"{alt.get('perfil', alt.get('observacao', 'Pode ser uma boa alternativa por aqui.'))}"
                 )
@@ -3527,9 +3592,9 @@ def get_followup_reply(text, last_topic, guest):
                         linhas.append(f"• **{nome}**")
 
                 return (
-                    "Depende do clima e do estilo do passeio 😊\n\n"
+                    "Depende bastante do clima e do tipo de passeio que você quer 😊\n\n"
                     + "\n".join(linhas)
-                    + "\n\nSe quiser, eu também posso te dizer qual combina mais com **chuva**, **família** ou algo mais **leve**."
+                    + f"\n\n{pick_followup_soft_close('passeio')}"
                 )
 
     if topic == "tempo":
@@ -3585,30 +3650,30 @@ def get_followup_reply(text, last_topic, guest):
 def get_guided_reply(intent):
     if intent == "restaurantes":
         return (
-            "Claro 😄\n\n"
-            "Pra eu te direcionar melhor, você quer algo:\n"
+            "Claro 😊\n\n"
+            "Pra eu te direcionar melhor, me diga o estilo que faria mais sentido agora:\n"
             "• mais **rápido**\n"
             "• mais **especial**\n"
             "• mais **tradicional**\n"
             "• **japonês**\n"
             "• **pizza**\n"
             "• **doce**\n"
-            "• ou **todos**?"
+            "• ou **todos**"
         )
 
     if intent == "mercado":
         return (
-            "Posso te ajudar nisso 👍\n\n"
-            "Você quer algo:\n"
-            "• **rápido**\n"
+            "Claro 😊\n\n"
+            "Me diga só o que faria mais sentido agora:\n"
+            "• algo **rápido**\n"
             "• um mercado mais **completo**\n"
-            "• ou **todos**?"
+            "• ou **todos**"
         )
 
     if intent == "saude":
         return (
             "Entendi 😕\n\n"
-            "Posso te orientar para:\n"
+            "Posso te orientar agora para:\n"
             "• **farmácia**\n"
             "• **UPA**\n"
             "• **hospital**\n"
@@ -3618,23 +3683,23 @@ def get_guided_reply(intent):
     if intent == "farmacia":
         return (
             "Claro 😊\n\n"
-            "Você quer:\n"
+            "Você quer que eu te mostre:\n"
             "• uma opção **24h**\n"
             "• com **entrega**\n"
-            "• ou ver **todos**?"
+            "• ou **todas**"
         )
 
     if intent == "praia":
         return get_gepetto_praia_line() + "\n\n" + (
-            "Você quer saber sobre:\n"
-            "• **localização**\n"
-            "• **horário**\n"
-            "• ou como funciona o **serviço de praia**?"
+            "Se quiser, eu te digo:\n"
+            "• a **localização**\n"
+            "• o **horário**\n"
+            "• ou como funciona o **serviço de praia**"
         )
 
     if intent == "bares":
         return (
-            "Boa 😄\n\n"
+            "Boa 😊\n\n"
             "Você quer algo mais:\n"
             "• **animado**\n"
             "• ou mais **tranquilo**?"
