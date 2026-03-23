@@ -686,7 +686,10 @@ def get_requested_detail_field(text_raw):
 
     if has_any(text_n, ["endereco", "endereço", "onde fica", "localizacao", "localização"]):
         return "endereco"
-    if has_any(text_n, ["horario", "horário", "que horas abre", "que horas funciona", "funciona ate", "funciona até"]):
+    if has_any(text_n, [
+        "horario", "horário", "horarios", "horários",
+        "que horas abre", "que horas funciona", "funciona ate", "funciona até"
+    ]):
         return "horario"
     if has_any(text_n, ["telefone", "numero", "número", "fone"]):
         return "telefone"
@@ -1281,7 +1284,8 @@ def infer_contextual_followup(text_raw, last_topic):
         if has_any(text_n, [
             "onde fica", "localizacao", "localização",
             "servico de praia", "serviço de praia",
-            "horario", "horário", "que horas", "que horas funciona",
+            "horario", "horário", "horarios", "horários",
+            "que horas", "que horas funciona",
             "funciona que horas", "ate que horas", "até que horas",
             "como funciona", "funciona",
             "e o horario", "e o horário",
@@ -1329,7 +1333,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "completo", "tranquilo", "animado", "leve",
         "rapido", "rápido", "em conta",
         "esse", "essa", "entao", "então", "vc indica",
-        "localizacao", "localização", "horario", "horário",
+        "localizacao", "localização", "horario", "horário", "horarios", "horários",
         "servico", "serviço", "envie", "manda", "pode mandar",
         "farmacia", "farmácia", "upa", "hospital", "todos", "todas",
         "pizza", "japones", "japonês", "doce", "vista",
@@ -1377,7 +1381,7 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "esse lugar", "essa opcao", "essa opção",
         "esse ai", "esse aí", "essa ai", "essa aí",
         "qual deles", "qual delas",
-        "endereco", "endereço", "horario", "horário", "delivery"
+        "endereco", "endereço", "horario", "horário", "horarios", "horários", "delivery"
     ]
     if text_n in exact_short:
         return True
@@ -2906,7 +2910,8 @@ def get_followup_reply(text, last_topic, guest):
             return get_servico_praia_localizacao_reply()
 
         if has_any(text_n, [
-            "horario", "horário", "que horas", "que horas funciona",
+            "horario", "horário", "horarios", "horários",
+            "que horas", "que horas funciona",
             "funciona que horas", "ate que horas", "até que horas"
         ]):
             servico = knowledge().get("praia", {}).get("servico_praia", {})
