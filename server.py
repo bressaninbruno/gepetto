@@ -1165,7 +1165,12 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
 
     text_n = normalize_text(text_raw)
 
-    strong_new_intents = ["wifi", "regras", "localizacao", "tempo", "identidade", "saude", "incidente", "chaves", "garagem", "checkout"]
+    strong_new_intents = [
+        "wifi", "regras", "localizacao", "tempo", "identidade",
+        "saude", "incidente", "chaves", "garagem", "checkout",
+        "restaurantes", "mercado", "farmacia", "praia", "apoio_predio",
+        "bares", "shopping", "feira", "passeio", "eventos", "surf", "bruno"
+    ]
     if inferred_intent in strong_new_intents and inferred_intent != last_topic:
         return False
 
@@ -2422,7 +2427,8 @@ def get_problem_reply(text):
         return (
             "Entendi ⚠️\n\n"
             "Isso é importante.\n\n"
-            "Se vocês estiverem do lado de fora ou sem conseguir acessar, já deixei isso sinalizado por aqui com prioridade."
+            "Se vocês estiverem do lado de fora ou sem conseguir acessar, já deixei isso sinalizado por aqui com prioridade.\n\n"
+            "Me ajuda só com um detalhe: isso aconteceu **agora** ou vocês **já tinham percebido antes**?"
         )
 
     if sev == "alta":
@@ -2595,7 +2601,10 @@ def get_followup_reply(text, last_topic, guest):
         ]):
             return get_servico_praia_localizacao_reply()
 
-        if has_any(text_n, ["horario", "horário", "que horas", "funciona que horas"]):
+        if has_any(text_n, [
+            "horario", "horário", "que horas", "que horas funciona",
+            "funciona que horas", "ate que horas", "até que horas"
+        ]):
             servico = knowledge().get("praia", {}).get("servico_praia", {})
             return f"Claro 😊\n\nO serviço de praia funciona das **{servico.get('horario', '9h às 17h')}**."
 
@@ -3120,6 +3129,26 @@ def gepetto_responde(msg):
                 intent_for_session="bruno"
             )
 
+        text_n = normalize_text(text_raw)
+        if text_n and not has_any(text_n, ["oi", "ola", "olá", "bom dia", "boa tarde", "boa noite"]):
+            ok, _ = notify_bruno_request(guest, text_raw)
+            set_bruno_pending(False)
+
+            if ok:
+                reply = "Perfeito 😊 Já avisei o Bruno e adiantei esse assunto para ele. Ele entrará em contato com você o quanto antes."
+            else:
+                reply = "Entendi 😊 Tentei avisar o Bruno agora, mas não consegui enviar a solicitação de acompanhamento neste momento."
+
+            return finalize_and_log(
+                guest,
+                text_raw,
+                "bruno",
+                reply,
+                remembered,
+                used_followup=True,
+                intent_for_session="bruno"
+            )
+
     inferred_intent_preview = infer_primary_intent(text_raw, last_topic)
 
     if should_use_entity_detail_mode(text_raw, inferred_intent_preview, last_topic):
@@ -3189,7 +3218,9 @@ def gepetto_responde(msg):
         base_reply = get_problem_reply(text_raw)
         ok, _ = maybe_notify("incidente", text_raw, guest, severity)
 
-        if severity in ["media", "baixa"]:
+        if has_any(text, ["porta nao abre", "porta não abre", "nao entra", "não entra"]):
+            set_incident_pending(True)
+        elif severity in ["media", "baixa"]:
             set_incident_pending(True)
         else:
             set_incident_pending(False)
