@@ -37,49 +37,220 @@
   },
   "restaurantes": [
     {
-      "nome": "McDonald's",
+      "nome": "McDonald's Enseada",
       "tipo": "rapido",
+      "subtipo": "lanche",
       "distancia": "5 minutos",
+      "endereco": "Av. Dom Pedro I, 1891 - Jardim Belmar, Guarujá - SP, 11440-002",
+      "horario": "Domingo à quinta: 11h às 00h | Sexta e sábado: 11h às 02h",
+      "drive_through": "Segunda à quinta: 11h às 00h | Sexta e sábado: 11h às 02h | Domingo: 11h às 01h",
       "perfil": "opção prática, rápida e simples",
-      "ideal_para": ["lanche", "praticidade", "algo sem complicação"],
+      "ideal_para": [
+        "lanche",
+        "praticidade",
+        "algo sem complicação"
+      ],
       "faixa_preco": "baixo",
       "observacao": "boa escolha quando a ideia é resolver rápido"
     },
     {
-      "nome": "Thai Lounge",
-      "tipo": "especial",
-      "distancia": "5 minutos",
-      "perfil": "experiência mais especial, sofisticada e agradável para a noite",
-      "ideal_para": ["casal", "jantar", "ocasião especial"],
-      "faixa_preco": "medio-alto",
-      "observacao": "ótima pedida para uma noite mais especial"
+      "nome": "Burguer King",
+      "tipo": "rapido",
+      "subtipo": "lanche",
+      "distancia": "região central",
+      "endereco": "Av. Dom Pedro I, S/N - Centro, Guarujá - SP, 11440-002",
+      "horario": "11h às 04h",
+      "perfil": "lanche rápido com horário estendido",
+      "ideal_para": [
+        "lanche",
+        "madrugada",
+        "praticidade"
+      ],
+      "faixa_preco": "baixo",
+      "observacao": "boa alternativa quando a ideia é comer algo rápido mais tarde"
     },
     {
-      "nome": "Restaurante Alcides",
+      "nome": "Madero & Jeronimo Burger Guarujá",
+      "tipo": "rapido",
+      "subtipo": "hamburguer",
+      "distancia": "Enseada",
+      "endereco": "R. Bolívia, 2085 - Enseada I, Guarujá - SP, 11441-080",
+      "horario": "Todos os dias: 11:30h às 23h",
+      "delivery": "11:30h às 22:30h",
+      "drive_through": "11:30h às 23h",
+      "telefone": "(13) 3512-2106",
+      "site": "https://jeronimoburger.com.br/jeronimo-track-guaruja",
+      "perfil": "hambúrguer mais arrumado, ainda com proposta prática",
+      "ideal_para": [
+        "lanche",
+        "hambúrguer",
+        "algo rápido com mais capricho"
+      ],
+      "faixa_preco": "medio",
+      "observacao": "boa opção para quem quer hambúrguer com um passo acima do fast-food tradicional"
+    },
+    {
+      "nome": "Alcide’s",
       "tipo": "tradicional",
-      "distancia": "6 minutos",
+      "subtipo": "frutos_do_mar",
+      "distancia": "próximo da região da Enseada",
+      "endereco": "Av. Dom Pedro I, 398 - Jardim Tejereba, Guarujá - SP, 11440-000",
+      "horario": "11:30h às 23h",
+      "delivery": "11:30h às 22h",
+      "takeout": "11:30h às 22h (não disponível às terças-feiras)",
+      "telefone": "(13) 3387-6323",
+      "site": "http://www.alcidesrestaurante.com.br",
       "perfil": "clássico, tradicional e muito lembrado no Guarujá",
-      "ideal_para": ["almoço", "jantar", "quem quer algo mais clássico"],
+      "ideal_para": [
+        "almoço",
+        "jantar",
+        "quem quer algo mais clássico",
+        "frutos do mar"
+      ],
       "faixa_preco": "medio",
       "observacao": "boa escolha para quem quer uma referência tradicional da cidade"
     },
     {
-      "nome": "Sushi Katoshi",
+      "nome": "Alcides Pizzaria",
+      "tipo": "pizza",
+      "subtipo": "pizzaria",
+      "distancia": "Enseada",
+      "endereco": "Av. Dom Pedro I, 618 - Enseada, Guarujá - SP, 11440-000",
+      "horario": "18:30h às 23h",
+      "telefone": "(13) 3355-9885",
+      "perfil": "boa pedida para noite de pizza",
+      "ideal_para": [
+        "pizza",
+        "jantar",
+        "família",
+        "grupo"
+      ],
+      "faixa_preco": "medio",
+      "observacao": "faz sentido quando a ideia é algo fácil de compartilhar"
+    },
+    {
+      "nome": "Thai Lounge Bar",
+      "tipo": "especial",
+      "subtipo": "restaurante_bar",
+      "distancia": "5 minutos",
+      "endereco": "Av. Miguel Estefno, 1001 - Enseada, Guarujá - SP, 11440-530",
+      "horario": "Quinta a domingo: 19h às 00h | Segunda a quarta: fechado",
+      "telefone": "(13) 3389-4000",
+      "perfil": "experiência mais especial, sofisticada e agradável para a noite",
+      "ideal_para": [
+        "casal",
+        "jantar",
+        "ocasião especial",
+        "noite"
+      ],
+      "faixa_preco": "medio-alto",
+      "observacao": "ótima pedida para uma noite mais especial"
+    },
+    {
+      "nome": "Restaurante Atlântico Signature",
+      "tipo": "especial",
+      "subtipo": "hotel",
+      "distancia": "Casa Grande Hotel",
+      "endereco": "Av. Miguel Estefno, 1001 - Jardim Tres Marias, Guarujá - SP, 11440-530",
+      "horario": "12h às 16h e 19h às 00h",
+      "telefone": "(13) 3389-4000",
+      "perfil": "experiência mais refinada dentro do Casa Grande Hotel",
+      "ideal_para": [
+        "casal",
+        "jantar especial",
+        "experiência",
+        "almoço especial"
+      ],
+      "faixa_preco": "alto",
+      "observacao": "boa escolha para quem busca uma experiência mais elegante"
+    },
+    {
+      "nome": "Dati",
+      "tipo": "especial",
+      "subtipo": "bar_restaurante",
+      "distancia": "beira da praia da Enseada",
+      "endereco": "Av. Miguel Estefno, 1755 - Jardim Vitoria, Guarujá - SP, 11440-531",
+      "horario": "Domingo à quinta: 11h até 00h | Sexta e sábado: 11h até 01h",
+      "telefone": "(13) 3351-9231",
+      "perfil": "bar descolado-chique, espaçoso e com ambiente agradável",
+      "ideal_para": [
+        "grupo",
+        "jantar",
+        "hambúrguer artesanal",
+        "pizza",
+        "família"
+      ],
+      "faixa_preco": "medio",
+      "observacao": "fica na beira da praia e possui espaço kids"
+    },
+    {
+      "nome": "Sushi Katoshi 23",
       "tipo": "japones",
+      "subtipo": "sushi",
       "distancia": "4 minutos",
+      "endereco": "Av. Dom Pedro I, 1265 - Jardim Tres Marias, Guarujá - SP, 11440-001",
+      "horario": "Segunda à quinta: 12h às 15h e 19h às 23h | Sexta: 12h às 15h e 19h às 23:30h | Sábado e domingo: 13h às 23h",
+      "telefone": "(13) 3395-6356",
       "perfil": "boa referência para comida japonesa",
-      "ideal_para": ["jantar", "sushi", "quem gosta de japonês"],
+      "ideal_para": [
+        "jantar",
+        "sushi",
+        "quem gosta de japonês"
+      ],
       "faixa_preco": "medio",
       "observacao": "boa opção quando bate vontade de comida japonesa"
     },
     {
-      "nome": "Kopenhagen",
+      "nome": "Kopenhagen Enseada",
       "tipo": "doce",
+      "subtipo": "chocolateria",
       "distancia": "4 minutos",
+      "endereco": "Av. Miguel Estefno, 1763 - Jardim Vitoria, Guarujá - SP, 11440-532",
+      "horario": "Segunda à quinta: 10h às 20h | Sexta e sábado: 10h às 22h | Domingo: 12h às 20h",
+      "instagram": "@kopenhagen_enseada",
       "perfil": "boa opção para chocolate, sobremesa ou lembrança",
-      "ideal_para": ["sobremesa", "doce", "lembrança"],
+      "ideal_para": [
+        "sobremesa",
+        "doce",
+        "lembrança"
+      ],
       "faixa_preco": "medio",
       "observacao": "boa pedida para um mimo ou algo gostoso depois do jantar"
+    },
+    {
+      "nome": "Cacau Show",
+      "tipo": "doce",
+      "subtipo": "chocolateria",
+      "distancia": "Enseada",
+      "endereco": "Av. Dom Pedro I, 1415 - Enseada, Guarujá - SP, 11440-001",
+      "horario": "Segunda-feira à sábado: 09h às 19:45h | Domingo: 10h às 17h",
+      "telefone": "(13) 3386-5514",
+      "perfil": "opção prática para chocolate e lembranças",
+      "ideal_para": [
+        "doce",
+        "lembrança",
+        "presente"
+      ],
+      "faixa_preco": "baixo-medio",
+      "observacao": "boa alternativa para algo rápido e gostoso"
+    },
+    {
+      "nome": "Restaurante Mirante Bela Vista",
+      "tipo": "vista",
+      "subtipo": "mirante_restaurante",
+      "distancia": "Canto da Enseada",
+      "endereco": "Gilberto Glascer, Rua Canto da Enseada, 705, Guarujá - SP, 11443-475",
+      "horario": "10h às 21h",
+      "telefone": "(13) 97405-9242",
+      "perfil": "bar e restaurante despojado com vista panorâmica",
+      "ideal_para": [
+        "vista",
+        "fotos",
+        "frutos do mar",
+        "passeio com refeição"
+      ],
+      "faixa_preco": "medio",
+      "observacao": "tem visual muito bonito e vale pela experiência"
     }
   ],
   "mercados": [
@@ -88,16 +259,28 @@
       "tipo": "rapido",
       "distancia": "ao lado",
       "perfil": "ideal para compras rápidas, água, bebida ou emergência",
-      "ideal_para": ["água", "bebida", "compra rápida", "emergência"],
+      "ideal_para": [
+        "água",
+        "bebida",
+        "compra rápida",
+        "emergência"
+      ],
       "faixa_preco": "baixo-medio",
       "observacao": "melhor escolha quando a ideia é praticidade"
     },
     {
-      "nome": "Pão de Açúcar",
+      "nome": "Pão de Açúcar - Enseada",
       "tipo": "completo",
       "distancia": "3 minutos",
+      "endereco": "Av. Dom Pedro I, 195, Enseada, Guarujá - SP, 11440-000",
+      "horario": "Segunda-feira à sábado: 07h às 22h | Domingo: 07h às 20h",
+      "telefone": "0800 779 6761",
       "perfil": "mais confortável e organizado para compras completas",
-      "ideal_para": ["compra mais completa", "mais conforto", "mais organização"],
+      "ideal_para": [
+        "compra mais completa",
+        "mais conforto",
+        "mais organização"
+      ],
       "faixa_preco": "medio-alto",
       "observacao": "boa opção para quem quer mais conforto e variedade"
     },
@@ -105,17 +288,27 @@
       "nome": "Extra",
       "tipo": "completo",
       "distancia": "5 minutos",
+      "endereco": "Avenida Dom Pedro, 1711 - Jardim Praiano, Guarujá - SP, 11440-001",
+      "horario": "Domingo à quinta: 07h às 22h | Sexta e sábado: 07h às 23h",
       "perfil": "boa opção para compra maior",
-      "ideal_para": ["compra grande", "mais variedade"],
+      "ideal_para": [
+        "compra grande",
+        "mais variedade"
+      ],
       "faixa_preco": "medio",
       "observacao": "faz sentido quando a ideia é abastecer melhor"
     },
     {
-      "nome": "Carrefour",
+      "nome": "Carrefour - Enseada",
       "tipo": "completo",
       "distancia": "5 minutos",
+      "endereco": "Av. Dom Pedro I, 2131 - Jardim Belmar, Guarujá - SP, 11440-002",
+      "horario": "Segunda-feira à sábado: 07h às 23h | Domingos e feriados: 07h às 22h",
       "perfil": "boa opção para compra mais completa",
-      "ideal_para": ["compra completa", "mais itens"],
+      "ideal_para": [
+        "compra completa",
+        "mais itens"
+      ],
       "faixa_preco": "medio",
       "observacao": "alternativa boa para compra maior"
     }
@@ -123,9 +316,92 @@
   "padaria": {
     "nome": "Padaria Pitangueiras",
     "distancia": "300m do apartamento",
+    "endereco": "Av. Dom Pedro I, 887 - Jardim Tres Marias, Guarujá - SP, 11440-001",
+    "horario": "06h às 23h",
+    "almoco": "11:30h às 16h",
+    "telefone": "(13) 98217-5889",
     "perfil": "boa referência para café da manhã ou algo prático",
-    "ideal_para": ["café da manhã", "lanche", "algo rápido"],
-    "observacao": "boa opção para começar o dia com praticidade"
+    "ideal_para": [
+      "café da manhã",
+      "lanche",
+      "almoço",
+      "algo rápido"
+    ],
+    "observacao": "padaria, confeitaria, restaurante e pizzaria"
+  },
+  "farmacias": [
+    {
+      "nome": "Drogasil",
+      "distancia": "Enseada",
+      "endereco": "Avenida Dom Pedro I, 2810 - Enseada, Guarujá - SP, 11440-002",
+      "horario": "24h",
+      "perfil": "boa opção 24h",
+      "ideal_para": [
+        "farmácia",
+        "24h",
+        "necessidade imediata"
+      ],
+      "observacao": "funciona 24h"
+    },
+    {
+      "nome": "Drogaria São Paulo",
+      "distancia": "Enseada",
+      "endereco": "Av. Dom Pedro I, 1574 - Jardim Tres Marias, Guarujá - SP, 11440-001",
+      "horario": "24h",
+      "telefone": "(13) 3392-2668",
+      "perfil": "boa opção 24h com entrega",
+      "ideal_para": [
+        "farmácia",
+        "24h",
+        "delivery"
+      ],
+      "observacao": "possui serviço de entrega"
+    },
+    {
+      "nome": "Droga Raia",
+      "distancia": "1,2km do apartamento",
+      "endereco": "Av. Dom Pedro I, 1695 - 1709 - Jardim Tres Marias, Guarujá - SP, 11440-001",
+      "horario": "24h",
+      "telefone": "(13) 99720-4088",
+      "perfil": "boa opção prática para farmácia na região",
+      "ideal_para": [
+        "farmácia",
+        "24h",
+        "delivery"
+      ],
+      "observacao": "possui serviço de entrega"
+    },
+    {
+      "nome": "Poupafarma",
+      "distancia": "Enseada",
+      "endereco": "Av. Dom Pedro I, 1009 - Jardim Tres Marias, Guarujá - SP, 11440-001",
+      "horario": "07h às 22h",
+      "telefone": "(13) 3382-1777",
+      "perfil": "opção útil durante o dia e noite até 22h",
+      "ideal_para": [
+        "farmácia",
+        "itens do dia a dia"
+      ],
+      "observacao": "boa alternativa quando não precisa ser 24h"
+    }
+  ],
+  "saude": {
+    "upa": {
+      "nome": "UPA Enseada",
+      "endereco": "Rua Luiz Rodrigues Pedro, 267, Cidade Atlântica (ao lado da Unaerp)",
+      "horario": "Emergências 24h",
+      "telefones": [
+        "(13) 3351-3661",
+        "(13) 3351-3629",
+        "(13) 3383-6495"
+      ],
+      "perfil": "referência mais rápida para urgência"
+    },
+    "hospital": {
+      "nome": "Hospital Santo Amaro",
+      "endereco": "Rua Quinto Bertoldi, 40 - Vila Maia, Guarujá - SP, 11410-908",
+      "perfil": "boa referência hospitalar na região"
+    }
   },
   "garagem": {
     "info": "A vaga não é fixa 😊\n\nAo chegar, um funcionário do prédio pode te orientar sobre qual utilizar.\n\nCaso você tenha interesse, por algum motivo, de estacionar em outra vaga além daquela que lhe foi indicada, havendo vagas disponíveis, é só conversar com um funcionário do prédio 👍",
@@ -136,47 +412,168 @@
     "chaves": "Você tem a opção, caso queira, de deixar a chave na portaria quando for sair e não quiser carregar peso. A portaria é 24h e sempre terá alguém para abrir o portão. Mas caso prefiram ficar com elas, o portão social pode ser aberto utilizando a tag magnética presente no seu molho de chaves 🙂",
     "observacao": "essa flexibilidade costuma ajudar bastante durante a estadia"
   },
-  "condominio": {
-    "zelador": "Paulo",
-    "mensagem": "Caso vocês precisem de algum auxílio, podem contar com ele.",
-    "observacao": "é uma boa referência de apoio no prédio"
-  },
   "apoio_predio": {
-  "intro": "Se precisar de apoio no prédio, vocês podem contar com a equipe por aqui 😊",
-  "pessoas": [
+    "intro": "Se precisar de apoio no prédio, vocês podem contar com a equipe por aqui 😊",
+    "pessoas": [
+      {
+        "nome": "Paulo",
+        "funcao": "zelador"
+      },
+      {
+        "nome": "Cláudio",
+        "funcao": "funcionário de apoio"
+      },
+      {
+        "nome": "Edson",
+        "funcao": "portaria",
+        "observacao": "fica no período noturno"
+      }
+    ],
+    "fechamento": "Se quiser, eu também posso te orientar sobre quando vale falar com a portaria, com a equipe do prédio ou comigo por aqui.\n\n**E, se for necessário, também posso avisar rapidamente o seu anfitrião, Bruno.**"
+  },
+  "passeios": [
     {
-      "nome": "Paulo",
-      "funcao": "zelador"
+      "nome": "Acqua Mundo - Aquário Guarujá",
+      "categoria": "aquario",
+      "tipo": "familia",
+      "endereco": "Av. Miguel Estefno, 2001 - Jardim Tres Marias, Guarujá - SP, 11440-532",
+      "horario": "Segunda-feira à sexta: 10h às 18h | Sábado: 10h às 21h | Domingo: 10h às 18h",
+      "telefones": [
+        "(13) 3398-3000",
+        "(13) 3379-2708"
+      ],
+      "whatsapp": "(13) 3398-3003",
+      "email": "agendamento@acquamundo.com.br",
+      "coberto": true,
+      "ideal_para": [
+        "família",
+        "dias de chuva",
+        "passeio leve"
+      ],
+      "periodo": [
+        "manhã",
+        "tarde"
+      ],
+      "observacao": "costuma funcionar muito bem para famílias e também em dias de chuva"
     },
     {
-      "nome": "Cláudio",
-      "funcao": "funcionário de apoio"
+      "nome": "Feira da Enseada",
+      "categoria": "feira",
+      "tipo": "passeio",
+      "endereco": "Av. Miguel Estefno, 1817 - Jardim Vitoria, Guarujá - SP, 11440-532",
+      "horario": "Domingo: 14h às 22h | Segunda-feira: 14h às 23h | Terça e quarta: fechado | Quinta e sexta: 16h às 00h | Sábado: 14h às 00h",
+      "coberto": false,
+      "ideal_para": [
+        "família",
+        "fim de tarde",
+        "passeio informal",
+        "crianças"
+      ],
+      "periodo": [
+        "tarde",
+        "noite"
+      ],
+      "observacao": "complexo de lojas, restaurantes, bares e atividades infantis"
     },
     {
-      "nome": "Edson",
-      "funcao": "portaria",
-      "observacao": "fica no período noturno"
+      "nome": "Shopping Enseada",
+      "categoria": "shopping",
+      "tipo": "familia",
+      "endereco": "R. Argentina, 50 - Enseada, Guarujá - SP, 11440-370",
+      "horario": "Domingo à quinta: 10h às 20h | Sexta e sábado: 10h às 22h",
+      "site": "http://www.shoppingenseada.com.br",
+      "coberto": true,
+      "ideal_para": [
+        "família",
+        "chuva",
+        "compras",
+        "passeio leve"
+      ],
+      "periodo": [
+        "manhã",
+        "tarde",
+        "noite"
+      ],
+      "observacao": "ótimo espaço para a família com conveniências, boutique de carnes, restaurantes, lojas de presentes, utilidades, moda praia, esportes e muito mais"
+    },
+    {
+      "nome": "Shopping La Plage",
+      "categoria": "shopping",
+      "tipo": "passeio",
+      "endereco": "Av. Mal. Deodoro da Fonseca, 885 - Pitangueiras, Guarujá - SP, 11410-221",
+      "horario": "10h às 22h",
+      "telefone": "(13) 3386-6819",
+      "coberto": true,
+      "ideal_para": [
+        "chuva",
+        "shopping",
+        "cinema",
+        "praça de alimentação"
+      ],
+      "periodo": [
+        "manhã",
+        "tarde",
+        "noite"
+      ],
+      "observacao": "possui cinema, lojas e praça de alimentação"
+    },
+    {
+      "nome": "Cinema Cine Guarujá",
+      "categoria": "cinema",
+      "tipo": "chuva",
+      "endereco": "Shopping La Plage - Av. Mal. Deodoro da Fonseca, 885 - Loja 56 - Centro, Guarujá - SP, 11410-221",
+      "horario": "10h às 22h",
+      "telefone": "(13) 3386-6905",
+      "coberto": true,
+      "ideal_para": [
+        "chuva",
+        "casal",
+        "família",
+        "noite leve"
+      ],
+      "periodo": [
+        "tarde",
+        "noite"
+      ],
+      "observacao": "boa opção de passeio coberto"
+    },
+    {
+      "nome": "Parque Ecológico Renan C. Teixeira",
+      "categoria": "parque",
+      "tipo": "ao_ar_livre",
+      "endereco": "R. Bolívia, 377 - Enseada I, Guarujá - SP, 11441-080",
+      "coberto": false,
+      "ideal_para": [
+        "família",
+        "passeio leve",
+        "ao ar livre"
+      ],
+      "periodo": [
+        "manhã",
+        "tarde"
+      ],
+      "observacao": "parque público"
+    },
+    {
+      "nome": "Morro do Maluf - Mirante da Campina",
+      "categoria": "mirante",
+      "tipo": "vista",
+      "endereco": "Rua Morro do Maluf, 240, Enseada, Guarujá, 11440-530",
+      "coberto": false,
+      "ideal_para": [
+        "fotos",
+        "vista",
+        "pôr do sol",
+        "passeio",
+        "mirante"
+      ],
+      "periodo": [
+        "tarde",
+        "fim de tarde"
+      ],
+      "observacao": "ponto turístico gratuito e icônico, com vista panorâmica da orla; ideal para fotos, pôr do sol, rapel e voo livre"
     }
   ],
-  "fechamento": "Se quiser, eu também posso te orientar sobre quando vale falar com a portaria, com a equipe do prédio ou comigo por aqui.\n\n**E, se for necessário, também posso avisar rapidamente o seu anfitrião, Bruno.**"
-},
-  "proximidades": {
-    "upa_enseada": {
-      "nome": "UPA Enseada",
-      "tempo_carro": "4 a 6 minutos de carro",
-      "perfil": "referência mais rápida para urgência"
-    },
-    "hospital_santo_amaro": {
-      "nome": "Hospital Santo Amaro",
-      "tempo_carro": "10 a 15 minutos de carro",
-      "perfil": "boa referência hospitalar na região"
-    },
-    "acqua_mundo": {
-      "nome": "Acqua Mundo",
-      "observacao": "Costuma funcionar muito bem para famílias e também em dias de chuva.",
-      "ideal_para": ["família", "dias de chuva", "passeio leve"]
-    }
-  },
   "surf": {
     "praias": [
       {
@@ -207,20 +604,38 @@
   },
   "bares": [
     {
-      "nome": "Dona Eva Bar & Chopperia",
-      "perfil": "mais descontraído"
-    },
-    {
-      "nome": "Bali Hai",
-      "perfil": "boa opção para curtir a noite"
+      "nome": "Dona Eva - Restaurante, Bar e Chopperia",
+      "endereco": "Av. Miguel Estefno, 1295 - Praia da Enseada, Guarujá - SP, 11440-530",
+      "horario": "12h às 22h | Café da manhã: 07h às 10h",
+      "telefone": "(13) 99185-4745",
+      "perfil": "mais descontraído, com proposta de restaurante e bar",
+      "ideal_para": [
+        "almoço",
+        "bar",
+        "chopp",
+        "grupo",
+        "café da manhã"
+      ],
+      "observacao": "boa opção híbrida para comer e curtir com mais calma"
     },
     {
       "nome": "Quiosques da Orla da Enseada",
       "perfil": "mais leve e informal"
     },
     {
-      "nome": "Boteco da Orla",
-      "perfil": "clima mais casual"
+      "nome": "Boteco Burgman Enseada",
+      "endereco": "Av. Miguel Estefno, 3979 - Lot. Joao Batista Juliao, Guarujá - SP, 11440-534",
+      "horario": "Domingo à quinta: 15:40h às 00h | Sexta-feira e sábado: 15:40h às 02h",
+      "telefone": "(13) 3395-9054",
+      "perfil": "mais animado, familiar e com entretenimento",
+      "ideal_para": [
+        "grupo",
+        "família",
+        "noite",
+        "boliche",
+        "música ao vivo"
+      ],
+      "observacao": "possui pistas de boliche, música ao vivo, telão para futebol e área kids"
     }
   ],
   "clima": {
@@ -232,14 +647,5 @@
     "anfitriao": "Bruno",
     "concierge_nome": "Gepetto",
     "descricao_curta": "Concierge do apartamento 14B para orientar hóspedes durante a estadia"
-  },
-  "farmacia": {
-    "nome": "Droga Raia",
-    "distancia": "1,2km do apartamento",
-    "horario": "24h",
-    "perfil": "boa opção prática para farmácia na região",
-    "observacao": "fica a cerca de 1,2km do apartamento e funciona 24h"
   }
-  
 }
-
