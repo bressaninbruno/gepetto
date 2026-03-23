@@ -913,6 +913,15 @@ def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
     if not field:
         return False
 
+    if last_topic == "praia" and has_any(text_n, [
+        "horario", "horário", "que horas", "que horas funciona",
+        "funciona que horas", "ate que horas", "até que horas",
+        "onde fica", "localizacao", "localização",
+        "servico de praia", "serviço de praia",
+        "como funciona", "funciona"
+    ]):
+        return False
+
     explicit_entity = resolve_entity_from_text(text_raw)
     if explicit_entity:
         return True
@@ -927,7 +936,13 @@ def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
             "com quem falar no predio", "com quem falar no prédio",
             "quem contactar no predio", "quem contactar no prédio",
             "ajuda no condominio", "ajuda no condomínio",
-            "ajuda no predio", "ajuda no prédio"
+            "ajuda no predio", "ajuda no prédio",
+            "entrega", "delivery",
+            "todos", "todas",
+            "farmacia", "farmácia", "farmacias", "farmácias",
+            "restaurantes", "mercados", "supermercados",
+            "shopping", "cinema", "mirante", "feira",
+            "upa", "hospital"
         ]):
             return False
         return True
