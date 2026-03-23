@@ -138,6 +138,8 @@ def default_session():
         "last_followup_hint": "",
         "last_recommendation_type": "",
         "last_recommendation_name": "",
+        "last_entity_name": "",
+        "last_entity_category": "",
         "pending_bruno_contact": False,
         "pending_incident_context": False,
         "last_incident_context": "",
@@ -201,6 +203,14 @@ def set_incident_pending(value: bool, context: str = ""):
         sess["last_incident_context"] = context
     elif not value:
         sess["last_incident_context"] = ""
+    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    save_session(sess)
+
+
+def set_last_entity(name: str, category: str = ""):
+    sess = load_session()
+    sess["last_entity_name"] = name or ""
+    sess["last_entity_category"] = category or ""
     sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
     save_session(sess)
 
@@ -540,6 +550,280 @@ def notify_conversation_to_telegram(guest, message, intent, response):
     return send_telegram_log("NOVA INTERAÇÃO — GEPETTO", lines)
 
 
+def get_knowledge_list(key):
+    value = knowledge().get(key, [])
+    return value if isinstance(value, list) else []
+
+
+def find_item_by_type(items, tipo):
+    tipo_n = normalize_text(tipo)
+    for item in items:
+        if normalize_text(item.get("tipo", "")) == tipo_n:
+            return item
+    return None
+
+
+def get_restaurants_data():
+    return get_knowledge_list("restaurantes")
+
+
+def get_markets_data():
+    return get_knowledge_list("mercados")
+
+
+def get_farmacias_data():
+    return get_knowledge_list("farmacias")
+
+
+def format_distance(dist):
+    if not dist:
+        return ""
+    dist_n = normalize_text(str(dist))
+    if has_any(dist_n, ["a pe", "a pé", "metros", "ao lado", "menos de", "andando", "km", "regiao", "região", "enseada", "casa grande"]):
+        return str(dist)
+    if has_any(dist_n, ["min", "minuto", "minutos"]):
+        if has_any(dist_n, ["carro", "pé", "a pe", "a pé"]):
+            return str(dist)
+        return f"{dist} de carro"
+    return str(dist)
+
+
+def distance_sort_key(distance):
+    if not distance:
+        return 9999
+    text = normalize_text(str(distance))
+    if has_any(text, ["ao lado"]):
+        return 0
+    if has_any(text, ["metros"]):
+        m = re.search(r"(\d+)", text)
+        if m:
+            return int(m.group(1)) / 100.0
+    if has_any(text, ["km"]):
+        m = re.search(r"(\d+(?:[.,]\d+)?)", text)
+        if m:
+            return float(m.group(1).replace(",", ".")) * 10
+    if has_any(text, ["min", "minuto", "minutos"]):
+        m = re.search(r"(\d+)", text)
+        if m:
+            return int(m.group(1))
+    return 9999
+
+
+def best_closest_item(items):
+    if not items:
+        return None
+    return sorted(items, key=lambda x: distance_sort_key(x.get("distancia", "")))[0]
+
+
+def get_requested_detail_field(text_raw):
+    text_n = normalize_text(text_raw)
+
+    if has_any(text_n, ["endereco", "endereço", "onde fica", "localizacao", "localização"]):
+        return "endereco"
+    if has_any(text_n, ["horario", "horário", "que horas abre", "que horas funciona", "funciona ate", "funciona até"]):
+        return "horario"
+    if has_any(text_n, ["telefone", "numero", "número", "fone", "contato"]):
+        return "telefone"
+    if has_any(text_n, ["site", "link", "pagina", "página"]):
+        return "site"
+    if has_any(text_n, ["instagram", "insta"]):
+        return "instagram"
+    if has_any(text_n, ["whatsapp", "zap", "whats"]):
+        return "whatsapp"
+    if has_any(text_n, ["delivery", "entrega"]):
+        return "delivery"
+    if has_any(text_n, ["takeout", "retirada"]):
+        return "takeout"
+    if has_any(text_n, ["drive through", "drive-through", "drive thru"]):
+        return "drive_through"
+
+    return ""
+
+
+def looks_like_detail_question(text_raw):
+    return bool(get_requested_detail_field(text_raw))
+
+
+def build_entity_catalog():
+    k = knowledge()
+    catalog = []
+
+    for item in k.get("restaurantes", []):
+        catalog.append({"category": "restaurantes", "item": item})
+
+    for item in k.get("mercados", []):
+        catalog.append({"category": "mercado", "item": item})
+
+    for item in k.get("farmacias", []):
+        catalog.append({"category": "farmacia", "item": item})
+
+    padaria = k.get("padaria", {})
+    if padaria:
+        catalog.append({"category": "padaria", "item": padaria})
+
+    saude = k.get("saude", {})
+    if saude.get("upa"):
+        catalog.append({"category": "saude", "item": saude["upa"]})
+    if saude.get("hospital"):
+        catalog.append({"category": "saude", "item": saude["hospital"]})
+
+    for item in k.get("passeios", []):
+        catalog.append({"category": "passeio", "item": item})
+
+    for item in k.get("bares", []):
+        if isinstance(item, dict):
+            catalog.append({"category": "bares", "item": item})
+
+    return catalog
+
+
+def entity_aliases(entity):
+    item = entity.get("item", {})
+    name = item.get("nome", "")
+    aliases = set()
+
+    if name:
+        aliases.add(name)
+        aliases.add(normalize_text(name))
+
+    manual = {
+        "McDonald's Enseada": ["mcdonald", "mcdonalds", "mc donald", "mc donalds"],
+        "Burguer King": ["burger king", "bk"],
+        "Madero & Jeronimo Burger Guarujá": ["madero", "jeronimo", "jerônimo", "jeronimo burger", "jeronimo track"],
+        "Alcide’s": ["alcides", "alcide's", "alcides restaurante"],
+        "Alcides Pizzaria": ["alcides pizzaria", "pizzaria alcides"],
+        "Thai Lounge Bar": ["thai lounge"],
+        "Restaurante Atlântico Signature": ["atlantico signature", "atlântico signature", "atlantico", "atlântico"],
+        "Dati": ["dati"],
+        "Sushi Katoshi 23": ["sushi katoshi", "katoshi"],
+        "Kopenhagen Enseada": ["kopenhagen"],
+        "Cacau Show": ["cacau show"],
+        "Restaurante Mirante Bela Vista": ["mirante bela vista", "bela vista"],
+        "Mercado Dia": ["dia", "mercado dia", "supermercado dia"],
+        "Pão de Açúcar - Enseada": ["pao de acucar", "pão de açúcar", "pao de acucar enseada"],
+        "Carrefour - Enseada": ["carrefour"],
+        "Extra": ["extra"],
+        "Padaria Pitangueiras": ["padaria pitangueiras", "pitangueiras"],
+        "Drogasil": ["drogasil"],
+        "Drogaria São Paulo": ["drogaria sao paulo", "drogaria são paulo", "sao paulo", "são paulo"],
+        "Droga Raia": ["droga raia", "raia"],
+        "Poupafarma": ["poupafarma"],
+        "UPA Enseada": ["upa", "upa enseada"],
+        "Hospital Santo Amaro": ["hospital", "hospital santo amaro", "santo amaro"],
+        "Shopping La Plage": ["la plage", "shopping la plage"],
+        "Shopping Enseada": ["shopping enseada"],
+        "Cinema Cine Guarujá": ["cine guaruja", "cine guarujá", "cinema"],
+        "Acqua Mundo - Aquário Guarujá": ["acqua mundo", "aquario", "aquário"],
+        "Feira da Enseada": ["feira da enseada", "feira"],
+        "Morro do Maluf - Mirante da Campina": ["morro do maluf", "mirante da campina", "maluf"],
+        "Dona Eva - Restaurante, Bar e Chopperia": ["dona eva"],
+        "Boteco Burgman Enseada": ["burgman", "boteco burgman"]
+    }
+
+    for a in manual.get(name, []):
+        aliases.add(a)
+
+    return sorted(aliases, key=lambda x: len(normalize_text(x)), reverse=True)
+
+
+def resolve_entity_from_text(text_raw):
+    text_n = normalize_text(text_raw)
+    catalog = build_entity_catalog()
+
+    ranked = []
+    for entity in catalog:
+        for alias in entity_aliases(entity):
+            if phrase_in_text(text_n, alias):
+                ranked.append((len(normalize_text(alias)), entity))
+                break
+
+    if not ranked:
+        return None
+
+    ranked.sort(key=lambda x: x[0], reverse=True)
+    return ranked[0][1]
+
+
+def resolve_last_entity_from_session():
+    sess = load_session()
+    target_name = (sess.get("last_entity_name") or sess.get("last_recommendation_name") or "").strip()
+    if not target_name:
+        return None
+
+    target_n = normalize_text(target_name)
+    for entity in build_entity_catalog():
+        nome = normalize_text(entity.get("item", {}).get("nome", ""))
+        if nome == target_n:
+            return entity
+
+    return None
+
+
+def get_entity_detail_reply(entity, field):
+    if not entity or not field:
+        return ""
+
+    item = entity.get("item", {})
+    category = entity.get("category", "")
+    nome = item.get("nome", "Local")
+
+    label_map = {
+        "endereco": "Endereço",
+        "horario": "Horário",
+        "telefone": "Telefone",
+        "site": "Site",
+        "instagram": "Instagram",
+        "whatsapp": "WhatsApp",
+        "delivery": "Delivery",
+        "takeout": "Takeout / retirada",
+        "drive_through": "Drive-through"
+    }
+
+    value = ""
+
+    if field == "telefone":
+        if item.get("telefone"):
+            value = item.get("telefone")
+        elif item.get("telefones"):
+            value = ", ".join(item.get("telefones", []))
+    else:
+        value = item.get(field, "")
+
+    if not value:
+        if field == "endereco":
+            return f"Não encontrei o endereço do **{nome}** na base neste momento."
+        if field == "horario":
+            return f"Não encontrei o horário do **{nome}** na base neste momento."
+        if field == "telefone":
+            return f"Não encontrei telefone do **{nome}** na base neste momento."
+        return f"Não encontrei essa informação do **{nome}** na base neste momento."
+
+    set_last_entity(nome, category)
+
+    return (
+        "Claro 😊\n\n"
+        f"**{nome}**\n"
+        f"• {label_map.get(field, field.title())}: {value}"
+    )
+
+
+def is_social_checkin(text_raw):
+    text_n = normalize_text(text_raw)
+
+    exacts = {
+        "tudo bem", "td bem", "como vai", "como vc ta", "como voce ta",
+        "como vc esta", "como voce esta", "como você tá", "como você está",
+        "ta tudo bem", "tá tudo bem", "vc ta bem", "você tá bem"
+    }
+    if text_n in exacts:
+        return True
+
+    return has_any(text_n, [
+        "tudo bem?", "td bem?", "como vai?", "como vc ta?", "como voce ta?",
+        "como vc esta?", "como voce esta?", "como você tá?", "como você está?"
+    ])
+
+
 # =========================
 # VOZ / MICROCOPY GEPETTO
 # =========================
@@ -775,90 +1059,6 @@ def remember_guest_details(text_raw):
     return guest, changed
 
 
-def get_knowledge_list(key):
-    value = knowledge().get(key, [])
-    return value if isinstance(value, list) else []
-
-
-def find_item_by_type(items, tipo):
-    tipo_n = normalize_text(tipo)
-    for item in items:
-        if normalize_text(item.get("tipo", "")) == tipo_n:
-            return item
-    return None
-
-
-def get_restaurants_data():
-    return get_knowledge_list("restaurantes")
-
-
-def get_markets_data():
-    return get_knowledge_list("mercados")
-
-
-def get_farmacias_data():
-    return get_knowledge_list("farmacias")
-
-
-def format_distance(dist):
-    if not dist:
-        return ""
-    dist_n = normalize_text(str(dist))
-    if has_any(dist_n, ["a pe", "a pé", "metros", "ao lado", "menos de", "andando", "km", "regiao", "região", "enseada", "casa grande"]):
-        return str(dist)
-    if has_any(dist_n, ["min", "minuto", "minutos"]):
-        if has_any(dist_n, ["carro", "pé", "a pe", "a pé"]):
-            return str(dist)
-        return f"{dist} de carro"
-    return str(dist)
-
-
-def distance_sort_key(distance):
-    if not distance:
-        return 9999
-    text = normalize_text(str(distance))
-    if has_any(text, ["ao lado"]):
-        return 0
-    if has_any(text, ["metros"]):
-        m = re.search(r"(\d+)", text)
-        if m:
-            return int(m.group(1)) / 100.0
-    if has_any(text, ["km"]):
-        m = re.search(r"(\d+(?:[.,]\d+)?)", text)
-        if m:
-            return float(m.group(1).replace(",", ".")) * 10
-    if has_any(text, ["min", "minuto", "minutos"]):
-        m = re.search(r"(\d+)", text)
-        if m:
-            return int(m.group(1))
-    if has_any(text, ["ao lado"]):
-        return 0
-    return 9999
-
-
-def best_closest_item(items):
-    if not items:
-        return None
-    return sorted(items, key=lambda x: distance_sort_key(x.get("distancia", "")))[0]
-
-
-def is_social_checkin(text_raw):
-    text_n = normalize_text(text_raw)
-
-    exacts = {
-        "tudo bem", "td bem", "como vai", "como vc ta", "como voce ta",
-        "como vc esta", "como voce esta", "como você tá", "como você está",
-        "ta tudo bem", "tá tudo bem", "vc ta bem", "você tá bem"
-    }
-    if text_n in exacts:
-        return True
-
-    return has_any(text_n, [
-        "tudo bem?", "td bem?", "como vai?", "como vc ta?", "como voce ta?",
-        "como vc esta?", "como voce esta?", "como você tá?", "como você está?"
-    ])
-
-
 # =========================
 # INTENÇÃO / CONTEXTO
 # =========================
@@ -882,7 +1082,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "supermercados", "mercados", "outro mercado", "outros mercados",
         "restaurantes", "outro restaurante", "outros restaurantes",
         "farmacia", "farmácia", "farmacias", "farmácias",
-        "upa", "hospital", "todos",
+        "upa", "hospital", "todos", "todas",
         "pizza", "japones", "japonês", "doce", "vista", "24h", "entrega"
     ]):
         return last_topic
@@ -894,7 +1094,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "esse", "essa", "entao", "então", "vc indica",
         "localizacao", "localização", "horario", "horário",
         "servico", "serviço", "envie", "manda", "pode mandar",
-        "farmacia", "farmácia", "upa", "hospital", "todos",
+        "farmacia", "farmácia", "upa", "hospital", "todos", "todas",
         "pizza", "japones", "japonês", "doce", "vista"
     ]
     if text_n in very_short_contextual:
@@ -922,7 +1122,7 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "vc indica", "vcs indicam", "envie", "enviar", "mandar", "mande",
         "pode avisar", "avise", "avisar", "encaminhe", "encaminhar",
         "rapido", "rápido", "em conta", "farmacia", "farmácia", "upa", "hospital",
-        "restaurantes", "outros restaurantes", "todos", "pizza", "japones",
+        "restaurantes", "outros restaurantes", "todos", "todas", "pizza", "japones",
         "japonês", "doce", "vista", "24h", "entrega"
     ]
     if text_n in exact_short:
@@ -1035,13 +1235,17 @@ def score_intents(text_raw, last_topic=""):
     if has_any(text_n, [
         "quem contactar no predio", "quem contactar no prédio",
         "quem pode ajudar no predio", "quem pode ajudar no prédio",
+        "com quem falar no predio", "com quem falar no prédio",
+        "contato no predio", "contato no prédio",
         "auxilio no predio", "auxílio no prédio",
         "apoio no predio", "apoio no prédio",
         "funcionarios do predio", "funcionários do prédio",
         "quem me ajuda no predio", "quem me ajuda no prédio",
-        "portaria pode ajudar", "ajuda no predio", "ajuda no prédio"
+        "portaria pode ajudar",
+        "ajuda no predio", "ajuda no prédio",
+        "ajuda no condominio", "ajuda no condomínio"
     ]):
-        add("apoio_predio", 9)
+        add("apoio_predio", 14)
 
     if has_any(text_n, ["garagem", "vaga", "estacionar", "estacionamento", "trocar de vaga"]):
         add("garagem", 9)
@@ -1084,7 +1288,12 @@ def score_intents(text_raw, last_topic=""):
     if has_any(text_n, ["surf", "ondas", "mar", "pico de surf", "surfar"]):
         add("surf", 8)
 
-    if has_any(text_n, ["zelador", "paulo", "claudio", "cláudio", "edson", "funcionario", "funcionário", "alguem no predio", "alguém no prédio"]):
+    if has_any(text_n, [
+        "zelador", "paulo", "claudio", "cláudio", "edson",
+        "funcionario", "funcionário",
+        "alguem no predio", "alguém no prédio",
+        "com quem falar", "quem contactar", "contato no prédio", "contato no predio"
+    ]):
         add("apoio_predio", 8)
 
     contextual = infer_contextual_followup(text_raw, last_topic)
@@ -1623,15 +1832,6 @@ def get_servico_praia_localizacao_reply():
     )
 
 
-def build_list_lines_from_items(items, formatter):
-    lines = []
-    for item in items:
-        line = formatter(item)
-        if line:
-            lines.append(line)
-    return lines
-
-
 def get_restaurantes_reply(text):
     text_n = normalize_text(text)
     restaurantes = get_restaurants_data()
@@ -1651,6 +1851,7 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_last_entity(nome, "restaurantes")
         reply = f"Boa 😄\n\nUma opção prática nesse estilo é o **{nome}**, que fica a cerca de **{dist}**."
         if perfil:
             reply += f"\n\n{perfil}."
@@ -1666,6 +1867,7 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_last_entity(nome, "restaurantes")
         reply = f"Boa 😄\n\nSe quiser algo mais especial, o **{nome}** costuma ser uma ótima pedida ✨"
         if perfil:
             reply += f"\n\n{perfil}."
@@ -1674,12 +1876,13 @@ def get_restaurantes_reply(text):
         reply += f"\n\nSe preferir algo mais clássico e tradicional, o **{alt}** também é uma excelente escolha."
         return reply
 
-    if has_any(text_n, ["tradicional", "classico", "clássico", "frutos do mar", "frutos do mar"]):
+    if has_any(text_n, ["tradicional", "classico", "clássico", "frutos do mar"]):
         item = tradicional or {}
         nome = item.get("nome", "Alcide’s")
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_last_entity(nome, "restaurantes")
         reply = f"Se a ideia for algo mais tradicional 😊\n\nUma boa referência é o **{nome}**."
         if perfil:
             reply += f"\n\n{perfil}."
@@ -1694,6 +1897,7 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_last_entity(nome, "restaurantes")
         reply = f"Se a vontade for comida japonesa 🍣\n\nUma boa referência é o **{nome}**, que fica a cerca de **{dist}**."
         if perfil:
             reply += f"\n\n{perfil}."
@@ -1707,6 +1911,7 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_last_entity(nome, "restaurantes")
         reply = f"Se a ideia for pizza 🍕\n\nUma boa pedida é a **{nome}**."
         if perfil:
             reply += f"\n\n{perfil}."
@@ -1719,6 +1924,7 @@ def get_restaurantes_reply(text):
         nome = item.get("nome", "McDonald's Enseada")
         dist = format_distance(item.get("distancia", "5 minutos"))
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_last_entity(nome, "restaurantes")
         return f"Se quiser algo mais rápido 🍔\n\nO **{nome}** fica a cerca de **{dist}**."
 
     if has_any(text_n, ["doce", "sobremesa", "chocolate", "kopenhagen", "cacau show"]):
@@ -1728,6 +1934,7 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_last_entity(nome, "restaurantes")
         reply = f"Se a ideia for um doce ou uma lembrança gostosa 🍫\n\nA **{nome}** fica a cerca de **{dist}**."
         if perfil:
             reply += f"\n\n{perfil}."
@@ -1741,6 +1948,7 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_last_entity(nome, "restaurantes")
         reply = f"Se a ideia for um lugar com vista ✨\n\nO **{nome}** pode ser uma ótima escolha."
         if perfil:
             reply += f"\n\n{perfil}."
@@ -1748,7 +1956,7 @@ def get_restaurantes_reply(text):
             reply += f"\n\n{obs}"
         return reply
 
-    if has_any(text_n, ["restaurantes", "outro restaurante", "outros restaurantes", "opcoes de restaurante", "opções de restaurante", "todos"]):
+    if has_any(text_n, ["restaurantes", "outro restaurante", "outros restaurantes", "opcoes de restaurante", "opções de restaurante", "todos", "todas"]):
         if restaurantes:
             linhas = []
             for r in restaurantes:
@@ -1817,6 +2025,7 @@ def get_mercado_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="mercado", last_recommendation_name=nome)
+        set_last_entity(nome, "mercado")
         reply = f"Pra algo rápido 🛒\n\n• **{nome}** → {dist}"
         if perfil:
             reply += f"\n\n{perfil}."
@@ -1825,7 +2034,7 @@ def get_mercado_reply(text):
         reply += "\n\nPerfeito pra água, bebida ou emergência 👍"
         return reply
 
-    if has_any(text_n, ["mercados", "supermercados", "outro mercado", "outros mercados", "outras opcoes", "outras opções", "todos"]):
+    if has_any(text_n, ["mercados", "supermercados", "outro mercado", "outros mercados", "outras opcoes", "outras opções", "todos", "todas"]):
         if mercados:
             linhas = []
             for m in mercados:
@@ -1855,6 +2064,7 @@ def get_mercado_reply(text):
                 linhas.append(f"• **{nome}** → cerca de **{dist}**" + (f" | {perfil}" if perfil else ""))
 
             update_session(last_recommendation_type="mercado", last_recommendation_name=completos[0].get("nome", "Pão de Açúcar - Enseada"))
+            set_last_entity(completos[0].get("nome", "Pão de Açúcar - Enseada"), "mercado")
             return (
                 "Se quiser um mercado mais completo:\n\n"
                 + "\n".join(linhas)
@@ -1891,6 +2101,9 @@ def get_padaria_reply():
     telefone = padaria.get("telefone", "")
     almoco = padaria.get("almoco", "")
 
+    if padaria.get("nome"):
+        set_last_entity(padaria.get("nome", ""), "padaria")
+
     reply = (
         "Se você quiser padaria ou café da manhã 😊\n\n"
         f"Uma referência prática é a **{padaria.get('nome', 'Padaria Pitangueiras')}**, a cerca de **{padaria.get('distancia', '300m do apartamento')}**."
@@ -1919,6 +2132,7 @@ def get_farmacia_reply(text=""):
         if candidatas:
             item = candidatas[0]
             nome = item.get("nome", "Drogasil")
+            set_last_entity(nome, "farmacia")
             reply = (
                 f"Se você estiver precisando de farmácia 24h 😊\n\n"
                 f"Uma boa referência é a **{nome}**."
@@ -1948,7 +2162,7 @@ def get_farmacia_reply(text=""):
                 + "\n\nSe quiser, também posso te passar a opção 24h mais conveniente."
             )
 
-    if has_any(text_n, ["todos", "outras", "outras farmacias", "outras farmácias", "farmacias", "farmácias"]):
+    if has_any(text_n, ["todos", "todas", "outras", "outras farmacias", "outras farmácias", "farmacias", "farmácias"]):
         if farmacias:
             linhas = []
             for f in farmacias:
@@ -1970,9 +2184,11 @@ def get_farmacia_reply(text=""):
 
     if farmacias:
         item = farmacias[0]
+        nome = item.get("nome", "Droga Raia")
+        set_last_entity(nome, "farmacia")
         reply = (
             "Se você estiver precisando de farmácia 😊\n\n"
-            f"Uma referência prática é a **{item.get('nome', 'Droga Raia')}**"
+            f"Uma referência prática é a **{nome}**"
         )
         if item.get("endereco"):
             reply += f", que fica em **{item.get('endereco')}**"
@@ -2121,7 +2337,7 @@ def get_health_reply(text):
             "Posso te orientar rapidamente para **UPA**, **hospital** ou **farmácia**."
         )
 
-    if has_any(text_n, ["todos"]):
+    if has_any(text_n, ["todos", "todas"]):
         return (
             "Claro 😊\n\n"
             "Aqui vão as opções de apoio à saúde na região:\n\n"
@@ -2326,7 +2542,7 @@ def get_followup_reply(text, last_topic, guest):
     if topic == "restaurantes":
         restaurantes = get_restaurants_data()
 
-        if has_any(text_n, ["todos"]):
+        if has_any(text_n, ["todos", "todas"]):
             return get_restaurantes_reply("todos")
 
         if has_any(text_n, ["outro restaurante", "outros restaurantes", "restaurantes"]):
@@ -2335,7 +2551,9 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["mais perto", "perto"]):
             item = best_closest_item(restaurantes)
             if item:
-                reply = f"Se a prioridade for proximidade, eu iria no **{item.get('nome', '')}**"
+                nome = item.get("nome", "")
+                set_last_entity(nome, "restaurantes")
+                reply = f"Se a prioridade for proximidade, eu iria no **{nome}**"
                 if item.get("distancia"):
                     reply += f", que fica a cerca de **{format_distance(item.get('distancia', ''))}**"
                 reply += "."
@@ -2373,12 +2591,13 @@ def get_followup_reply(text, last_topic, guest):
             )
 
         if text_n in ["esse", "essa", "pode ser", "quero esse", "quero essa"] and last_rec_name:
+            set_last_entity(last_rec_name, "restaurantes")
             return f"Boa escolha 😄\n\nSe eu fosse por esse caminho, iria de **{last_rec_name}**."
 
     if topic == "mercado":
         mercados = get_markets_data()
 
-        if has_any(text_n, ["todos"]):
+        if has_any(text_n, ["todos", "todas"]):
             return get_mercado_reply("todos")
 
         if has_any(text_n, ["outro mercado", "outros mercados", "outras opcoes", "outras opções", "supermercados", "mercados"]):
@@ -2390,7 +2609,9 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["mais perto", "perto", "rapido", "rápido"]):
             item = best_closest_item(mercados)
             if item:
-                reply = f"Se a prioridade for praticidade, eu iria no **{item.get('nome', '')}**"
+                nome = item.get("nome", "")
+                set_last_entity(nome, "mercado")
+                reply = f"Se a prioridade for praticidade, eu iria no **{nome}**"
                 if item.get("distancia"):
                     reply += f", que fica **{format_distance(item.get('distancia', ''))}**"
                 reply += "."
@@ -2409,7 +2630,7 @@ def get_followup_reply(text, last_topic, guest):
             )
 
     if topic == "saude":
-        if has_any(text_n, ["todos"]):
+        if has_any(text_n, ["todos", "todas"]):
             return get_health_reply("todos")
         if has_any(text_n, ["farmacia", "farmácia", "farmacias", "farmácias", "24h", "entrega"]):
             return get_farmacia_reply(text)
@@ -2420,7 +2641,7 @@ def get_followup_reply(text, last_topic, guest):
         return get_health_reply(text)
 
     if topic == "farmacia":
-        if has_any(text_n, ["todos", "outras", "outras farmacias", "outras farmácias", "24h", "entrega"]):
+        if has_any(text_n, ["todos", "todas", "outras", "24h", "entrega"]):
             return get_farmacia_reply(text)
         return get_farmacia_reply(text)
 
@@ -2430,6 +2651,16 @@ def get_followup_reply(text, last_topic, guest):
     if topic == "tempo":
         if has_any(text_n, ["e pra praia", "compensa", "vale a pena", "e hoje"]):
             return f"{get_weather_reply()}\n\nSe quiser, eu também posso te sugerir se hoje faz mais sentido praia, passeio ou algo coberto 😉"
+
+    if topic == "apoio_predio":
+        if has_any(text_n, [
+            "quem contactar no predio", "quem contactar no prédio",
+            "com quem falar no predio", "com quem falar no prédio",
+            "contato no predio", "contato no prédio",
+            "ajuda no condominio", "ajuda no condomínio",
+            "ajuda no predio", "ajuda no prédio"
+        ]):
+            return get_apoio_predio_reply()
 
     if topic == "bruno":
         if has_any(text_n, [
@@ -2506,7 +2737,7 @@ def get_guided_reply(intent):
             "Você quer:\n"
             "• uma opção **24h**\n"
             "• com **entrega**\n"
-            "• ou ver **todas**?"
+            "• ou ver **todos**?"
         )
 
     if intent == "praia":
@@ -2819,6 +3050,25 @@ def gepetto_responde(msg):
                 remembered,
                 used_followup=True,
                 intent_for_session="bruno"
+            )
+
+    if looks_like_detail_question(text_raw):
+        entity = resolve_entity_from_text(text_raw)
+        if not entity:
+            entity = resolve_last_entity_from_session()
+
+        field = get_requested_detail_field(text_raw)
+        detail_reply = get_entity_detail_reply(entity, field) if entity else ""
+
+        if detail_reply:
+            return finalize_and_log(
+                guest,
+                text_raw,
+                entity.get("category", "detalhe_local"),
+                detail_reply,
+                remembered,
+                used_followup=True,
+                intent_for_session="detalhe_local"
             )
 
     inferred_intent = infer_primary_intent(text_raw, last_topic)
