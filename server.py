@@ -622,7 +622,7 @@ def get_requested_detail_field(text_raw):
         return "endereco"
     if has_any(text_n, ["horario", "horário", "que horas abre", "que horas funciona", "funciona ate", "funciona até"]):
         return "horario"
-    if has_any(text_n, ["telefone", "numero", "número", "fone", "contato"]):
+    if has_any(text_n, ["telefone", "numero", "número", "fone"]):
         return "telefone"
     if has_any(text_n, ["site", "link", "pagina", "página"]):
         return "site"
@@ -805,6 +805,62 @@ def get_entity_detail_reply(entity, field):
         f"**{nome}**\n"
         f"• {label_map.get(field, field.title())}: {value}"
     )
+
+
+def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
+    text_n = normalize_text(text_raw)
+    field = get_requested_detail_field(text_raw)
+
+    if not field:
+        return False
+
+    explicit_entity = resolve_entity_from_text(text_raw)
+    if explicit_entity:
+        return True
+
+    blocking_intents = ["regras", "praia", "apoio_predio", "restaurantes", "mercado", "saude", "farmacia", "bruno", "incidente", "checkout"]
+    if inferred_intent in blocking_intents:
+        return False
+
+    if has_any(text_n, [
+        "horario de silencio", "horário de silêncio",
+        "servico de praia", "serviço de praia",
+        "contato no predio", "contato no prédio",
+        "com quem falar no predio", "com quem falar no prédio",
+        "quem contactar no predio", "quem contactar no prédio",
+        "ajuda no condominio", "ajuda no condomínio",
+        "ajuda no predio", "ajuda no prédio"
+    ]):
+        return False
+
+    sess = load_session()
+    has_last_entity = bool((sess.get("last_entity_name") or "").strip())
+    if not has_last_entity:
+        return False
+
+    short_followups = [
+        "e o endereco", "e o endereço",
+        "e o horario", "e o horário",
+        "e o telefone",
+        "e o site",
+        "e o instagram",
+        "e o whatsapp",
+        "e o delivery",
+        "e a entrega",
+        "e a retirada",
+        "e o drive through",
+        "qual o endereco", "qual o endereço",
+        "qual o horario", "qual o horário",
+        "qual o telefone",
+        "qual o site",
+        "qual o instagram",
+        "qual o whatsapp"
+    ]
+
+    if text_n in short_followups or text_n.startswith("e o ") or text_n.startswith("e a "):
+        return True
+
+    return False
 
 
 def is_social_checkin(text_raw):
@@ -1333,7 +1389,7 @@ def classify_incident(text):
     text_n = normalize_text(text)
 
     high = [
-        "vazamento", "sem energia", "porta nao abre", "nao entra",
+        "vazamento", "sem energia", "porta nao abre", "porta não abre", "nao entra", "não entra",
         "curto", "fogo", "incendio", "incêndio", "fumaca", "fumaça",
         "gas", "gás", "explosao", "explosão", "cheiro de queimado",
         "queimando", "sofa queimando", "sofá queimando", "pegando fogo"
@@ -2359,7 +2415,15 @@ def get_health_reply(text):
 
 
 def get_problem_reply(text):
+    text_n = normalize_text(text)
     sev = classify_incident(text)
+
+    if has_any(text_n, ["porta nao abre", "porta não abre", "nao entra", "não entra"]):
+        return (
+            "Entendi ⚠️\n\n"
+            "Isso é importante.\n\n"
+            "Se vocês estiverem do lado de fora ou sem conseguir acessar, já deixei isso sinalizado por aqui com prioridade."
+        )
 
     if sev == "alta":
         return (
@@ -2632,7 +2696,7 @@ def get_followup_reply(text, last_topic, guest):
     if topic == "saude":
         if has_any(text_n, ["todos", "todas"]):
             return get_health_reply("todos")
-        if has_any(text_n, ["farmacia", "farmácia", "farmacias", "farmácias", "24h", "entrega"]):
+        if has_any(text_n, ["farmacia", "farmácia", "farmacias", "farmácias"]):
             return get_farmacia_reply(text)
         if has_any(text_n, ["upa"]):
             return get_localizacao_reply("upa")
@@ -2641,8 +2705,12 @@ def get_followup_reply(text, last_topic, guest):
         return get_health_reply(text)
 
     if topic == "farmacia":
-        if has_any(text_n, ["todos", "todas", "outras", "24h", "entrega"]):
-            return get_farmacia_reply(text)
+        if has_any(text_n, ["todos", "todas", "outras", "outras farmacias", "outras farmácias"]):
+            return get_farmacia_reply("todos")
+        if has_any(text_n, ["24h", "vinte e quatro", "urgente", "agora"]):
+            return get_farmacia_reply("24h")
+        if has_any(text_n, ["entrega", "delivery"]):
+            return get_farmacia_reply("entrega")
         return get_farmacia_reply(text)
 
     if topic == "incidente":
@@ -3052,7 +3120,9 @@ def gepetto_responde(msg):
                 intent_for_session="bruno"
             )
 
-    if looks_like_detail_question(text_raw):
+    inferred_intent_preview = infer_primary_intent(text_raw, last_topic)
+
+    if should_use_entity_detail_mode(text_raw, inferred_intent_preview, last_topic):
         entity = resolve_entity_from_text(text_raw)
         if not entity:
             entity = resolve_last_entity_from_session()
@@ -3071,7 +3141,7 @@ def gepetto_responde(msg):
                 intent_for_session="detalhe_local"
             )
 
-    inferred_intent = infer_primary_intent(text_raw, last_topic)
+    inferred_intent = inferred_intent_preview
 
     if is_followup_candidate(text_raw, last_topic, inferred_intent):
         followup = get_followup_reply(text_raw, last_topic, guest)
@@ -3095,6 +3165,13 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "localizacao", get_localizacao_reply(text_raw), remembered, intent_for_session="localizacao")
 
     if intent == "saude":
+        if has_any(text, ["hospital", "upa"]) and not has_any(text, ["doente", "mal", "passando mal", "dor", "febre", "enjoo", "vomito", "vômito"]):
+            if has_any(text, ["hospital"]):
+                reply = get_localizacao_reply("hospital")
+            else:
+                reply = get_localizacao_reply("upa")
+            return finalize_and_log(guest, text_raw, "saude", reply, remembered, intent_for_session="saude")
+
         if len(text.split()) <= 4 and has_any(text, ["doente", "mal", "passando mal", "saude", "saúde"]):
             reply = get_guided_reply("saude")
         else:
