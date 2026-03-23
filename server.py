@@ -793,15 +793,63 @@ def entity_aliases(entity):
     return sorted(aliases, key=lambda x: len(normalize_text(x)), reverse=True)
 
 
-def resolve_entity_from_text(text_raw):
+GENERIC_ENTITY_ALIASES = {
+    "hospital",
+    "upa",
+    "shopping",
+    "cinema",
+    "mirante",
+    "feira",
+    "parque"
+}
+
+
+def is_generic_entity_alias(alias: str) -> bool:
+    return normalize_text(alias) in GENERIC_ENTITY_ALIASES
+
+
+def contextual_entity_category(last_topic: str, inferred_intent: str = "") -> str:
+    topic = normalize_text(last_topic or inferred_intent or "")
+
+    mapping = {
+        "restaurantes": "restaurantes",
+        "mercado": "mercado",
+        "farmacia": "farmacia",
+        "padaria": "padaria",
+        "passeio": "passeio",
+        "shopping": "passeio",
+        "feira": "passeio",
+        "bares": "bares",
+        "saude": "saude"
+    }
+
+    return mapping.get(topic, "")
+
+
+def resolve_entity_from_text(text_raw, allow_generic_aliases=True, preferred_category=""):
     text_n = normalize_text(text_raw)
     catalog = build_entity_catalog()
 
     ranked = []
     for entity in catalog:
+        category = entity.get("category", "")
+
         for alias in entity_aliases(entity):
+            alias_n = normalize_text(alias)
+
+            if not allow_generic_aliases and is_generic_entity_alias(alias_n):
+                continue
+
             if phrase_in_text(text_n, alias):
-                ranked.append((len(normalize_text(alias)), entity))
+                score = len(alias_n)
+
+                if preferred_category and category == preferred_category:
+                    score += 100
+
+                if is_generic_entity_alias(alias_n):
+                    score -= 40
+
+                ranked.append((score, entity))
                 break
 
     if not ranked:
@@ -1218,7 +1266,9 @@ def infer_contextual_followup(text_raw, last_topic):
             "servico de praia", "serviço de praia",
             "horario", "horário", "que horas", "que horas funciona",
             "funciona que horas", "ate que horas", "até que horas",
-            "como funciona", "funciona"
+            "como funciona", "funciona",
+            "e o horario", "e o horário",
+            "e o endereco", "e o endereço"
         ]):
             return "praia"
 
@@ -1232,12 +1282,18 @@ def infer_contextual_followup(text_raw, last_topic):
         "qual vc indica", "qual voce recomenda", "qual você recomenda",
         "qual vc recomenda", "mais tranquilo", "mais animado",
         "vale a pena", "compensa", "e esse", "e essa",
+        "o outro", "a outra", "outro", "outra",
+        "esse lugar", "essa opcao", "essa opção",
+        "esse local", "esse ai", "esse aí", "essa ai", "essa aí",
+        "qual deles", "qual delas", "tem outro", "tem outra",
         "supermercados", "mercados", "outro mercado", "outros mercados",
         "restaurantes", "outro restaurante", "outros restaurantes",
         "farmacia", "farmácia", "farmacias", "farmácias",
         "upa", "hospital", "todos", "todas",
         "pizza", "japones", "japonês", "doce", "vista", "24h", "entrega",
-        "shopping", "cinema", "mirante", "feira", "chuva", "familia", "família"
+        "shopping", "cinema", "mirante", "feira", "chuva", "familia", "família",
+        "e o endereco", "e o endereço", "e o horario", "e o horário",
+        "e entrega", "e delivery"
     ]):
         return last_topic
 
@@ -1250,7 +1306,12 @@ def infer_contextual_followup(text_raw, last_topic):
         "servico", "serviço", "envie", "manda", "pode mandar",
         "farmacia", "farmácia", "upa", "hospital", "todos", "todas",
         "pizza", "japones", "japonês", "doce", "vista",
-        "que horas", "como funciona", "shopping", "cinema", "mirante", "feira"
+        "que horas", "como funciona", "shopping", "cinema", "mirante", "feira",
+        "o outro", "a outra", "outro", "outra",
+        "esse lugar", "essa opcao", "essa opção",
+        "esse ai", "esse aí", "essa ai", "essa aí",
+        "qual deles", "qual delas",
+        "endereco", "endereço", "entrega", "delivery"
     ]
     if text_n in very_short_contextual:
         return last_topic
@@ -1283,7 +1344,12 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "pode avisar", "avise", "avisar", "encaminhe", "encaminhar",
         "rapido", "rápido", "em conta", "farmacia", "farmácia", "upa", "hospital",
         "restaurantes", "outros restaurantes", "todos", "todas", "pizza", "japones",
-        "japonês", "doce", "vista", "24h", "entrega", "shopping", "cinema", "mirante", "feira"
+        "japonês", "doce", "vista", "24h", "entrega", "shopping", "cinema", "mirante", "feira",
+        "o outro", "a outra", "outro", "outra",
+        "esse lugar", "essa opcao", "essa opção",
+        "esse ai", "esse aí", "essa ai", "essa aí",
+        "qual deles", "qual delas",
+        "endereco", "endereço", "horario", "horário", "delivery"
     ]
     if text_n in exact_short:
         return True
@@ -3384,7 +3450,12 @@ def gepetto_responde(msg):
     inferred_intent_preview = infer_primary_intent(text_raw, last_topic)
 
     if should_use_entity_detail_mode(text_raw, inferred_intent_preview, last_topic):
-        entity = resolve_entity_from_text(text_raw)
+        preferred_category = contextual_entity_category(last_topic, inferred_intent_preview)
+        entity = resolve_entity_from_text(
+            text_raw,
+            allow_generic_aliases=True,
+            preferred_category=preferred_category
+        )
         if not entity:
             entity = resolve_last_entity_from_session()
 
@@ -3402,7 +3473,12 @@ def gepetto_responde(msg):
                 intent_for_session="detalhe_local"
             )
 
-    explicit_entity = resolve_entity_from_text(text_raw)
+    preferred_category = contextual_entity_category(last_topic, inferred_intent_preview)
+    explicit_entity = resolve_entity_from_text(
+        text_raw,
+        allow_generic_aliases=False,
+        preferred_category=preferred_category
+    )
     if explicit_entity and not looks_like_detail_question(text_raw):
         summary_reply = get_entity_summary_reply(explicit_entity)
         if summary_reply:
@@ -3474,7 +3550,7 @@ def gepetto_responde(msg):
         if ok:
             reply = base_reply + "\n\nJá deixei isso sinalizado por aqui e enviei uma solicitação de acompanhamento ao Bruno. Ele entrará em contato com você o quanto antes 😊"
         else:
-            reply = base_reply + "\n\nJá deixei isso sinalizado por aqui, mas não consegui enviar a solicitação de acompanhamento ao Bruno neste momento."
+            reply = base_reply + "\n\nJá deixei isso sinalizado por aqui, mas não consegui enviar a solicitação de acompanhamento neste momento."
 
         return finalize_and_log(guest, text_raw, "incidente", reply, remembered, intent_for_session="incidente")
 
@@ -3605,4 +3681,3 @@ def welcome():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
-               
