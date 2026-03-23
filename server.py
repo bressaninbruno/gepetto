@@ -6,6 +6,7 @@ import re
 import unicodedata
 from pathlib import Path
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 try:
     import requests
@@ -30,6 +31,28 @@ ADMIN_UNLOCKED = False
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+
+APP_TIMEZONE = ZoneInfo("America/Sao_Paulo")
+
+
+def now_local():
+    return datetime.now(APP_TIMEZONE)
+
+
+def now_iso():
+    return now_local().isoformat(timespec="seconds")
+
+
+def today_local_str():
+    return now_local().strftime("%Y-%m-%d")
+
+
+def time_local_str():
+    return now_local().strftime("%H:%M:%S")
+
+
+def current_local_hour():
+    return now_local().hour
 
 
 # =========================
@@ -121,7 +144,7 @@ def append_memory(role, text, topic="", meta=None):
         "text": text,
         "topic": topic,
         "meta": meta or {},
-        "timestamp": datetime.now().isoformat(timespec="seconds")
+        "timestamp": now_iso()
     })
     memory["messages"] = memory["messages"][-120:]
     save_memory(memory)
@@ -189,14 +212,14 @@ def update_session(
         sess["last_recommendation_type"] = last_recommendation_type
     if last_recommendation_name:
         sess["last_recommendation_name"] = last_recommendation_name
-    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    sess["updated_at"] = now_iso()
     save_session(sess)
 
 
 def set_bruno_pending(value: bool):
     sess = load_session()
     sess["pending_bruno_contact"] = value
-    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    sess["updated_at"] = now_iso()
     save_session(sess)
 
 
@@ -207,7 +230,7 @@ def set_incident_pending(value: bool, context: str = ""):
         sess["last_incident_context"] = context
     elif not value:
         sess["last_incident_context"] = ""
-    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    sess["updated_at"] = now_iso()
     save_session(sess)
 
 
@@ -215,7 +238,7 @@ def set_last_entity(name: str, category: str = ""):
     sess = load_session()
     sess["last_entity_name"] = name or ""
     sess["last_entity_category"] = category or ""
-    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    sess["updated_at"] = now_iso()
     save_session(sess)
 
 
@@ -250,8 +273,8 @@ def set_active_recommendations(rec_type: str, options, current_name: str = ""):
     sess["active_recommendation_type"] = rec_type or ""
     sess["active_recommendation_options"] = clean_options
     sess["active_recommendation_index"] = current_index
-    sess["active_recommendation_updated_at"] = datetime.now().isoformat(timespec="seconds")
-    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    sess["active_recommendation_updated_at"] = now_iso()
+    sess["updated_at"] = now_iso()
     save_session(sess)
 
 
@@ -261,7 +284,7 @@ def clear_active_recommendations():
     sess["active_recommendation_options"] = []
     sess["active_recommendation_index"] = 0
     sess["active_recommendation_updated_at"] = ""
-    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    sess["updated_at"] = now_iso()
     save_session(sess)
 
 
@@ -319,7 +342,7 @@ def get_next_active_recommendation(expected_type: str = "", advance: bool = Fals
     if advance:
         sess = load_session()
         sess["active_recommendation_index"] = next_index
-        sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+        sess["updated_at"] = now_iso()
         save_session(sess)
 
     return options[next_index]
@@ -342,7 +365,7 @@ def set_current_active_recommendation_by_name(name: str, expected_type: str = ""
         if normalize_text(opt) == target_n:
             sess = load_session()
             sess["active_recommendation_index"] = i
-            sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+            sess["updated_at"] = now_iso()
             save_session(sess)
             return
 
@@ -421,7 +444,7 @@ def append_incident(payload):
 def log_conversation(guest, message, intent, response):
     logs = read_json(LOG_FILE, [])
     logs.append({
-        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "timestamp": now_iso(),
         "guest": guest.get("nome", ""),
         "message": message,
         "intent": intent,
@@ -473,8 +496,8 @@ def update_usage_stats(user_text, assistant_text, topic, used_followup=False):
         "por_dia": {}
     })
 
-    hoje = datetime.now().strftime("%Y-%m-%d")
-    agora = datetime.now().strftime("%H:%M:%S")
+    hoje = today_local_str()
+    agora = time_local_str()
 
     if hoje not in stats["por_dia"]:
         stats["por_dia"][hoje] = {
@@ -582,7 +605,7 @@ def get_last_topic():
 
 
 def current_time_label():
-    hour = datetime.now().hour
+    hour = current_local_hour()
     if 5 <= hour < 12:
         return "manhã"
     if 12 <= hour < 18:
@@ -716,7 +739,7 @@ def notify_conversation_to_telegram(guest, message, intent, response):
     nome = guest.get("nome", "").strip() or "Hóspede sem nome definido"
     grupo = guest.get("grupo", "").strip() or "-"
     checkout = guest.get("checkout", "").strip() or "-"
-    agora = datetime.now().isoformat(timespec="seconds")
+    agora = now_iso()
 
     lines = [
         f"👤 Hóspede: {nome}",
@@ -1589,7 +1612,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "farmacia", "farmácia", "farmacias", "farmácias",
         "upa", "hospital", "todos", "todas",
         "pizza", "japones", "japonês", "doce", "vista", "24h", "entrega",
-        "shopping", "cinema", "mirante", "feira", "chuva", "familia", "família",
+        "shopping", "cinema", "mirante", "chuva", "familia", "família",
         "tradicional", "classico", "clássico",
         "e o endereco", "e o endereço", "e o horario", "e o horário",
         "e entrega", "e delivery"
@@ -2106,7 +2129,7 @@ def append_incident_record(kind, raw_message, guest, severity):
         "hospede": guest.get("nome", ""),
         "grupo": guest.get("grupo", ""),
         "checkout": guest.get("checkout", ""),
-        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "timestamp": now_iso(),
         "status": "aberto"
     }
     append_incident(payload)
@@ -2121,7 +2144,7 @@ def send_incident_telegram(kind, raw_message, guest, severity):
         f"Gravidade: {severity.upper()}\n"
         f"Hóspede: {label_guest}\n"
         f"Mensagem: {raw_message}\n"
-        f"Horário: {datetime.now().isoformat(timespec='seconds')}"
+        f"Horário: {now_iso()}"
     )
     return send_telegram_message(tg_msg)
 
@@ -2180,7 +2203,7 @@ def append_incident_context_record(raw_message, guest, detail):
         "hospede": guest.get("nome", ""),
         "grupo": guest.get("grupo", ""),
         "checkout": guest.get("checkout", ""),
-        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "timestamp": now_iso(),
         "status": "complemento"
     }
     append_incident(payload)
@@ -2189,7 +2212,7 @@ def append_incident_context_record(raw_message, guest, detail):
 
 def notify_incident_context_to_telegram(guest, raw_message, detail):
     nome = guest.get("nome", "").strip() or "Hóspede sem nome definido"
-    agora = datetime.now().isoformat(timespec="seconds")
+    agora = now_iso()
 
     msg = (
         "🛠️ COMPLEMENTO DE INCIDENTE — APTO 14B\n\n"
@@ -3250,7 +3273,7 @@ def notify_bruno_request(guest, raw_message=""):
     nome = guest.get("nome", "").strip() or "Hóspede sem nome definido"
     grupo = guest.get("grupo", "").strip() or "-"
     checkout = guest.get("checkout", "").strip() or "-"
-    agora = datetime.now().isoformat(timespec="seconds")
+    agora = now_iso()
 
     msg = (
         "📩 SOLICITAÇÃO DE CONTATO COM O BRUNO\n\n"
@@ -3990,7 +4013,7 @@ def compose_dashboard_text():
     insights = read_json(INSIGHT_FILE, {})
     incidents = read_json(INCIDENTS_FILE, [])
 
-    hoje = datetime.now().strftime("%Y-%m-%d")
+    hoje = today_local_str()
     hoje_stats = usage.get("por_dia", {}).get(hoje, {})
 
     total_messages = usage.get("total_messages", 0)
