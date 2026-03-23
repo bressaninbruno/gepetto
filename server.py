@@ -1784,7 +1784,9 @@ def should_ask_for_followup_reference(text_raw, last_topic, inferred_intent):
                 return True
 
         if field in ["delivery", "takeout", "drive_through"]:
-            if not has_reference_anchor_for_topic(last_topic) and last_topic not in ["saude"]:
+            if last_topic in ["farmacia", "saude"]:
+                return False
+            if not has_reference_anchor_for_topic(last_topic):
                 return True
 
     if normalize_text(text_raw) in [
@@ -1800,6 +1802,7 @@ def should_ask_for_followup_reference(text_raw, last_topic, inferred_intent):
 
 
 def get_followup_reference_clarifier(text_raw, last_topic):
+    text_n = normalize_text(text_raw)
     field = get_requested_detail_field(text_raw)
     topic_n = normalize_text(last_topic)
 
@@ -1810,6 +1813,15 @@ def get_followup_reference_clarifier(text_raw, last_topic):
     if field in ["delivery", "takeout", "drive_through"]:
         return "Posso verificar isso 😊\n\nSó me diga de qual lugar ou opção você quer esse detalhe."
 
+    if text_n in ["esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí"]:
+        return "Posso seguir por aqui 😊\n\nSó me diga qual opção ou lugar você quer considerar."
+
+    if text_n in ["o outro", "a outra", "outro", "outra"]:
+        return "Posso te mostrar outra opção sim 😊\n\nSó me diga de qual tema você está falando."
+
+    if text_n in ["qual", "qual deles", "qual delas", "compensa", "vale a pena"]:
+        return "Posso te ajudar a comparar isso 😊\n\nSó me diga entre quais opções ou sobre qual tema você quer que eu te oriente."
+
     if topic_n in ["restaurantes", "mercado", "passeio"]:
         return "Posso seguir por aqui 😊\n\nSó me diga qual opção você quer considerar."
     if topic_n == "farmacia":
@@ -1817,7 +1829,7 @@ def get_followup_reference_clarifier(text_raw, last_topic):
     if topic_n == "saude":
         return "Posso seguir por aqui 😊\n\nSó me diga se você quer **farmácia**, **UPA** ou **hospital**."
 
-    return "Posso te ajudar com isso 😊\n\nSó me diga qual local ou opção você quer que eu detalhe."
+    return "Posso te ajudar com isso 😊\n\nSó me diga qual local, opção ou tema você quer que eu detalhe."
 
 
 def score_intents(text_raw, last_topic=""):
@@ -3722,6 +3734,8 @@ def get_followup_reply(text, last_topic, guest):
             return get_health_reply("todos")
         if has_any(text_n, ["farmacia", "farmácia", "farmacias", "farmácias"]):
             return get_farmacia_reply("farmacia")
+        if has_any(text_n, ["entrega", "delivery", "24h", "vinte e quatro", "urgente", "agora"]):
+            return get_farmacia_reply(text)
         if has_any(text_n, ["upa"]):
             return get_localizacao_reply("upa")
         if has_any(text_n, ["hospital"]):
@@ -4313,7 +4327,19 @@ def gepetto_responde(msg):
             used_followup=True,
             intent_for_session="clarificacao_contexto"
         )
-
+        
+    if not last_topic and is_ambiguous_reference_message(text_raw):
+        clarify_reply = get_followup_reference_clarifier(text_raw, "")
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "clarificacao_contexto",
+            clarify_reply,
+            remembered,
+            used_followup=True,
+            intent_for_session="clarificacao_contexto"
+        )
+        
     intent = inferred_intent
 
     if intent == "identidade":
