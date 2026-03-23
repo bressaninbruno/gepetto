@@ -365,6 +365,40 @@ def find_item_by_name(items, name: str):
     return None
 
 
+def build_passeio_active_options(primary_item, all_items, preferred_tipos=None, limit=5):
+    preferred_tipos = preferred_tipos or []
+    result = []
+    seen = set()
+
+    def add_item(item):
+        if not isinstance(item, dict):
+            return
+        nome = (item.get("nome") or "").strip()
+        if not nome:
+            return
+        key = normalize_text(nome)
+        if key in seen:
+            return
+        seen.add(key)
+        result.append(nome)
+
+    add_item(primary_item)
+
+    for tipo in preferred_tipos:
+        for item in all_items or []:
+            if normalize_text(item.get("tipo", "")) == normalize_text(tipo):
+                add_item(item)
+                if len(result) >= limit:
+                    return result
+
+    for item in all_items or []:
+        add_item(item)
+        if len(result) >= limit:
+            return result
+
+    return result
+
+
 def load_incidents():
     return read_json(INCIDENTS_FILE, [])
 
@@ -2545,14 +2579,19 @@ def get_passeios_reply(text=""):
             set_last_entity(item.get("nome", ""), "passeio")
             set_active_recommendations(
                 "passeio",
-                names_from_items(items),
-                current_name=item.get("nome", "")
-            )
-            return (
-                f"Se quiser **cinema** 🎬\n\n"
-                f"Uma boa opção é o **{item.get('nome', 'Cinema Cine Guarujá')}**.\n\n"
-                f"{item.get('perfil', item.get('observacao', 'Boa opção para passeio coberto.'))}"
-            )
+                build_passeio_active_options(
+                    item,
+                    passeios,
+                    preferred_tipos=["shopping", "feira", "mirante", "aquario", "parque"],
+                    limit=5
+            ),
+            current_name=item.get("nome", "")
+        )
+        return (
+            f"Se quiser **cinema** 🎬\n\n"
+            f"Uma boa opção é o **{item.get('nome', 'Cinema Cine Guarujá')}**.\n\n"
+            f"{item.get('perfil', item.get('observacao', 'Boa opção para passeio coberto.'))}"
+        )
 
     if has_any(text_n, ["shopping", "shoppings"]):
         items = filter_passeios_by_tipo_or_categoria(passeios, "shopping")
