@@ -1309,8 +1309,8 @@ def pick_confirmation_intro():
     options = [
         "Boa escolha 😊",
         "Ótima escolha 😊",
-        "Boa 😊",
-        "Perfeito 😊"
+        "Perfeito 😊",
+        "Boa decisão 😊"
     ]
     return random.choice(options)
 
@@ -1320,19 +1320,52 @@ def pick_alternative_intro():
         "Claro 😊",
         "Sem problema 😊",
         "Com certeza 😊",
-        "Boa 😊"
+        "Posso sim 😊"
     ]
     return random.choice(options)
 
 
 def pick_comparison_intro():
     options = [
-        "Depende mais do estilo que você quer 😊",
-        "Depende do que faria mais sentido para agora 😊",
-        "As opções mudam bastante conforme o momento 😊",
-        "Dá para te direcionar melhor dependendo do perfil que você quer 😊"
+        "Depende mais do estilo que você quer agora 😊",
+        "Depende do que faria mais sentido para este momento 😊",
+        "As opções mudam bastante conforme o perfil que você está buscando 😊",
+        "Dá para afinar isso melhor dependendo do tipo de experiência que você quer 😊"
     ]
     return random.choice(options)
+
+
+def pick_recommendation_intro(topic=""):
+    options = {
+        "restaurantes": [
+            "Se eu fosse te direcionar por aqui 😊",
+            "Uma boa linha para seguir seria esta 😊",
+            "Se eu tivesse que te apontar um bom caminho agora 😊"
+        ],
+        "mercado": [
+            "Para isso, eu seguiria por aqui 😊",
+            "Se fosse para resolver isso de forma prática 😊",
+            "Uma escolha bem segura para agora seria esta 😊"
+        ],
+        "passeio": [
+            "Para esse tipo de passeio, eu seguiria por aqui 😊",
+            "Se a ideia for algo que funcione bem agora 😊",
+            "Uma boa direção para este momento seria esta 😊"
+        ],
+        "farmacia": [
+            "Para isso, eu começaria por aqui 😊",
+            "Uma boa referência para agora seria esta 😊",
+            "Se eu fosse te orientar de forma prática 😊"
+        ],
+        "generic": [
+            "Eu seguiria por aqui 😊",
+            "Uma boa direção seria esta 😊",
+            "Se eu fosse te orientar agora 😊"
+        ]
+    }
+
+    pool = options.get(topic, options["generic"])
+    return random.choice(pool)
 
 
 def pick_followup_soft_close(topic=""):
@@ -1358,8 +1391,8 @@ def pick_followup_soft_close(topic=""):
             "Se quiser, eu sigo por aqui e afino isso melhor."
         ],
         "generic": [
-            "Se quiser, eu sigo por aqui.",
-            "Se quiser, eu posso te afinar isso melhor.",
+            "Se quiser, eu sigo com você por aqui.",
+            "Se quiser, eu posso afinar isso melhor.",
             "Se quiser, eu continuo com você nessa."
         ]
     }
@@ -3312,7 +3345,11 @@ def get_followup_reply(text, last_topic, guest):
                 set_last_entity(chosen, "restaurantes")
                 set_current_active_recommendation_by_name(chosen, "restaurantes")
                 update_session(last_recommendation_type="restaurantes", last_recommendation_name=chosen)
-                return f"{pick_confirmation_intro()}\n\nSe eu fosse te direcionar nesse caminho, iria de **{chosen}**."
+                return (
+                    f"{pick_confirmation_intro()}\n\n"
+                    f"{pick_recommendation_intro('restaurantes')}\n\n"
+                    f"Eu iria de **{chosen}**."
+                )
 
         if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
             alt_name = active_next
@@ -3324,7 +3361,10 @@ def get_followup_reply(text, last_topic, guest):
                 set_current_active_recommendation_by_name(nome, "restaurantes")
                 update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
 
-                reply = f"{pick_alternative_intro()}\n\nUma outra boa opção é o **{nome}**."
+                reply = (
+                    f"{pick_alternative_intro()}\n\n"
+                    f"Se você quiser variar um pouco, uma outra boa opção é o **{nome}**."
+                )
                 if alt.get("perfil"):
                     reply += f"\n\n{alt.get('perfil')}."
                 if alt.get("observacao"):
@@ -3350,6 +3390,7 @@ def get_followup_reply(text, last_topic, guest):
 
                 return (
                     f"{pick_comparison_intro()}\n\n"
+                    "Entre essas opções, eu resumiria assim:\n\n"
                     + "\n".join(linhas)
                     + f"\n\n{pick_followup_soft_close('restaurantes')}"
                 )
@@ -3396,7 +3437,10 @@ def get_followup_reply(text, last_topic, guest):
             if normalize_text(active.get("type", "")) == "restaurantes" and active.get("options"):
                 current = get_current_active_recommendation("restaurantes")
                 if current:
-                    return f"Se eu fosse te orientar agora 😊\n\nEu começaria pelo **{current}**."
+                    return (
+                        f"{pick_recommendation_intro('restaurantes')}\n\n"
+                        f"Eu começaria pelo **{current}**."
+                    )
 
             return (
                 "Se eu tivesse que te direcionar sem erro 😊\n\n"
@@ -3410,7 +3454,11 @@ def get_followup_reply(text, last_topic, guest):
         if text_n in ["esse", "essa", "pode ser", "quero esse", "quero essa"] and last_rec_name:
             set_last_entity(last_rec_name, "restaurantes")
             set_current_active_recommendation_by_name(last_rec_name, "restaurantes")
-            return f"{pick_confirmation_intro()}\n\nSe eu fosse te direcionar nesse caminho, iria de **{last_rec_name}**."
+            return (
+                f"{pick_confirmation_intro()}\n\n"
+                f"{pick_recommendation_intro('restaurantes')}\n\n"
+                f"Eu iria de **{last_rec_name}**."
+            )
 
     if topic == "mercado":
         mercados = get_markets_data()
@@ -3429,7 +3477,11 @@ def get_followup_reply(text, last_topic, guest):
                 set_last_entity(chosen, "mercado")
                 set_current_active_recommendation_by_name(chosen, "mercado")
                 update_session(last_recommendation_type="mercado", last_recommendation_name=chosen)
-                return f"{pick_confirmation_intro()}\n\nSe a ideia for essa, eu iria no **{chosen}**."
+                return (
+                    f"{pick_confirmation_intro()}\n\n"
+                    f"{pick_recommendation_intro('mercado')}\n\n"
+                    f"Eu iria no **{chosen}**."
+                )
 
         if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
             alt_name = active_next
@@ -3441,7 +3493,10 @@ def get_followup_reply(text, last_topic, guest):
                 set_current_active_recommendation_by_name(nome, "mercado")
                 update_session(last_recommendation_type="mercado", last_recommendation_name=nome)
 
-                reply = f"{pick_alternative_intro()}\n\nUma outra boa opção é o **{nome}**."
+                reply = (
+                    f"{pick_alternative_intro()}\n\n"
+                    f"Se você quiser outra alternativa, uma boa opção é o **{nome}**."
+                )
                 if alt.get("distancia"):
                     reply += f"\n• Distância: {format_distance(alt.get('distancia', ''))}"
                 if alt.get("perfil"):
@@ -3472,6 +3527,7 @@ def get_followup_reply(text, last_topic, guest):
 
                 return (
                     "Depende do tipo de compra que você quer fazer 😊\n\n"
+                    "Eu resumiria assim:\n\n"
                     + "\n".join(linhas)
                     + f"\n\n{pick_followup_soft_close('mercado')}"
                 )
@@ -3499,7 +3555,10 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["qual melhor", "qual voce recomenda", "qual você recomenda", "qual vc recomenda", "compensa"]):
             current = get_current_active_recommendation("mercado")
             if current:
-                return f"Se eu fosse te orientar agora 😊\n\nEu começaria pelo **{current}**."
+                return (
+                    f"{pick_recommendation_intro('mercado')}\n\n"
+                    f"Eu começaria pelo **{current}**."
+                )
             return (
                 "Depende do que você precisa 😊\n\n"
                 "• **Mercado Dia** → se quiser algo rápido\n"
@@ -3558,7 +3617,11 @@ def get_followup_reply(text, last_topic, guest):
             if chosen:
                 set_last_entity(chosen, "passeio")
                 set_current_active_recommendation_by_name(chosen, "passeio")
-                return f"{pick_confirmation_intro()}\n\nSe a ideia for essa, **{chosen}** pode ser uma ótima escolha."
+                return (
+                    f"{pick_confirmation_intro()}\n\n"
+                    f"{pick_recommendation_intro('passeio')}\n\n"
+                    f"**{chosen}** pode ser uma ótima escolha."
+                )
 
         if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
             alt_name = active_next
@@ -3570,7 +3633,7 @@ def get_followup_reply(text, last_topic, guest):
                 set_current_active_recommendation_by_name(nome, "passeio")
                 return (
                     f"{pick_alternative_intro()}\n\n"
-                    f"Uma outra boa opção é **{nome}**.\n\n"
+                    f"Se você quiser variar o passeio, uma outra boa opção é **{nome}**.\n\n"
                     f"{alt.get('perfil', alt.get('observacao', 'Pode ser uma boa alternativa por aqui.'))}"
                 )
 
@@ -3593,6 +3656,7 @@ def get_followup_reply(text, last_topic, guest):
 
                 return (
                     "Depende bastante do clima e do tipo de passeio que você quer 😊\n\n"
+                    "Eu resumiria assim:\n\n"
                     + "\n".join(linhas)
                     + f"\n\n{pick_followup_soft_close('passeio')}"
                 )
