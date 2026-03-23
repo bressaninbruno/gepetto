@@ -143,6 +143,10 @@ def default_session():
         "pending_bruno_contact": False,
         "pending_incident_context": False,
         "last_incident_context": "",
+        "active_recommendation_type": "",
+        "active_recommendation_options": [],
+        "active_recommendation_index": 0,
+        "active_recommendation_updated_at": "",
         "updated_at": ""
     }
 
@@ -213,6 +217,152 @@ def set_last_entity(name: str, category: str = ""):
     sess["last_entity_category"] = category or ""
     sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
     save_session(sess)
+
+
+def set_active_recommendations(rec_type: str, options, current_name: str = ""):
+    sess = load_session()
+
+    clean_options = []
+    seen = set()
+
+    for opt in options or []:
+        if not isinstance(opt, str):
+            continue
+        name = opt.strip()
+        if not name:
+            continue
+
+        key = normalize_text(name)
+        if key in seen:
+            continue
+
+        seen.add(key)
+        clean_options.append(name)
+
+    current_index = 0
+    if current_name and clean_options:
+        current_n = normalize_text(current_name)
+        for i, name in enumerate(clean_options):
+            if normalize_text(name) == current_n:
+                current_index = i
+                break
+
+    sess["active_recommendation_type"] = rec_type or ""
+    sess["active_recommendation_options"] = clean_options
+    sess["active_recommendation_index"] = current_index
+    sess["active_recommendation_updated_at"] = datetime.now().isoformat(timespec="seconds")
+    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    save_session(sess)
+
+
+def clear_active_recommendations():
+    sess = load_session()
+    sess["active_recommendation_type"] = ""
+    sess["active_recommendation_options"] = []
+    sess["active_recommendation_index"] = 0
+    sess["active_recommendation_updated_at"] = ""
+    sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    save_session(sess)
+
+
+def get_active_recommendations():
+    sess = load_session()
+    options = sess.get("active_recommendation_options", [])
+    if not isinstance(options, list):
+        options = []
+
+    return {
+        "type": sess.get("active_recommendation_type", ""),
+        "options": options,
+        "index": int(sess.get("active_recommendation_index", 0) or 0),
+        "updated_at": sess.get("active_recommendation_updated_at", "")
+    }
+
+
+def get_current_active_recommendation(expected_type: str = ""):
+    data = get_active_recommendations()
+
+    if expected_type and normalize_text(data["type"]) != normalize_text(expected_type):
+        return ""
+
+    options = data["options"]
+    index = data["index"]
+
+    if not options:
+        return ""
+
+    if index < 0 or index >= len(options):
+        return options[0]
+
+    return options[index]
+
+
+def get_next_active_recommendation(expected_type: str = "", advance: bool = False):
+    data = get_active_recommendations()
+
+    if expected_type and normalize_text(data["type"]) != normalize_text(expected_type):
+        return ""
+
+    options = data["options"]
+    index = data["index"]
+
+    if not options:
+        return ""
+
+    if len(options) == 1:
+        return options[0]
+
+    next_index = index + 1
+    if next_index >= len(options):
+        next_index = 0
+
+    if advance:
+        sess = load_session()
+        sess["active_recommendation_index"] = next_index
+        sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+        save_session(sess)
+
+    return options[next_index]
+
+
+def set_current_active_recommendation_by_name(name: str, expected_type: str = ""):
+    if not name:
+        return
+
+    data = get_active_recommendations()
+    if expected_type and normalize_text(data["type"]) != normalize_text(expected_type):
+        return
+
+    options = data["options"]
+    if not options:
+        return
+
+    target_n = normalize_text(name)
+    for i, opt in enumerate(options):
+        if normalize_text(opt) == target_n:
+            sess = load_session()
+            sess["active_recommendation_index"] = i
+            sess["updated_at"] = datetime.now().isoformat(timespec="seconds")
+            save_session(sess)
+            return
+
+
+def names_from_items(items):
+    names = []
+    for item in items or []:
+        if isinstance(item, dict):
+            name = (item.get("nome") or "").strip()
+            if name:
+                names.append(name)
+    return names
+
+
+def find_item_by_name(items, name: str):
+    target_n = normalize_text(name)
+    for item in items or []:
+        if normalize_text(item.get("nome", "")) == target_n:
+            return item
+    return None
 
 
 def load_incidents():
@@ -2118,6 +2268,11 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items([item, tradicional, especial, japones, pizza, doce, vista]),
+            current_name=nome
+        )
         set_last_entity(nome, "restaurantes")
         reply = f"Boa 😄\n\nUma opção prática nesse estilo é o **{nome}**, que fica a cerca de **{dist}**."
         if perfil:
@@ -2134,6 +2289,11 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items([item, tradicional, japones, pizza, vista]),
+            current_name=nome
+        )
         set_last_entity(nome, "restaurantes")
         reply = f"Boa 😄\n\nSe quiser algo mais especial, o **{nome}** costuma ser uma ótima pedida ✨"
         if perfil:
@@ -2149,6 +2309,11 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items([item, especial, japones, pizza, vista]),
+            current_name=nome
+        )
         set_last_entity(nome, "restaurantes")
         reply = f"Se a ideia for algo mais tradicional 😊\n\nUma boa referência é o **{nome}**."
         if perfil:
@@ -2164,6 +2329,11 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items([item, especial, tradicional, pizza, doce]),
+            current_name=nome
+        )
         set_last_entity(nome, "restaurantes")
         reply = f"Se a vontade for comida japonesa 🍣\n\nUma boa referência é o **{nome}**, que fica a cerca de **{dist}**."
         if perfil:
@@ -2178,6 +2348,11 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items([item, tradicional, especial, japones]),
+            current_name=nome
+        )
         set_last_entity(nome, "restaurantes")
         reply = f"Se a ideia for pizza 🍕\n\nUma boa pedida é a **{nome}**."
         if perfil:
@@ -2191,6 +2366,11 @@ def get_restaurantes_reply(text):
         nome = item.get("nome", "McDonald's Enseada")
         dist = format_distance(item.get("distancia", "5 minutos"))
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items([item, tradicional, especial, japones, pizza, doce, vista]),
+            current_name=nome
+        )
         set_last_entity(nome, "restaurantes")
         return f"Se quiser algo mais rápido 🍔\n\nO **{nome}** fica a cerca de **{dist}**."
 
@@ -2201,6 +2381,11 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items([item, especial, japones, pizza]),
+            current_name=nome
+        )
         set_last_entity(nome, "restaurantes")
         reply = f"Se a ideia for um doce ou uma lembrança gostosa 🍫\n\nA **{nome}** fica a cerca de **{dist}**."
         if perfil:
@@ -2215,6 +2400,11 @@ def get_restaurantes_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items([item, especial, tradicional, japones, pizza]),
+            current_name=nome
+        )
         set_last_entity(nome, "restaurantes")
         reply = f"Se a ideia for um lugar com vista ✨\n\nO **{nome}** pode ser uma ótima escolha."
         if perfil:
@@ -2248,6 +2438,11 @@ def get_restaurantes_reply(text):
                 else:
                     linhas.append(f"• **{nome}**")
 
+            set_active_recommendations(
+                "restaurantes",
+                names_from_items(restaurantes),
+                current_name=restaurantes[0].get("nome", "") if restaurantes else ""
+            )
             return (
                 "Claro 😊\n\n"
                 "Aqui vão algumas boas referências de restaurantes por perto:\n\n"
@@ -2266,6 +2461,11 @@ def get_restaurantes_reply(text):
             else:
                 linhas.append(f"• **{nome}** → {perfil or 'boa opção por perto'}")
 
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items(restaurantes[:6]),
+            current_name=restaurantes[0].get("nome", "") if restaurantes else ""
+        )
         return (
             "Boa 😄\n\n"
             "Aqui vão algumas boas referências por perto:\n\n"
@@ -2293,6 +2493,11 @@ def get_passeios_reply(text=""):
 
         if items:
             linhas = [build_passeio_line(p) for p in items]
+            set_active_recommendations(
+                "passeio",
+                names_from_items(items),
+                current_name=items[0].get("nome", "") if items else ""
+            )
             return (
                 "Se a ideia for algo bom para **chuva** ☔\n\n"
                 + "\n".join(linhas)
@@ -2306,6 +2511,11 @@ def get_passeios_reply(text=""):
 
         if items:
             linhas = [build_passeio_line(p) for p in items]
+            set_active_recommendations(
+                "passeio",
+                names_from_items(items),
+                current_name=items[0].get("nome", "") if items else ""
+            )
             return (
                 "Se quiser algo legal para **família** 😊\n\n"
                 + "\n".join(linhas)
@@ -2317,6 +2527,11 @@ def get_passeios_reply(text=""):
         if items:
             item = items[0]
             set_last_entity(item.get("nome", ""), "passeio")
+            set_active_recommendations(
+                "passeio",
+                names_from_items(items),
+                current_name=item.get("nome", "")
+            )
             return (
                 f"Se a ideia for **vista** ou **mirante** ✨\n\n"
                 f"Uma ótima referência é o **{item.get('nome', 'Morro do Maluf - Mirante da Campina')}**.\n\n"
@@ -2328,6 +2543,11 @@ def get_passeios_reply(text=""):
         if items:
             item = items[0]
             set_last_entity(item.get("nome", ""), "passeio")
+            set_active_recommendations(
+                "passeio",
+                names_from_items(items),
+                current_name=item.get("nome", "")
+            )
             return (
                 f"Se quiser **cinema** 🎬\n\n"
                 f"Uma boa opção é o **{item.get('nome', 'Cinema Cine Guarujá')}**.\n\n"
@@ -2338,6 +2558,11 @@ def get_passeios_reply(text=""):
         items = filter_passeios_by_tipo_or_categoria(passeios, "shopping")
         if items:
             linhas = [build_passeio_line(p) for p in items]
+            set_active_recommendations(
+                "passeio",
+                names_from_items(items),
+                current_name=items[0].get("nome", "") if items else ""
+            )
             return (
                 "Se quiser **shopping** 🛍️\n\n"
                 + "\n".join(linhas)
@@ -2349,6 +2574,11 @@ def get_passeios_reply(text=""):
         if items:
             item = items[0]
             set_last_entity(item.get("nome", ""), "passeio")
+            set_active_recommendations(
+                "passeio",
+                names_from_items(items),
+                current_name=item.get("nome", "")
+            )
             return (
                 f"Se quiser algo mais local 😊\n\n"
                 f"Uma boa pedida é a **{item.get('nome', 'Feira da Enseada')}**.\n\n"
@@ -2360,6 +2590,11 @@ def get_passeios_reply(text=""):
         if items:
             item = items[0]
             set_last_entity(item.get("nome", ""), "passeio")
+            set_active_recommendations(
+                "passeio",
+                names_from_items(items),
+                current_name=item.get("nome", "")
+            )
             return (
                 f"Se a ideia for algo mais ao ar livre 🌿\n\n"
                 f"Uma referência legal é o **{item.get('nome', 'Parque Ecológico Renan C. Teixeira')}**.\n\n"
@@ -2371,12 +2606,22 @@ def get_passeios_reply(text=""):
         if items:
             item = items[0]
             set_last_entity(item.get("nome", ""), "passeio")
+            set_active_recommendations(
+                "passeio",
+                names_from_items(items),
+                current_name=item.get("nome", "")
+            )
             return (
                 f"Uma boa opção por aqui é o **{item.get('nome', 'Acqua Mundo - Aquário Guarujá')}** 😊\n\n"
                 f"{item.get('perfil', item.get('observacao', 'Costuma funcionar muito bem para famílias e dias de chuva.'))}"
             )
 
     linhas = [build_passeio_line(p) for p in passeios[:6]]
+    set_active_recommendations(
+        "passeio",
+        names_from_items(passeios[:6]),
+        current_name=passeios[0].get("nome", "") if passeios else ""
+    )
     return (
         "Se quiser passeio por aqui 😊\n\n"
         "Aqui vão algumas boas opções:\n\n"
@@ -2401,6 +2646,11 @@ def get_mercado_reply(text):
         perfil = item.get("perfil", "")
         obs = item.get("observacao", "")
         update_session(last_recommendation_type="mercado", last_recommendation_name=nome)
+        set_active_recommendations(
+            "mercado",
+            names_from_items(mercados),
+            current_name=nome
+        )
         set_last_entity(nome, "mercado")
         reply = f"Pra algo rápido 🛒\n\n• **{nome}** → {dist}"
         if perfil:
@@ -2423,6 +2673,11 @@ def get_mercado_reply(text):
                 else:
                     linhas.append(f"• **{nome}** → cerca de **{dist}**" + (f" | {perfil}" if perfil else ""))
 
+            set_active_recommendations(
+                "mercado",
+                names_from_items(mercados),
+                current_name=mercados[0].get("nome", "") if mercados else ""
+            )
             return (
                 "Claro 😊\n\n"
                 "Aqui vão outras opções de mercado por perto:\n\n"
@@ -2440,6 +2695,11 @@ def get_mercado_reply(text):
                 linhas.append(f"• **{nome}** → cerca de **{dist}**" + (f" | {perfil}" if perfil else ""))
 
             update_session(last_recommendation_type="mercado", last_recommendation_name=completos[0].get("nome", "Pão de Açúcar - Enseada"))
+            set_active_recommendations(
+                "mercado",
+                names_from_items(mercados),
+                current_name=completos[0].get("nome", "") if completos else ""
+            )
             set_last_entity(completos[0].get("nome", "Pão de Açúcar - Enseada"), "mercado")
             return (
                 "Se quiser um mercado mais completo:\n\n"
@@ -2459,6 +2719,11 @@ def get_mercado_reply(text):
             else:
                 linhas.append(f"• **{nome}** → cerca de **{dist}**" + (f" | {perfil}" if perfil else ""))
 
+        set_active_recommendations(
+            "mercado",
+            names_from_items(mercados),
+            current_name=mercados[0].get("nome", "") if mercados else ""
+        )
         return (
             "Aqui vão boas opções próximas 😊\n\n"
             + "\n".join(linhas)
@@ -2928,6 +3193,8 @@ def get_followup_reply(text, last_topic, guest):
 
     if topic == "restaurantes":
         restaurantes = get_restaurants_data()
+        active_current = get_current_active_recommendation("restaurantes")
+        active_next = get_next_active_recommendation("restaurantes", advance=False)
 
         if has_any(text_n, ["todos", "todas"]):
             return get_restaurantes_reply("todos")
@@ -2935,12 +3202,24 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["outro restaurante", "outros restaurantes", "restaurantes"]):
             return get_restaurantes_reply("restaurantes")
 
+        if has_any(text_n, ["esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí", "vou nesse", "vou nessa", "manda esse", "manda essa"]):
+            chosen = active_current or last_rec_name
+            if chosen:
+                set_last_entity(chosen, "restaurantes")
+                set_current_active_recommendation_by_name(chosen, "restaurantes")
+                update_session(last_recommendation_type="restaurantes", last_recommendation_name=chosen)
+                return f"Boa escolha 😄\n\nSe eu fosse por esse caminho, iria de **{chosen}**."
+
         if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
-            alt = get_alternative_item(restaurantes, last_rec_name)
+            alt_name = active_next
+            alt = find_item_by_name(restaurantes, alt_name) if alt_name else None
+
             if alt:
                 nome = alt.get("nome", "")
                 set_last_entity(nome, "restaurantes")
+                set_current_active_recommendation_by_name(nome, "restaurantes")
                 update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+
                 reply = f"Claro 😊\n\nUma outra boa opção é o **{nome}**."
                 if alt.get("perfil"):
                     reply += f"\n\n{alt.get('perfil')}."
@@ -2948,11 +3227,36 @@ def get_followup_reply(text, last_topic, guest):
                     reply += f"\n\n{alt.get('observacao')}"
                 return reply
 
+        if has_any(text_n, ["qual deles", "qual delas", "entre eles", "entre elas"]):
+            active = get_active_recommendations()
+            if normalize_text(active.get("type", "")) == "restaurantes" and active.get("options"):
+                nomes = active["options"][:3]
+                linhas = []
+
+                for nome in nomes:
+                    item = find_item_by_name(restaurantes, nome)
+                    if item:
+                        perfil = item.get("perfil", "")
+                        if perfil:
+                            linhas.append(f"• **{nome}** → {perfil}")
+                        else:
+                            linhas.append(f"• **{nome}**")
+                    else:
+                        linhas.append(f"• **{nome}**")
+
+                return (
+                    "Depende do estilo que você quer 😊\n\n"
+                    + "\n".join(linhas)
+                    + "\n\nSe quiser, eu também posso te dizer qual faz mais sentido para algo mais **especial**, **tradicional** ou mais **prático**."
+                )
+
         if has_any(text_n, ["mais perto", "perto"]):
             item = best_closest_item(restaurantes)
             if item:
                 nome = item.get("nome", "")
                 set_last_entity(nome, "restaurantes")
+                set_current_active_recommendation_by_name(nome, "restaurantes")
+                update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
                 reply = f"Se a prioridade for proximidade, eu iria no **{nome}**"
                 if item.get("distancia"):
                     reply += f", que fica a cerca de **{format_distance(item.get('distancia', ''))}**"
@@ -2984,6 +3288,12 @@ def get_followup_reply(text, last_topic, guest):
             return get_restaurantes_reply("vista")
 
         if has_any(text_n, ["qual melhor", "qual voce indica", "qual você indica", "qual vc indica", "qual voce recomenda", "qual você recomenda", "qual vc recomenda", "compensa", "vale a pena"]):
+            active = get_active_recommendations()
+            if normalize_text(active.get("type", "")) == "restaurantes" and active.get("options"):
+                current = get_current_active_recommendation("restaurantes")
+                if current:
+                    return f"Se eu tivesse que te direcionar agora 😊\n\nEu começaria pelo **{current}**."
+
             return (
                 "Se eu tivesse que te direcionar sem erro 😊\n\n"
                 "• **Thai Lounge Bar** → se você quiser algo mais especial\n"
@@ -2995,10 +3305,13 @@ def get_followup_reply(text, last_topic, guest):
 
         if text_n in ["esse", "essa", "pode ser", "quero esse", "quero essa"] and last_rec_name:
             set_last_entity(last_rec_name, "restaurantes")
+            set_current_active_recommendation_by_name(last_rec_name, "restaurantes")
             return f"Boa escolha 😄\n\nSe eu fosse por esse caminho, iria de **{last_rec_name}**."
 
     if topic == "mercado":
         mercados = get_markets_data()
+        active_current = get_current_active_recommendation("mercado")
+        active_next = get_next_active_recommendation("mercado", advance=False)
 
         if has_any(text_n, ["todos", "todas"]):
             return get_mercado_reply("todos")
@@ -3006,12 +3319,24 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["outro mercado", "outros mercados", "outras opcoes", "outras opções", "supermercados", "mercados"]):
             return get_mercado_reply("mercados")
 
+        if has_any(text_n, ["esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí", "vou nesse", "vou nessa", "manda esse", "manda essa"]):
+            chosen = active_current or last_rec_name
+            if chosen:
+                set_last_entity(chosen, "mercado")
+                set_current_active_recommendation_by_name(chosen, "mercado")
+                update_session(last_recommendation_type="mercado", last_recommendation_name=chosen)
+                return f"Boa 😊\n\nSe a ideia for essa, eu iria no **{chosen}**."
+
         if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
-            alt = get_alternative_item(mercados, last_rec_name)
+            alt_name = active_next
+            alt = find_item_by_name(mercados, alt_name) if alt_name else None
+
             if alt:
                 nome = alt.get("nome", "")
                 set_last_entity(nome, "mercado")
+                set_current_active_recommendation_by_name(nome, "mercado")
                 update_session(last_recommendation_type="mercado", last_recommendation_name=nome)
+
                 reply = f"Claro 😊\n\nUma outra boa opção é o **{nome}**."
                 if alt.get("distancia"):
                     reply += f"\n• Distância: {format_distance(alt.get('distancia', ''))}"
@@ -3021,6 +3346,32 @@ def get_followup_reply(text, last_topic, guest):
                     reply += f"\n\n{alt.get('observacao')}"
                 return reply
 
+        if has_any(text_n, ["qual deles", "qual delas", "entre eles", "entre elas"]):
+            active = get_active_recommendations()
+            if normalize_text(active.get("type", "")) == "mercado" and active.get("options"):
+                nomes = active["options"][:3]
+                linhas = []
+
+                for nome in nomes:
+                    item = find_item_by_name(mercados, nome)
+                    if item:
+                        perfil = item.get("perfil", "")
+                        dist = format_distance(item.get("distancia", ""))
+                        linha = f"• **{nome}**"
+                        if dist:
+                            linha += f" → {dist}"
+                        if perfil:
+                            linha += f" | {perfil}"
+                        linhas.append(linha)
+                    else:
+                        linhas.append(f"• **{nome}**")
+
+                return (
+                    "Depende do tipo de compra 😊\n\n"
+                    + "\n".join(linhas)
+                    + "\n\nSe quiser, eu também posso te dizer qual faz mais sentido para algo **rápido** ou mais **completo**."
+                )
+
         if has_any(text_n, ["mais completo", "completo", "grande", "variedade"]):
             return get_mercado_reply("completo")
 
@@ -3029,6 +3380,8 @@ def get_followup_reply(text, last_topic, guest):
             if item:
                 nome = item.get("nome", "")
                 set_last_entity(nome, "mercado")
+                set_current_active_recommendation_by_name(nome, "mercado")
+                update_session(last_recommendation_type="mercado", last_recommendation_name=nome)
                 reply = f"Se a prioridade for praticidade, eu iria no **{nome}**"
                 if item.get("distancia"):
                     reply += f", que fica **{format_distance(item.get('distancia', ''))}**"
@@ -3040,6 +3393,9 @@ def get_followup_reply(text, last_topic, guest):
             return get_mercado_reply("rapido")
 
         if has_any(text_n, ["qual melhor", "qual voce recomenda", "qual você recomenda", "qual vc recomenda", "compensa"]):
+            current = get_current_active_recommendation("mercado")
+            if current:
+                return f"Se eu fosse te direcionar agora 😊\n\nEu começaria pelo **{current}**."
             return (
                 "Depende do que você precisa 😊\n\n"
                 "• **Mercado Dia** → se quiser algo rápido\n"
@@ -3071,6 +3427,10 @@ def get_followup_reply(text, last_topic, guest):
         return get_problem_reply(text)
 
     if topic == "passeio":
+        passeios = get_passeios_data()
+        active_current = get_current_active_recommendation("passeio")
+        active_next = get_next_active_recommendation("passeio", advance=False)
+
         if has_any(text_n, ["chuva", "chovendo", "dia de chuva"]):
             return get_passeios_reply("chuva")
 
@@ -3089,15 +3449,48 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["feira", "feirinha"]):
             return get_passeios_reply("feira")
 
+        if has_any(text_n, ["esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí", "vou nesse", "vou nessa", "manda esse", "manda essa"]):
+            chosen = active_current or session.get("last_entity_name", "")
+            if chosen:
+                set_last_entity(chosen, "passeio")
+                set_current_active_recommendation_by_name(chosen, "passeio")
+                return f"Boa 😊\n\nSe a ideia for essa, **{chosen}** pode ser uma ótima escolha."
+
         if has_any(text_n, ["o outro", "a outra", "outro", "outra", "tem outro", "tem outra"]):
-            passeios = get_passeios_data()
-            alt = get_alternative_item(passeios, session.get("last_entity_name", ""))
+            alt_name = active_next
+            alt = find_item_by_name(passeios, alt_name) if alt_name else None
+
             if alt:
-                set_last_entity(alt.get("nome", ""), "passeio")
+                nome = alt.get("nome", "")
+                set_last_entity(nome, "passeio")
+                set_current_active_recommendation_by_name(nome, "passeio")
                 return (
                     f"Claro 😊\n\n"
-                    f"Uma outra boa opção é **{alt.get('nome', 'esse passeio')}**.\n\n"
+                    f"Uma outra boa opção é **{nome}**.\n\n"
                     f"{alt.get('perfil', alt.get('observacao', 'Pode ser uma boa alternativa por aqui.'))}"
+                )
+
+        if has_any(text_n, ["qual deles", "qual delas", "entre eles", "entre elas"]):
+            active = get_active_recommendations()
+            if normalize_text(active.get("type", "")) == "passeio" and active.get("options"):
+                nomes = active["options"][:3]
+                linhas = []
+
+                for nome in nomes:
+                    item = find_item_by_name(passeios, nome)
+                    if item:
+                        perfil = item.get("perfil", item.get("observacao", ""))
+                        if perfil:
+                            linhas.append(f"• **{nome}** → {perfil}")
+                        else:
+                            linhas.append(f"• **{nome}**")
+                    else:
+                        linhas.append(f"• **{nome}**")
+
+                return (
+                    "Depende do clima e do estilo do passeio 😊\n\n"
+                    + "\n".join(linhas)
+                    + "\n\nSe quiser, eu também posso te dizer qual combina mais com **chuva**, **família** ou algo mais **leve**."
                 )
 
     if topic == "tempo":
@@ -3593,12 +3986,15 @@ def gepetto_responde(msg):
     intent = inferred_intent
 
     if intent == "identidade":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "identidade", get_identidade_reply(text_raw), remembered, intent_for_session="identidade")
 
     if intent == "localizacao":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "localizacao", get_localizacao_reply(text_raw), remembered, intent_for_session="localizacao")
 
     if intent == "saude":
+        clear_active_recommendations()
         if has_any(text, ["hospital", "upa"]) and not has_any(text, ["doente", "mal", "passando mal", "dor", "febre", "enjoo", "vomito", "vômito"]):
             if has_any(text, ["hospital"]):
                 reply = get_localizacao_reply("hospital")
@@ -3619,6 +4015,7 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "saude", reply, remembered, intent_for_session="saude")
 
     if intent == "incidente":
+        clear_active_recommendations()
         severity = classify_incident(text_raw)
         base_reply = get_problem_reply(text_raw)
         ok, _ = maybe_notify("incidente", text_raw, guest, severity)
@@ -3638,19 +4035,24 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "incidente", reply, remembered, intent_for_session="incidente")
 
     if intent == "wifi":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "wifi", get_wifi_reply(), remembered, intent_for_session="wifi")
 
     if intent == "regras":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "regras", get_regras_reply(text_raw), remembered, intent_for_session="regras")
 
     if intent == "praia_local":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "praia", get_servico_praia_localizacao_reply(), remembered, intent_for_session="praia_local")
 
     if intent == "praia":
+        clear_active_recommendations()
         reply = get_guided_reply("praia") if len(text.split()) <= 2 and has_any(text, ["praia", "praias"]) else get_praia_reply()
         return finalize_and_log(guest, text_raw, "praia", reply, remembered, intent_for_session="praia")
 
     if intent == "roteiro":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "roteiro", get_roteiro_reply(guest), remembered, intent_for_session="roteiro")
 
     if intent == "restaurantes":
@@ -3668,9 +4070,11 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "mercado", reply, remembered, intent_for_session="mercado")
 
     if intent == "padaria":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "padaria", get_padaria_reply(), remembered, intent_for_session="padaria")
 
     if intent == "farmacia":
+        clear_active_recommendations()
         if len(text.split()) <= 3 and has_any(text, ["farmacia", "farmácia", "farmacias", "farmácias"]):
             reply = get_guided_reply("farmacia")
         else:
@@ -3678,15 +4082,19 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "farmacia", reply, remembered, intent_for_session="farmacia")
 
     if intent == "apoio_predio":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "apoio_predio", get_apoio_predio_reply(), remembered, intent_for_session="apoio_predio")
 
     if intent == "garagem":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "garagem", get_garagem_reply(), remembered, intent_for_session="garagem")
 
     if intent == "chaves":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "chaves", get_chaves_reply(), remembered, intent_for_session="chaves")
 
     if intent == "checkout":
+        clear_active_recommendations()
         if has_any(text, [
             "antes do checkout", "antes do check-out",
             "ir embora", "antes de sair", "o que fazer antes de sair",
@@ -3698,9 +4106,11 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "checkout", reply, remembered, intent_for_session="checkout")
 
     if intent == "bruno":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "bruno", get_bruno_reply(), remembered, intent_for_session="bruno")
 
     if intent == "bares":
+        clear_active_recommendations()
         if len(text.split()) <= 3 and has_any(text, ["bar", "bares", "pub", "noite", "drink", "drinks"]):
             reply = get_guided_reply("bares")
         else:
@@ -3708,23 +4118,30 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "bares", reply, remembered, intent_for_session="bares")
 
     if intent == "shopping":
-        return finalize_and_log(guest, text_raw, "shopping", get_shopping_reply(), remembered, intent_for_session="shopping")
+        reply = get_shopping_reply()
+        return finalize_and_log(guest, text_raw, "shopping", reply, remembered, intent_for_session="shopping")
 
     if intent == "feira":
-        return finalize_and_log(guest, text_raw, "feira", get_feira_reply(), remembered, intent_for_session="feira")
+        reply = get_feira_reply()
+        return finalize_and_log(guest, text_raw, "feira", reply, remembered, intent_for_session="feira")
 
     if intent == "tempo":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "tempo", get_tempo_reply(), remembered, intent_for_session="tempo")
 
     if intent == "passeio":
-        return finalize_and_log(guest, text_raw, "passeio", get_passeios_reply(text_raw), remembered, intent_for_session="passeio")
+        reply = get_passeios_reply(text_raw)
+        return finalize_and_log(guest, text_raw, "passeio", reply, remembered, intent_for_session="passeio")
 
     if intent == "eventos":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "eventos", get_eventos_reply(), remembered, intent_for_session="eventos")
 
     if intent == "surf":
+        clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "surf", get_surf_reply(), remembered, intent_for_session="surf")
 
+    clear_active_recommendations()
     reply = get_fallback_reply(guest)
     return finalize_and_log(guest, text_raw, "fallback", reply, remembered, intent_for_session="fallback")
 
