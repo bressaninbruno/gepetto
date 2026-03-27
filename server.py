@@ -744,7 +744,9 @@ def extract_temporal_signals(text_raw):
         ]),
         "references_soon": has_any(text_n, [
             "daqui a pouco", "ja ja", "já já", "logo mais",
-            "ja abre", "já abre", "abre daqui a pouco"
+            "ja abre", "já abre", "abre daqui a pouco",
+            "ja comeca", "já começa", "comeca daqui a pouco", "começa daqui a pouco",
+            "ja inicia", "já inicia", "inicia daqui a pouco"
         ]),
         "references_tonight": has_any(text_n, [
             "essa noite", "esta noite", "hoje a noite", "hoje à noite", "a noite", "à noite"
@@ -848,7 +850,12 @@ def get_praia_temporal_followup_reply(guest, text_raw):
 
     if has_any(text_n, [
         "daqui a pouco ja abre", "daqui a pouco já abre",
-        "ja abre", "já abre", "abre daqui a pouco"
+        "ja abre", "já abre", "abre daqui a pouco",
+        "daqui a pouco ja comeca", "daqui a pouco já começa",
+        "ja comeca", "já começa", "comeca daqui a pouco", "começa daqui a pouco",
+        "daqui a pouco ja inicia", "daqui a pouco já inicia",
+        "ja inicia", "já inicia", "inicia daqui a pouco",
+        "comeca", "começa", "inicia", "cedo"
     ]):
         if status == "pre_open":
             return (
@@ -858,7 +865,7 @@ def get_praia_temporal_followup_reply(guest, text_raw):
         if status == "opening_soon":
             return (
                 "Sim 😊\n\n"
-                "O **serviço de praia abre às 9h**, então já está perto de começar."
+                "O **serviço de praia começa às 9h**, então já está perto de iniciar."
             )
         if status == "active":
             return (
@@ -918,7 +925,7 @@ def get_praia_temporal_followup_reply(guest, text_raw):
         if status == "opening_soon":
             return (
                 "Sim 😊\n\n"
-                "O **serviço de praia abre às 9h**, então já está perto de começar."
+                "O **serviço de praia começa às 9h**, então já está perto de iniciar."
             )
         if status == "active":
             return (
@@ -938,12 +945,13 @@ def get_praia_temporal_followup_reply(guest, text_raw):
     if has_any(text_n, [
         "agora", "mais tarde", "ainda hoje", "amanha", "amanhã",
         "amanha cedo", "amanhã cedo", "essa noite", "daqui a pouco",
-        "posso ir agora", "compensa agora", "ja abre", "já abre", "cedo"
+        "posso ir agora", "compensa agora", "ja abre", "já abre",
+        "ja comeca", "já começa", "comeca", "começa", "inicia", "cedo"
     ]):
         if status == "pre_open":
             return "O **serviço de praia ainda não começou** — ele funciona a partir das **9h** 😊"
         if status == "opening_soon":
-            return "O **serviço de praia abre às 9h** 😊"
+            return "O **serviço de praia começa às 9h** 😊"
         if status == "active":
             return "Agora o **serviço de praia está em funcionamento** 😊"
         if status == "just_closed":
@@ -951,6 +959,7 @@ def get_praia_temporal_followup_reply(guest, text_raw):
         return "Neste horário a praia pode até ser boa para passeio, mas o **serviço de praia já não funciona** 😊"
 
     return ""
+
 
 def guest_checkout_label(guest):
     checkout_time = (guest.get("checkout_time") or "").strip()
@@ -1989,7 +1998,9 @@ def infer_contextual_followup(text_raw, last_topic):
         "esse ai", "esse aí", "essa ai", "essa aí",
         "qual deles", "qual delas", "tem outro", "tem outra",
         "endereco", "endereço",
-        "tradicional", "familia", "família", "chuva"
+        "tradicional", "familia", "família", "chuva",
+        "cedo", "ja abre", "já abre", "daqui a pouco", "abre",
+        "ja comeca", "já começa", "comeca", "começa", "inicia"
     ]
     if text_n in very_short_contextual:
         return last_topic
@@ -2033,7 +2044,9 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "esse lugar", "essa opcao", "essa opção",
         "esse ai", "esse aí", "essa ai", "essa aí",
         "qual deles", "qual delas",
-        "endereco", "endereço", "horario", "horário", "horarios", "horários", "delivery"
+        "endereco", "endereço", "horario", "horário", "horarios", "horários", "delivery",
+        "cedo", "ja abre", "já abre", "daqui a pouco", "abre",
+        "ja comeca", "já começa", "comeca", "começa", "inicia"
     ]
     if text_n in exact_short:
         return True
@@ -2170,12 +2183,12 @@ def should_ask_for_followup_reference(text_raw, last_topic, inferred_intent):
                 return True
 
     if normalize_text(text_raw) in [
-       "esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí",
-       "o outro", "a outra", "outro", "outra",
-       "qual", "qual deles", "qual delas",
-       "qual?", "qual deles?", "qual delas?",
-       "compensa", "vale a pena",
-       "compensa?", "vale a pena?"
+        "esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí",
+        "o outro", "a outra", "outro", "outra",
+        "qual", "qual deles", "qual delas",
+        "qual?", "qual deles?", "qual delas?",
+        "compensa", "vale a pena",
+        "compensa?", "vale a pena?"
     ]:
         if not has_reference_anchor_for_topic(last_topic):
             return True
@@ -2202,12 +2215,12 @@ def get_followup_reference_clarifier(text_raw, last_topic):
         return "Posso te mostrar outra opção sim 😊\n\nSó me diga de qual tema você está falando."
 
     if text_n in [
-       "qual", "qual deles", "qual delas",
-       "qual?", "qual deles?", "qual delas?",
-       "compensa", "vale a pena",
-       "compensa?", "vale a pena?"
+        "qual", "qual deles", "qual delas",
+        "qual?", "qual deles?", "qual delas?",
+        "compensa", "vale a pena",
+        "compensa?", "vale a pena?"
     ]:
-       return "Posso te ajudar a comparar isso 😊\n\nSó me diga entre quais opções ou sobre qual tema você quer que eu te oriente."
+        return "Posso te ajudar a comparar isso 😊\n\nSó me diga entre quais opções ou sobre qual tema você quer que eu te oriente."
 
     if topic_n in ["restaurantes", "mercado", "passeio"]:
         return "Posso seguir por aqui 😊\n\nSó me diga qual opção você quer considerar."
@@ -4871,16 +4884,16 @@ def gepetto_responde(msg):
             get_guided_reply("praia")
             if len(text.split()) <= 2 and has_any(text, ["praia", "praias"])
             else get_praia_reply(guest, text_raw)
-    )
-    return finalize_and_log(
-        guest,
-        text_raw,
-        "praia",
-        reply,
-        remembered,
-        intent_for_session="praia"
-    )
-    
+        )
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "praia",
+            reply,
+            remembered,
+            intent_for_session="praia"
+        )
+
     if intent == "roteiro":
         clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "roteiro", get_roteiro_reply(guest), remembered, intent_for_session="roteiro")
