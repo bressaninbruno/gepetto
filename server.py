@@ -822,6 +822,95 @@ def get_stay_context(guest, text_raw=""):
     }
 
 
+def get_praia_service_status(context=None):
+    context = context or get_stay_context(load_guest())
+    hour = context.get("hour", current_local_hour())
+
+    if hour < 8:
+        return "pre_open"
+    if 8 <= hour < 9:
+        return "opening_soon"
+    if 9 <= hour < 17:
+        return "active"
+    if 17 <= hour < 19:
+        return "just_closed"
+    return "closed_night"
+
+
+def get_praia_temporal_followup_reply(guest, text_raw):
+    context = get_stay_context(guest, text_raw)
+    refs = context.get("temporal_refs", {})
+    status = get_praia_service_status(context)
+
+    if refs.get("references_tonight"):
+        return (
+            "Hoje à noite a praia pode ser boa para caminhar, passar um pouco pela orla "
+            "ou curtir o visual 😊\n\n"
+            "Mas o **serviço de praia já não funciona nesse horário**."
+        )
+
+    if refs.get("references_this_afternoon"):
+        if status in ["pre_open", "opening_soon", "active"]:
+            return (
+                "Hoje à tarde ainda pode valer bastante a pena 😊\n\n"
+                "O **serviço de praia funciona das 9h às 17h**."
+            )
+        return (
+            "Hoje à tarde vale considerar que o **serviço de praia vai até as 17h**.\n\n"
+            "Depois disso, a praia segue mais como passeio, caminhada ou fim de tarde."
+        )
+
+    if refs.get("references_tomorrow_morning"):
+        return (
+            "Amanhã cedo já pode ser uma boa para começar o dia por lá 😊\n\n"
+            "Só vale lembrar que o **serviço de praia começa às 9h**."
+        )
+
+    if refs.get("references_tomorrow"):
+        return (
+            "Amanhã a praia pode ser uma boa sim 😊\n\n"
+            "O **serviço de praia funciona das 9h às 17h**."
+        )
+
+    if refs.get("references_later_today") or refs.get("references_soon"):
+        if status in ["pre_open", "opening_soon", "active"]:
+            return (
+                "Mais tarde ainda deve dar praia sim 😊\n\n"
+                "O **serviço funciona das 9h às 17h**."
+            )
+        return (
+            "Para **mais tarde hoje**, vale considerar que o **serviço de praia funciona até as 17h**.\n\n"
+            "Depois disso, a praia segue mais como passeio ou caminhada."
+        )
+
+    if refs.get("references_now") or refs.get("references_today"):
+        if status == "pre_open":
+            return (
+                "Agora já dá para pensar em praia sim 😊\n\n"
+                "Só vale lembrar que o **serviço de praia começa às 9h**."
+            )
+        if status == "opening_soon":
+            return (
+                "Daqui a pouco já começa bem 😊\n\n"
+                "O **serviço de praia abre às 9h**."
+            )
+        if status == "active":
+            return (
+                "Agora compensa sim 😊\n\n"
+                "O **serviço de praia está em funcionamento**."
+            )
+        if status == "just_closed":
+            return (
+                "Agora, para usar o **serviço de praia**, já não compensa tanto porque ele **encerrou às 17h**.\n\n"
+                "Ainda assim, a praia pode valer para caminhar, relaxar um pouco ou curtir o fim do dia."
+            )
+        return (
+            "Agora à noite a praia pode ser boa para passeio visual ou caminhada 😊\n\n"
+            "Mas o **serviço de praia já encerrou**."
+        )
+
+    return ""
+
 def guest_checkout_label(guest):
     checkout_time = (guest.get("checkout_time") or "").strip()
     checkout_date = parse_guest_date(guest.get("checkout_date", ""))
@@ -2761,13 +2850,49 @@ def get_localizacao_reply(text):
     )
 
 
-def get_praia_reply():
+def get_praia_reply(guest=None, text_raw=""):
+    guest = guest or load_guest()
+    context = get_stay_context(guest, text_raw)
+    praia_status = get_praia_service_status(context)
+
     k = knowledge()
     praia = k.get("praia", {})
     servico = praia.get("servico_praia", {})
+
+    distancia = praia.get("distancia", "280 metros (4 a 5 minutos a pé)")
+    horario_servico = servico.get("horario", "9h às 17h")
+    localizacao = servico.get("localizacao", "ao lado do Thai Lounge, em frente ao Casa Grande Hotel")
+    como_funciona = servico.get("como_funciona", "Os itens ficam montados na areia durante o horário do serviço.")
     melhor_horario = praia.get("melhor_horario", "")
     dica = praia.get("dica", "")
     serv_obs = servico.get("observacao", "")
+
+    intro = ""
+    if praia_status == "pre_open":
+        intro = (
+            "A praia já pode ser uma boa para começar o dia 😊\n\n"
+            "Só vale lembrar que o **serviço de praia começa às 9h**."
+        )
+    elif praia_status == "opening_soon":
+        intro = (
+            "A praia já está entrando num bom momento 😊\n\n"
+            "O **serviço de praia começa em breve, às 9h**."
+        )
+    elif praia_status == "active":
+        intro = (
+            "Agora é um bom momento para aproveitar a praia 😊\n\n"
+            "O **serviço de praia está funcionando normalmente**."
+        )
+    elif praia_status == "just_closed":
+        intro = (
+            "Para hoje, o **serviço de praia já encerrou**.\n\n"
+            "Mesmo assim, a praia ainda pode ser boa para caminhar, relaxar um pouco ou curtir o fim de tarde 😊"
+        )
+    else:
+        intro = (
+            "À noite, a praia segue como uma boa referência para passeio leve, caminhada ou visual da orla 😊\n\n"
+            "Mas o **serviço de praia já não funciona nesse horário**."
+        )
 
     extra_parts = []
     if melhor_horario:
@@ -2782,11 +2907,11 @@ def get_praia_reply():
         extra_text = "\n\n" + "\n".join(extra_parts)
 
     return (
-        f"{gepetto_line('praia_5')}\n\n"
-        f"A praia fica a {praia.get('distancia', '280 metros (4 a 5 minutos a pé)')}.\n"
-        f"O serviço de praia funciona das {servico.get('horario', '9h às 17h')}.\n"
-        f"Ele fica {servico.get('localizacao', 'ao lado do Thai Lounge, em frente ao Casa Grande Hotel')}.\n\n"
-        f"{servico.get('como_funciona', 'Os itens ficam montados na areia durante o horário do serviço.')}"
+        f"{intro}\n\n"
+        f"A praia fica a **{distancia}**.\n"
+        f"O serviço de praia funciona das **{horario_servico}**.\n"
+        f"Ele fica **{localizacao}**.\n\n"
+        f"{como_funciona}"
         f"{extra_text}"
     )
 
@@ -3758,8 +3883,9 @@ def get_followup_reply(text, last_topic, guest):
             servico = knowledge().get("praia", {}).get("servico_praia", {})
             return f"Claro 😊\n\n{servico.get('como_funciona', 'Os itens ficam montados na areia durante o horário do serviço.')}"
 
-        if has_any(text_n, ["mais tarde", "ainda hoje"]):
-            return "Se for ainda hoje, eu aproveitaria enquanto o serviço está funcionando e já deixaria o fim do dia mais leve 😉"
+        temporal_reply = get_praia_temporal_followup_reply(guest, text)
+        if temporal_reply:
+            return temporal_reply
 
     if topic == "restaurantes":
         restaurantes = get_restaurants_data()
@@ -4699,10 +4825,14 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "praia", get_servico_praia_localizacao_reply(), remembered, intent_for_session="praia_local")
 
     if intent == "praia":
-        clear_active_recommendations()
-        reply = get_guided_reply("praia") if len(text.split()) <= 2 and has_any(text, ["praia", "praias"]) else get_praia_reply()
-        return finalize_and_log(guest, text_raw, "praia", reply, remembered, intent_for_session="praia")
-
+    clear_active_recommendations()
+    reply = (
+        get_guided_reply("praia")
+        if len(text.split()) <= 2 and has_any(text, ["praia", "praias"])
+        else get_praia_reply(guest, text_raw)
+    )
+    return finalize_and_log(guest, text_raw, "praia", reply, remembered, intent_for_session="praia")
+    
     if intent == "roteiro":
         clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "roteiro", get_roteiro_reply(guest), remembered, intent_for_session="roteiro")
