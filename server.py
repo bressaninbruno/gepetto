@@ -4825,11 +4825,11 @@ def gepetto_responde(msg):
         return finalize_and_log(guest, text_raw, "praia", get_servico_praia_localizacao_reply(), remembered, intent_for_session="praia_local")
 
     if intent == "praia":
-    clear_active_recommendations()
-    reply = (
-        get_guided_reply("praia")
-        if len(text.split()) <= 2 and has_any(text, ["praia", "praias"])
-        else get_praia_reply(guest, text_raw)
+        clear_active_recommendations()
+        reply = (
+            get_guided_reply("praia")
+            if len(text.split()) <= 2 and has_any(text, ["praia", "praias"])
+            else get_praia_reply(guest, text_raw)
     )
     return finalize_and_log(
         guest,
