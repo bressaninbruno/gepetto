@@ -733,7 +733,8 @@ def extract_temporal_signals(text_raw):
 
     return {
         "references_now": has_any(text_n, [
-            "agora", "nesse momento", "neste momento", "por agora"
+            "agora", "nesse momento", "neste momento", "por agora",
+            "compensa agora", "posso ir agora"
         ]),
         "references_today": has_any(text_n, [
             "hoje", "ainda hoje"
@@ -742,7 +743,8 @@ def extract_temporal_signals(text_raw):
             "mais tarde", "ainda hoje", "depois"
         ]),
         "references_soon": has_any(text_n, [
-            "daqui a pouco", "ja ja", "já já", "logo mais"
+            "daqui a pouco", "ja ja", "já já", "logo mais",
+            "ja abre", "já abre", "abre daqui a pouco"
         ]),
         "references_tonight": has_any(text_n, [
             "essa noite", "esta noite", "hoje a noite", "hoje à noite", "a noite", "à noite"
@@ -754,7 +756,8 @@ def extract_temporal_signals(text_raw):
             "amanha", "amanhã"
         ]),
         "references_tomorrow_morning": has_any(text_n, [
-            "amanha cedo", "amanhã cedo", "amanha de manha", "amanhã de manhã"
+            "amanha cedo", "amanhã cedo", "amanha de manha", "amanhã de manhã",
+            "cedo"
         ])
     }
 
@@ -841,6 +844,29 @@ def get_praia_temporal_followup_reply(guest, text_raw):
     context = get_stay_context(guest, text_raw)
     refs = context.get("temporal_refs", {})
     status = get_praia_service_status(context)
+    text_n = normalize_text(text_raw)
+
+    if has_any(text_n, [
+        "daqui a pouco ja abre", "daqui a pouco já abre",
+        "ja abre", "já abre", "abre daqui a pouco"
+    ]):
+        if status == "pre_open":
+            return (
+                "Sim 😊\n\n"
+                "O **serviço de praia começa às 9h**."
+            )
+        if status == "opening_soon":
+            return (
+                "Sim 😊\n\n"
+                "O **serviço de praia abre às 9h**, então já está perto de começar."
+            )
+        if status == "active":
+            return (
+                "Agora o **serviço de praia já está funcionando** 😊"
+            )
+        return (
+            "Para hoje, o **serviço de praia já encerrou** 😊"
+        )
 
     if refs.get("references_tonight"):
         return (
@@ -852,7 +878,7 @@ def get_praia_temporal_followup_reply(guest, text_raw):
     if refs.get("references_this_afternoon"):
         if status in ["pre_open", "opening_soon", "active"]:
             return (
-                "Hoje à tarde ainda pode valer bastante a pena 😊\n\n"
+                "Hoje à tarde ainda pode valer a pena sim 😊\n\n"
                 "O **serviço de praia funciona das 9h às 17h**."
             )
         return (
@@ -886,13 +912,13 @@ def get_praia_temporal_followup_reply(guest, text_raw):
     if refs.get("references_now") or refs.get("references_today"):
         if status == "pre_open":
             return (
-                "Agora já dá para pensar em praia sim 😊\n\n"
-                "Só vale lembrar que o **serviço de praia começa às 9h**."
+                "Agora você até pode ir à praia sim 😊\n\n"
+                "Mas o **serviço de praia ainda não começou** — ele funciona a partir das **9h**."
             )
         if status == "opening_soon":
             return (
-                "Daqui a pouco já começa bem 😊\n\n"
-                "O **serviço de praia abre às 9h**."
+                "Sim 😊\n\n"
+                "O **serviço de praia abre às 9h**, então já está perto de começar."
             )
         if status == "active":
             return (
@@ -908,6 +934,21 @@ def get_praia_temporal_followup_reply(guest, text_raw):
             "Agora à noite a praia pode ser boa para passeio visual ou caminhada 😊\n\n"
             "Mas o **serviço de praia já encerrou**."
         )
+
+    if has_any(text_n, [
+        "agora", "mais tarde", "ainda hoje", "amanha", "amanhã",
+        "amanha cedo", "amanhã cedo", "essa noite", "daqui a pouco",
+        "posso ir agora", "compensa agora", "ja abre", "já abre", "cedo"
+    ]):
+        if status == "pre_open":
+            return "O **serviço de praia ainda não começou** — ele funciona a partir das **9h** 😊"
+        if status == "opening_soon":
+            return "O **serviço de praia abre às 9h** 😊"
+        if status == "active":
+            return "Agora o **serviço de praia está em funcionamento** 😊"
+        if status == "just_closed":
+            return "Para hoje, o **serviço de praia já encerrou às 17h** 😊"
+        return "Neste horário a praia pode até ser boa para passeio, mas o **serviço de praia já não funciona** 😊"
 
     return ""
 
