@@ -32,7 +32,50 @@
       "horario": "9h às 17h",
       "localizacao": "ao lado do Thai Lounge, em frente ao Casa Grande Hotel",
       "como_funciona": "os itens ficam montados na areia durante o horário do serviço",
-      "observacao": "é uma facilidade ótima para quem quer ir à praia com mais conforto"
+      "observacao": "é uma facilidade ótima para quem quer ir à praia com mais conforto",
+      "beach_self_service": {
+        "ativo": true,
+        "nome_modalidade": "Beach Self-service",
+        "descricao_curta": "Possibilidade de retirada antecipada e/ou devolução posterior dos equipamentos de praia fora do horário regular do serviço, em alguns casos e mediante alinhamento prévio.",
+        "gatilhos_interesse": [
+          "retirar antes",
+          "devolver depois",
+          "pegar antes",
+          "voltar depois",
+          "ir mais cedo",
+          "ficar mais tarde",
+          "levar antes",
+          "entregar depois"
+        ],
+        "abertura_interesse": "Existe essa possibilidade em alguns casos 😊\n\nEla funciona na modalidade **Beach Self-service**, para quem deseja retirar antes ou devolver depois do horário regular do serviço de praia.\n\nGostaria de saber um pouco mais sobre essa opção?",
+        "regras_resumidas": [
+          "É possível retirar os equipamentos antes do horário e devolvê-los após o horário regular do serviço.",
+          "Por questão de logística, é necessário avisar previamente algum funcionário do prédio, como o **Paulo**, o **Cláudio**, ou deixar o **Edson** informado na noite anterior.",
+          "Se o transporte de praia do condomínio já tiver saído com os equipamentos do apartamento, a retirada antecipada deixa de ser garantida e precisa ser consultada com a equipe do prédio.",
+          "Ao optar pela modalidade Beach Self-service, os equipamentos ficam sob responsabilidade integral do hóspede desde a retirada até a devolução.",
+          "Os itens podem ser verificados na retirada e na devolução.",
+          "Se houver qualquer dano aos equipamentos, o hóspede deverá arcar com os custos de multa e reposição do material correspondente."
+        ],
+        "explicacao_completa": "Claro 😊\n\nA modalidade **Beach Self-service** permite, em alguns casos, retirar os equipamentos antes do horário regular do serviço de praia e/ou devolvê-los depois.\n\nSó preciso te passar alguns pontos importantes:\n\n• por questão de logística, é necessário avisar previamente algum funcionário do prédio, como o **Paulo**, o **Cláudio**, ou deixar o **Edson** informado na noite anterior\n• se o transporte de praia do condomínio já tiver saído com os equipamentos do apartamento, essa retirada antecipada **deixa de ser garantida** e precisa ser consultada com a equipe do prédio\n• ao optar por essa modalidade, os equipamentos ficam sob **responsabilidade integral do hóspede** desde a retirada até a devolução\n• os itens podem ser verificados na retirada e na devolução\n• se houver qualquer dano aos equipamentos, o hóspede deverá arcar com os custos de multa e reposição do material correspondente\n\nDeseja seguir com essa opção para uma data específica?",
+        "aceites_iniciais": [
+          "sim",
+          "quero",
+          "gostaria",
+          "aceito",
+          "tenho interesse",
+          "pode ser",
+          "ok"
+        ],
+        "instrucao_confirmacao": "Perfeito 😊\n\nPara confirmar essa opção e registrar a responsabilidade conforme explicado, envie por favor:\n\n**aceito + a data desejada**\n\nExemplo:\n**aceito 29/03**",
+        "palavra_cancelamento": "Cancelar retirada de equipamentos",
+        "mensagem_confirmacao_hospede": "Perfeito 😊\n\nFicou registrado que **{guest_name}** optou pela modalidade **Beach Self-service** para o dia **{requested_date}**, com retirada e devolução dos equipamentos de praia sob responsabilidade integral do hóspede desde a retirada até a devolução.\n\nSe houver dano aos equipamentos, os encargos de multa e reposição do material correspondente ficam sob responsabilidade do hóspede.\n\nTambém reforço que algum funcionário do prédio, como **Paulo**, **Cláudio** ou **Edson**, deve ser avisado previamente para fins de logística.\n\nE fique tranquilo: já notifiquei o Bruno sobre sua decisão 😊\n\nSe quiser cancelar essa solicitação depois, é só enviar:\n**Cancelar retirada de equipamentos**",
+        "mensagem_cancelamento_hospede": "Perfeito 😊\n\nRegistrei o cancelamento da solicitação de **Beach Self-service** e já notifiquei o Bruno.",
+        "telegram_interesse": "🏖️ INTERESSE EM BEACH SELF-SERVICE\n\nHóspede: {guest_name}\nGrupo: {guest_group}\nMensagem: {guest_message}\n\nO hóspede demonstrou interesse em retirar antes e/ou devolver depois os equipamentos de praia.\n\nO Gepetto apresentou a existência da modalidade Beach Self-service e perguntou se ele deseja saber mais.",
+        "telegram_explicacao_enviada": "🏖️ EXPLICAÇÃO ENVIADA — BEACH SELF-SERVICE\n\nHóspede: {guest_name}\nGrupo: {guest_group}\nMensagem do hóspede: {guest_message}\n\nO Gepetto explicou as regras da modalidade Beach Self-service e aguardará a decisão do hóspede.",
+        "telegram_confirmacao_pendente": "🏖️ HÓSPEDE QUER PROSSEGUIR — BEACH SELF-SERVICE\n\nHóspede: {guest_name}\nGrupo: {guest_group}\nResposta do hóspede: {guest_message}\n\nO Gepetto solicitou confirmação formal no formato: aceito + data.",
+        "telegram_confirmacao_final": "🏖️ BEACH SELF-SERVICE CONFIRMADO\n\nHóspede: {guest_name}\nGrupo: {guest_group}\nData solicitada: {requested_date}\n\nO hóspede optou pela modalidade Beach Self-service e assumiu responsabilidade integral pelos equipamentos desde a retirada até a devolução.\n\nTambém foi reforçada a necessidade de aviso prévio a algum funcionário do prédio para fins de logística.",
+        "telegram_cancelamento": "🏖️ CANCELAMENTO — BEACH SELF-SERVICE\n\nHóspede: {guest_name}\nGrupo: {guest_group}\n\nO hóspede cancelou a solicitação da modalidade Beach Self-service."
+      }
     }
   },
   "restaurantes": [
@@ -679,5 +722,56 @@
     "anfitriao": "Bruno",
     "concierge_nome": "Gepetto",
     "descricao_curta": "Concierge do apartamento 14B para orientar hóspedes durante a estadia"
+  },
+  "utilidades": {
+    "tabacarias": [
+      {
+        "nome": "Tabacaria Galvão Guarujá - Enseada",
+        "distancia": "Shopping Enseada Mall",
+        "endereco": "Shopping Enseada Mall - Av. Miguel Estefno, 1763 - Enseada, Guarujá - SP, 11440-531",
+        "horario": "24h",
+        "whatsapp": "(13) 97409-5030",
+        "perfil": "opção prática de tabacaria na região da Enseada, com funcionamento 24h",
+        "ideal_para": [
+          "tabacaria",
+          "conveniência",
+          "necessidade imediata",
+          "madrugada"
+        ],
+        "observacao": "boa referência para quem procura tabacaria com horário estendido"
+      }
+    ],
+    "lavanderias": [
+      {
+        "nome": "Lavanderia Lavô Guarujá",
+        "distancia": "Pão de Açúcar",
+        "endereco": "Pão de Açúcar - Av. Dom Pedro I, 195 - Jardim Tejereba, Guarujá - SP, 11440-000",
+        "horario": "Segunda-feira à sábado: 07h às 22h | Domingo: 07h às 20h",
+        "telefone": "(13) 99117-9882",
+        "perfil": "lavanderia automática self-service em ponto prático da região",
+        "ideal_para": [
+          "lavanderia",
+          "roupas",
+          "estadia mais longa",
+          "praticidade"
+        ],
+        "observacao": "sistema self-service automático"
+      },
+      {
+        "nome": "Lavanderia Bubble Box - Enseada",
+        "distancia": "Enseada",
+        "endereco": "Av. Dom Pedro I, 1711 - Balneario Cidade Atlantica, Guarujá - SP, 11440-002",
+        "horario": "06h às 00h",
+        "telefone": "(11) 99451-6608",
+        "perfil": "lavanderia automática self-service com horário amplo",
+        "ideal_para": [
+          "lavanderia",
+          "roupas",
+          "praticidade",
+          "estadia mais longa"
+        ],
+        "observacao": "sistema self-service automático"
+      }
+    ]
   }
 }
