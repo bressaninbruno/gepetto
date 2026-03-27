@@ -5,7 +5,7 @@ import random
 import re
 import unicodedata
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, date
 from zoneinfo import ZoneInfo
 
 try:
@@ -82,7 +82,9 @@ def default_guest():
     return {
         "nome": "",
         "grupo": "",
-        "checkout": "",
+        "checkin_date": "",
+        "checkout_date": "",
+        "checkout_time": "11:00",
         "idioma": "pt",
         "observacoes": "",
         "preferencias": {
@@ -113,6 +115,17 @@ def load_guest():
 
     for key, value in base["preferencias"].items():
         data["preferencias"].setdefault(key, value)
+
+    # Compatibilidade com estrutura antiga:
+    # se houver "checkout" legado e o novo campo estiver vazio ou no default,
+    # tentamos aproveitar como horário.
+    legacy_checkout = (data.get("checkout") or "").strip()
+    current_checkout_time = (data.get("checkout_time") or "").strip()
+
+    if legacy_checkout and (not current_checkout_time or current_checkout_time == "11:00"):
+        extracted_time = normalize_checkout_time_input(legacy_checkout)
+        if extracted_time:
+            data["checkout_time"] = extracted_time
 
     return data
 
@@ -605,12 +618,224 @@ def get_last_topic():
 
 
 def current_time_label():
-    hour = current_local_hour()
-    if 5 <= hour < 12:
+    bucket = get_time_of_day_bucket()
+
+    if bucket in ["madrugada", "manha"]:
         return "manhã"
-    if 12 <= hour < 18:
+    if bucket in ["meio_dia", "tarde"]:
         return "tarde"
     return "noite"
+
+
+def normalize_admin_date_input(value: str) -> str:
+    value = (value or "").strip()
+
+    if not value:
+        return ""
+
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").strftime("%Y-%m-%d")
+    except Exception:
+        pass
+
+    try:
+        return datetime.strptime(value, "%d/%m/%Y").strftime("%Y-%m-%d")
+    except Exception:
+        pass
+
+    try:
+        partial = datetime.strptime(value, "%d/%m")
+        year = now_local().year
+        return date(year, partial.month, partial.day).strftime("%Y-%m-%d")
+    except Exception:
+        pass
+
+    return ""
+
+
+def normalize_checkout_time_input(value: str) -> str:
+    value = normalize_text(value)
+
+    if not value:
+        return ""
+
+    patterns = [
+        r"^(\d{1,2}):(\d{2})$",
+        r"^(\d{1,2})h(\d{2})$",
+        r"^(\d{1,2})h$",
+        r"^(\d{1,2})$"
+    ]
+
+    for pattern in patterns:
+        match = re.match(pattern, value)
+        if not match:
+            continue
+
+        hour = int(match.group(1))
+        minute = 0
+
+        if len(match.groups()) >= 2 and match.group(2):
+            minute = int(match.group(2))
+
+        if 0 <= hour <= 23 and 0 <= minute <= 59:
+            return f"{hour:02d}:{minute:02d}"
+
+    return ""
+
+
+def parse_guest_date(value: str):
+    value = (value or "").strip()
+    if not value:
+        return None
+
+    normalized = normalize_admin_date_input(value)
+    if not normalized:
+        return None
+
+    try:
+        return datetime.strptime(normalized, "%Y-%m-%d").date()
+    except Exception:
+        return None
+
+
+def parse_guest_time(value: str):
+    value = (value or "").strip()
+    if not value:
+        return None
+
+    normalized = normalize_checkout_time_input(value)
+    if not normalized:
+        return None
+
+    try:
+        return datetime.strptime(normalized, "%H:%M").time()
+    except Exception:
+        return None
+
+
+def get_time_of_day_bucket(hour=None):
+    if hour is None:
+        hour = current_local_hour()
+
+    if 0 <= hour <= 4:
+        return "madrugada"
+    if 5 <= hour <= 10:
+        return "manha"
+    if 11 <= hour <= 13:
+        return "meio_dia"
+    if 14 <= hour <= 17:
+        return "tarde"
+    return "noite"
+
+
+def extract_temporal_signals(text_raw):
+    text_n = normalize_text(text_raw)
+
+    return {
+        "references_now": has_any(text_n, [
+            "agora", "nesse momento", "neste momento", "por agora"
+        ]),
+        "references_today": has_any(text_n, [
+            "hoje", "ainda hoje"
+        ]),
+        "references_later_today": has_any(text_n, [
+            "mais tarde", "ainda hoje", "depois"
+        ]),
+        "references_soon": has_any(text_n, [
+            "daqui a pouco", "ja ja", "já já", "logo mais"
+        ]),
+        "references_tonight": has_any(text_n, [
+            "essa noite", "esta noite", "hoje a noite", "hoje à noite", "a noite", "à noite"
+        ]),
+        "references_this_afternoon": has_any(text_n, [
+            "hoje a tarde", "hoje à tarde", "essa tarde", "esta tarde"
+        ]),
+        "references_tomorrow": has_any(text_n, [
+            "amanha", "amanhã"
+        ]),
+        "references_tomorrow_morning": has_any(text_n, [
+            "amanha cedo", "amanhã cedo", "amanha de manha", "amanhã de manhã"
+        ])
+    }
+
+
+def get_stay_context(guest, text_raw=""):
+    now = now_local()
+    today = now.date()
+    hour = now.hour
+    part_of_day = get_time_of_day_bucket(hour)
+    temporal_refs = extract_temporal_signals(text_raw)
+
+    checkin_date = parse_guest_date(guest.get("checkin_date", ""))
+    checkout_date = parse_guest_date(guest.get("checkout_date", ""))
+    checkout_time = parse_guest_time(guest.get("checkout_time", ""))
+
+    days_since_checkin = None
+    days_to_checkout = None
+
+    is_arrival_day = False
+    is_first_night = False
+    is_checkout_day = False
+    is_last_night = False
+
+    stay_phase = "unknown"
+
+    if checkin_date:
+        days_since_checkin = (today - checkin_date).days
+        is_arrival_day = days_since_checkin == 0
+
+    if checkout_date:
+        days_to_checkout = (checkout_date - today).days
+        is_checkout_day = days_to_checkout == 0
+        is_last_night = days_to_checkout == 1
+
+    if is_arrival_day and hour >= 18:
+        is_first_night = True
+
+    if is_checkout_day:
+        stay_phase = "dia_checkout"
+    elif is_last_night:
+        stay_phase = "vespera_saida"
+    elif is_first_night:
+        stay_phase = "primeira_noite"
+    elif is_arrival_day:
+        stay_phase = "chegada"
+    elif days_since_checkin is not None and days_since_checkin >= 1:
+        stay_phase = "meio_estadia"
+
+    return {
+        "now": now,
+        "today_iso": today.isoformat(),
+        "hour": hour,
+        "part_of_day": part_of_day,
+        "temporal_refs": temporal_refs,
+        "checkin_date": checkin_date.isoformat() if checkin_date else "",
+        "checkout_date": checkout_date.isoformat() if checkout_date else "",
+        "checkout_time": checkout_time.strftime("%H:%M") if checkout_time else "",
+        "days_since_checkin": days_since_checkin,
+        "days_to_checkout": days_to_checkout,
+        "is_arrival_day": is_arrival_day,
+        "is_first_night": is_first_night,
+        "is_checkout_day": is_checkout_day,
+        "is_last_night": is_last_night,
+        "stay_phase": stay_phase
+    }
+
+
+def guest_checkout_label(guest):
+    checkout_time = (guest.get("checkout_time") or "").strip()
+    checkout_date = parse_guest_date(guest.get("checkout_date", ""))
+
+    if checkout_date and checkout_time:
+        return f"{checkout_time} de {checkout_date.strftime('%d/%m')}"
+    if checkout_time:
+        return checkout_time
+
+    legacy_checkout = (guest.get("checkout") or "").strip()
+    if legacy_checkout:
+        return legacy_checkout
+
+    return "-"
 
 
 def guest_group_label(guest):
@@ -738,7 +963,7 @@ def send_telegram_log(title, lines):
 def notify_conversation_to_telegram(guest, message, intent, response):
     nome = guest.get("nome", "").strip() or "Hóspede sem nome definido"
     grupo = guest.get("grupo", "").strip() or "-"
-    checkout = guest.get("checkout", "").strip() or "-"
+    checkout = guest_checkout_label(guest)
     agora = now_iso()
 
     lines = [
@@ -1705,7 +1930,7 @@ def is_ambiguous_reference_message(text_raw):
     }
 
     return text_n in exacts
-      
+
 
 def has_reference_anchor_for_topic(last_topic):
     sess = load_session()
@@ -1821,7 +2046,7 @@ def should_ask_for_followup_reference(text_raw, last_topic, inferred_intent):
        "qual?", "qual deles?", "qual delas?",
        "compensa", "vale a pena",
        "compensa?", "vale a pena?"
-]:
+    ]:
         if not has_reference_anchor_for_topic(last_topic):
             return True
 
@@ -1851,7 +2076,7 @@ def get_followup_reference_clarifier(text_raw, last_topic):
        "qual?", "qual deles?", "qual delas?",
        "compensa", "vale a pena",
        "compensa?", "vale a pena?"
-]:
+    ]:
        return "Posso te ajudar a comparar isso 😊\n\nSó me diga entre quais opções ou sobre qual tema você quer que eu te oriente."
 
     if topic_n in ["restaurantes", "mercado", "passeio"]:
@@ -2128,7 +2353,7 @@ def append_incident_record(kind, raw_message, guest, severity):
         "mensagem": raw_message,
         "hospede": guest.get("nome", ""),
         "grupo": guest.get("grupo", ""),
-        "checkout": guest.get("checkout", ""),
+        "checkout": guest_checkout_label(guest),
         "timestamp": now_iso(),
         "status": "aberto"
     }
@@ -2202,7 +2427,7 @@ def append_incident_context_record(raw_message, guest, detail):
         "detalhe": detail,
         "hospede": guest.get("nome", ""),
         "grupo": guest.get("grupo", ""),
-        "checkout": guest.get("checkout", ""),
+        "checkout": guest_checkout_label(guest),
         "timestamp": now_iso(),
         "status": "complemento"
     }
@@ -3247,12 +3472,25 @@ def get_zelador_reply():
 
 
 def get_checkout_reply(guest):
-    checkout = guest.get("checkout") or knowledge().get("apartamento", {}).get("checkout", "11h")
-    return f"O check-out está configurado para: **{checkout}** 😊"
+    checkout_time = (guest.get("checkout_time") or "").strip() or "11:00"
+    checkout_date = parse_guest_date(guest.get("checkout_date", ""))
+
+    if checkout_date:
+        date_br = checkout_date.strftime("%d/%m")
+        return f"O check-out está configurado para **{checkout_time}** do dia **{date_br}** 😊"
+
+    return f"O check-out está configurado para **{checkout_time}** 😊"
 
 
 def get_checkout_aviso_reply(guest):
-    checkout = guest.get("checkout") or knowledge().get("apartamento", {}).get("checkout", "11h")
+    checkout_time = (guest.get("checkout_time") or "").strip() or "11:00"
+    checkout_date = parse_guest_date(guest.get("checkout_date", ""))
+
+    if checkout_date:
+        checkout_label = f"**{checkout_time}** do dia **{checkout_date.strftime('%d/%m')}**"
+    else:
+        checkout_label = f"**{checkout_time}**"
+
     return (
         f"{get_gepetto_checkout_line()}\n\n"
         "• Verifique se janelas e porta de entrada ficarão travadas\n"
@@ -3260,7 +3498,7 @@ def get_checkout_aviso_reply(guest):
         "• Apague as luzes e desligue os ventiladores\n"
         "• Devolva as chaves na portaria do prédio\n"
         "• Não deixem louça suja\n\n"
-        f"O check-out está configurado para **{checkout}**."
+        f"O check-out está configurado para {checkout_label}."
     )
 
 
@@ -3272,7 +3510,7 @@ def get_bruno_reply():
 def notify_bruno_request(guest, raw_message=""):
     nome = guest.get("nome", "").strip() or "Hóspede sem nome definido"
     grupo = guest.get("grupo", "").strip() or "-"
-    checkout = guest.get("checkout", "").strip() or "-"
+    checkout = guest_checkout_label(guest)
     agora = now_iso()
 
     msg = (
@@ -4090,7 +4328,9 @@ def handle_admin_command(message):
                 "Agora você pode usar:\n"
                 "/set nome Fernanda\n"
                 "/set grupo familia\n"
-                "/set checkout 11h\n"
+                "/set checkin_date 26/03/2026\n"
+                "/set checkout_date 29/03/2026\n"
+                "/set checkout_time 11h\n"
                 "/set idioma pt\n"
                 "/set observacoes aniversário hoje\n"
                 "/show\n"
@@ -4110,7 +4350,9 @@ def handle_admin_command(message):
             "Hóspede atual 👇\n\n"
             f"nome: {guest.get('nome','')}\n"
             f"grupo: {guest.get('grupo','')}\n"
-            f"checkout: {guest.get('checkout','')}\n"
+            f"checkin_date: {guest.get('checkin_date','')}\n"
+            f"checkout_date: {guest.get('checkout_date','')}\n"
+            f"checkout_time: {guest.get('checkout_time','')}\n"
             f"idioma: {guest.get('idioma','')}\n"
             f"observacoes: {guest.get('observacoes','')}"
         )
@@ -4141,7 +4383,15 @@ def handle_admin_command(message):
         field = parts[1].strip().lower()
         value = parts[2].strip()
 
-        valid_fields = ["nome", "grupo", "checkout", "idioma", "observacoes"]
+        valid_fields = [
+            "nome",
+            "grupo",
+            "checkin_date",
+            "checkout_date",
+            "checkout_time",
+            "idioma",
+            "observacoes"
+        ]
         if field not in valid_fields:
             return f"Campo inválido. Use um destes: {', '.join(valid_fields)}"
 
@@ -4149,10 +4399,23 @@ def handle_admin_command(message):
 
         if field == "grupo":
             value = normalize_group_value(value)
+
         if field == "idioma":
             value = normalize_text(value)
             if value not in ["pt", "en"]:
                 value = "pt"
+
+        if field in ["checkin_date", "checkout_date"]:
+            normalized_date = normalize_admin_date_input(value)
+            if not normalized_date:
+                return "Data inválida. Use, por exemplo: 26/03/2026 ou 26/03"
+            value = normalized_date
+
+        if field == "checkout_time":
+            normalized_time = normalize_checkout_time_input(value)
+            if not normalized_time:
+                return "Horário inválido. Use, por exemplo: 11:00, 11h ou 13:30"
+            value = normalized_time
 
         guest[field] = value
         save_guest(guest)
@@ -4359,7 +4622,7 @@ def gepetto_responde(msg):
             used_followup=True,
             intent_for_session="clarificacao_contexto"
         )
-        
+
     if not last_topic and is_ambiguous_reference_message(text_raw):
         clarify_reply = get_followup_reference_clarifier(text_raw, "")
         return finalize_and_log(
@@ -4371,7 +4634,7 @@ def gepetto_responde(msg):
             used_followup=True,
             intent_for_session="clarificacao_contexto"
         )
-        
+
     intent = inferred_intent
 
     if intent == "identidade":
