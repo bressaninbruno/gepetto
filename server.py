@@ -4831,7 +4831,14 @@ def gepetto_responde(msg):
         if len(text.split()) <= 2 and has_any(text, ["praia", "praias"])
         else get_praia_reply(guest, text_raw)
     )
-    return finalize_and_log(guest, text_raw, "praia", reply, remembered, intent_for_session="praia")
+    return finalize_and_log(
+        guest,
+        text_raw,
+        "praia",
+        reply,
+        remembered,
+        intent_for_session="praia"
+    )
     
     if intent == "roteiro":
         clear_active_recommendations()
