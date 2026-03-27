@@ -943,10 +943,15 @@ def get_praia_temporal_followup_reply(guest, text_raw):
         )
 
     if has_any(text_n, [
-        "agora", "mais tarde", "ainda hoje", "amanha", "amanhã",
-        "amanha cedo", "amanhã cedo", "essa noite", "daqui a pouco",
-        "posso ir agora", "compensa agora", "ja abre", "já abre",
-        "ja comeca", "já começa", "comeca", "começa", "inicia", "cedo"
+        "agora", "mais tarde", "ainda hoje",
+        "amanha", "amanhã", "amanha cedo", "amanhã cedo",
+        "essa noite", "esta noite",
+        "daqui a pouco", "logo mais",
+        "posso ir agora", "compensa agora",
+        "ja abre", "já abre", "abre",
+        "ja comeca", "já começa", "comeca", "começa",
+        "ja inicia", "já inicia", "inicia",
+        "cedo"
     ]):
         if status == "pre_open":
             return "O **serviço de praia ainda não começou** — ele funciona a partir das **9h** 😊"
@@ -1938,14 +1943,20 @@ def infer_contextual_followup(text_raw, last_topic):
     if last_topic == "praia":
         if has_any(text_n, [
             "onde fica", "localizacao", "localização",
-            "servico de praia", "serviço de praia",
             "horario", "horário", "horarios", "horários",
             "que horas", "que horas funciona",
             "funciona que horas", "ate que horas", "até que horas",
             "como funciona", "funciona",
             "e o horario", "e o horário",
             "e o endereco", "e o endereço",
-            "endereco", "endereço"
+            "endereco", "endereço",
+            "agora", "mais tarde", "ainda hoje",
+            "amanha", "amanhã", "amanha cedo", "amanhã cedo",
+            "essa noite", "esta noite",
+            "daqui a pouco", "logo mais",
+            "ja abre", "já abre", "abre",
+            "ja comeca", "já começa", "comeca", "começa",
+            "ja inicia", "já inicia", "inicia"
         ]):
             return "praia"
 
@@ -1999,8 +2010,13 @@ def infer_contextual_followup(text_raw, last_topic):
         "qual deles", "qual delas", "tem outro", "tem outra",
         "endereco", "endereço",
         "tradicional", "familia", "família", "chuva",
-        "cedo", "ja abre", "já abre", "daqui a pouco", "abre",
-        "ja comeca", "já começa", "comeca", "começa", "inicia"
+        "agora", "mais tarde", "ainda hoje",
+        "amanha", "amanhã", "amanha cedo", "amanhã cedo",
+        "essa noite", "esta noite",
+        "daqui a pouco", "logo mais",
+        "abre", "ja abre", "já abre",
+        "comeca", "começa", "ja comeca", "já começa",
+        "inicia", "ja inicia", "já inicia"
     ]
     if text_n in very_short_contextual:
         return last_topic
@@ -2045,8 +2061,13 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
         "esse ai", "esse aí", "essa ai", "essa aí",
         "qual deles", "qual delas",
         "endereco", "endereço", "horario", "horário", "horarios", "horários", "delivery",
-        "cedo", "ja abre", "já abre", "daqui a pouco", "abre",
-        "ja comeca", "já começa", "comeca", "começa", "inicia"
+        "agora", "mais tarde", "ainda hoje",
+        "amanha", "amanhã", "amanha cedo", "amanhã cedo",
+        "essa noite", "esta noite",
+        "daqui a pouco", "logo mais",
+        "abre", "ja abre", "já abre",
+        "comeca", "começa", "ja comeca", "já começa",
+        "inicia", "ja inicia", "já inicia"
     ]
     if text_n in exact_short:
         return True
@@ -3918,7 +3939,6 @@ def get_followup_reply(text, last_topic, guest):
     if last_topic == "praia" or topic == "praia":
         if has_any(text_n, [
             "onde fica", "localizacao", "localização",
-            "servico de praia", "serviço de praia",
             "endereco", "endereço", "e o endereco", "e o endereço"
         ]):
             return get_servico_praia_localizacao_reply()
