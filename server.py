@@ -5004,130 +5004,130 @@ def get_followup_reply(text, last_topic, guest):
 
 
 def get_guided_reply(intent):
-    if intent != "restaurantes":
-        if intent == "mercado":
-            return (
-                "Claro 😊\n\n"
-                "Me diga só o que faria mais sentido agora:\n"
-                "• algo **rápido**\n"
-                "• um mercado mais **completo**\n"
-                "• ou **todos**"
-            )
+    if intent == "restaurantes":
+        guest = load_guest()
+        profile = get_guest_profile(guest)
+        restaurantes = get_restaurants_data()
 
-        if intent == "saude":
-            return (
-                "Entendi 😕\n\n"
-                "Posso te orientar agora para:\n"
-                "• **farmácia**\n"
-                "• **UPA**\n"
-                "• **hospital**\n"
-                "• ou **todos**"
-            )
+        intro = build_profile_opening_line(profile)
 
-        if intent == "farmacia":
-            return (
-                "Claro 😊\n\n"
-                "Você quer que eu te mostre:\n"
-                "• uma opção **24h**\n"
-                "• com **entrega**\n"
-                "• ou **todas**"
-            )
+        if restaurantes:
+            ordered = sort_restaurants_for_profile(restaurantes, profile)
+            ordered = [r for r in ordered if isinstance(r, dict) and r.get("nome")]
 
-        if intent == "praia":
-            return get_gepetto_praia_line() + "\n\n" + (
-                "Se quiser, eu te digo:\n"
-                "• a **localização**\n"
-                "• o **horário**\n"
-                "• ou como funciona o **serviço de praia**"
-            )
-
-        if intent == "bares":
-            return (
-                "Boa 😊\n\n"
-                "Você quer algo mais:\n"
-                "• **animado**\n"
-                "• ou mais **tranquilo**?"
-            )
-
-        return ""
-
-    guest = load_guest()
-    profile = get_guest_profile(guest)
-    restaurantes = get_restaurants_data()
-
-    intro = build_profile_opening_line(profile)
-
-    if restaurantes:
-        ordered = sort_restaurants_for_profile(restaurantes, profile)
-        ordered = [r for r in ordered if isinstance(r, dict) and r.get("nome")]
-
-        if ordered:
-            current_name = ordered[0].get("nome", "")
-            set_active_recommendations(
-                "restaurantes",
-                names_from_items(ordered),
-                current_name=current_name
-            )
-
-            if current_name:
-                set_last_entity(current_name, "restaurantes")
-                update_session(
-                    last_recommendation_type="restaurantes",
-                    last_recommendation_name=current_name
+            if ordered:
+                current_name = ordered[0].get("nome", "")
+                set_active_recommendations(
+                    "restaurantes",
+                    names_from_items(ordered),
+                    current_name=current_name
                 )
 
-            top_1 = ordered[0]
-            top_2 = ordered[1] if len(ordered) > 1 else None
+                if current_name:
+                    set_last_entity(current_name, "restaurantes")
+                    update_session(
+                        last_recommendation_type="restaurantes",
+                        last_recommendation_name=current_name
+                    )
 
-            sugestoes = []
+                top_1 = ordered[0]
+                top_2 = ordered[1] if len(ordered) > 1 else None
 
-            line_1 = f"• **{top_1.get('nome', '')}**"
-            if top_1.get("perfil"):
-                line_1 += f" → {top_1.get('perfil')}"
-            sugestoes.append(line_1)
+                sugestoes = []
 
-            if top_2:
-                line_2 = f"• **{top_2.get('nome', '')}**"
-                if top_2.get("perfil"):
-                    line_2 += f" → {top_2.get('perfil')}"
-                sugestoes.append(line_2)
+                line_1 = f"• **{top_1.get('nome', '')}**"
+                if top_1.get("perfil"):
+                    line_1 += f" → {top_1.get('perfil')}"
+                sugestoes.append(line_1)
 
-            return (
-                "Claro 😊\n\n"
-                f"{intro}\n\n"
-                "Se eu fosse começar sem complicar, eu olharia primeiro para estas opções:\n\n"
-                + "\n".join(sugestoes)
-                + "\n\n"
-                "Se quiser, eu também posso refinar agora por estilo:\n"
-                "• mais **rápido**\n"
-                "• mais **especial**\n"
-                "• mais **tradicional**\n"
-                "• **frutos do mar**\n"
-                "• **japonês**\n"
-                "• **pizza**\n"
-                "• **hambúrguer**\n"
-                "• **happy hour**\n"
-                "• lugar bom para **criança**\n"
-                "• **doce**\n"
-                "• ou **todos**"
-            )
+                if top_2:
+                    line_2 = f"• **{top_2.get('nome', '')}**"
+                    if top_2.get("perfil"):
+                        line_2 += f" → {top_2.get('perfil')}"
+                    sugestoes.append(line_2)
 
-    return (
-        "Claro 😊\n\n"
-        f"{intro}\n\n"
-        "Pra eu te direcionar melhor, me diga o estilo que faria mais sentido agora:\n"
-        "• mais **rápido**\n"
-        "• mais **especial**\n"
-        "• mais **tradicional**\n"
-        "• **frutos do mar**\n"
-        "• **japonês**\n"
-        "• **pizza**\n"
-        "• **hambúrguer**\n"
-        "• **happy hour**\n"
-        "• lugar bom para **criança**\n"
-        "• **doce**\n"
-        "• ou **todos**"
-    )
+                return (
+                    "Claro 😊\n\n"
+                    f"{intro}\n\n"
+                    "Se eu fosse começar sem complicar, eu olharia primeiro para estas opções:\n\n"
+                    + "\n".join(sugestoes)
+                    + "\n\n"
+                    "Se quiser, eu também posso refinar agora por estilo:\n"
+                    "• mais **rápido**\n"
+                    "• mais **especial**\n"
+                    "• mais **tradicional**\n"
+                    "• **frutos do mar**\n"
+                    "• **japonês**\n"
+                    "• **pizza**\n"
+                    "• **hambúrguer**\n"
+                    "• **happy hour**\n"
+                    "• lugar bom para **criança**\n"
+                    "• **doce**\n"
+                    "• ou **todos**"
+                )
+
+        return (
+            "Claro 😊\n\n"
+            f"{intro}\n\n"
+            "Pra eu te direcionar melhor, me diga o estilo que faria mais sentido agora:\n"
+            "• mais **rápido**\n"
+            "• mais **especial**\n"
+            "• mais **tradicional**\n"
+            "• **frutos do mar**\n"
+            "• **japonês**\n"
+            "• **pizza**\n"
+            "• **hambúrguer**\n"
+            "• **happy hour**\n"
+            "• lugar bom para **criança**\n"
+            "• **doce**\n"
+            "• ou **todos**"
+        )
+
+    if intent == "mercado":
+        return (
+            "Claro 😊\n\n"
+            "Me diga só o que faria mais sentido agora:\n"
+            "• algo **rápido**\n"
+            "• um mercado mais **completo**\n"
+            "• ou **todos**"
+        )
+
+    if intent == "saude":
+        return (
+            "Entendi 😕\n\n"
+            "Posso te orientar agora para:\n"
+            "• **farmácia**\n"
+            "• **UPA**\n"
+            "• **hospital**\n"
+            "• ou **todos**"
+        )
+
+    if intent == "farmacia":
+        return (
+            "Claro 😊\n\n"
+            "Você quer que eu te mostre:\n"
+            "• uma opção **24h**\n"
+            "• com **entrega**\n"
+            "• ou **todas**"
+        )
+
+    if intent == "praia":
+        return get_gepetto_praia_line() + "\n\n" + (
+            "Se quiser, eu te digo:\n"
+            "• a **localização**\n"
+            "• o **horário**\n"
+            "• ou como funciona o **serviço de praia**"
+        )
+
+    if intent == "bares":
+        return (
+            "Boa 😊\n\n"
+            "Você quer algo mais:\n"
+            "• **animado**\n"
+            "• ou mais **tranquilo**?"
+        )
+
+    return ""
     
 
 def get_fallback_reply(guest):
