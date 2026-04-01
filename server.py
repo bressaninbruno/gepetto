@@ -5128,6 +5128,7 @@ def get_guided_reply(intent):
         "• **doce**\n"
         "• ou **todos**"
     )
+    
 
 def get_fallback_reply(guest):
     last_msgs = get_recent_messages(5)
