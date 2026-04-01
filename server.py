@@ -87,6 +87,7 @@ def default_guest():
         "checkout_time": "11:00",
         "idioma": "pt",
         "observacoes": "",
+        "perfil_hospede": "neutro",
         "preferencias": {
             "japones": 0,
             "doce": 0,
@@ -595,6 +596,147 @@ def normalize_group_value(value: str) -> str:
     if v in ["amigos", "amigo"]:
         return "amigos"
     return value.strip().lower()
+
+
+def normalize_profile_value(value: str) -> str:
+    v = normalize_text(value)
+
+    mapping = {
+        "casal": "casal",
+        "familia_sem_criancas": "familia_sem_criancas",
+        "familia sem criancas": "familia_sem_criancas",
+        "familia sem crianças": "familia_sem_criancas",
+        "familia_com_criancas": "familia_com_criancas",
+        "familia com criancas": "familia_com_criancas",
+        "familia com crianças": "familia_com_criancas",
+        "amigos": "amigos",
+        "grupo": "grupo",
+        "neutro": "neutro"
+    }
+
+    return mapping.get(v, "neutro")
+
+
+def get_guest_profile(guest):
+    perfil = normalize_profile_value(guest.get("perfil_hospede", ""))
+
+    if perfil != "neutro":
+        return perfil
+
+    grupo = normalize_group_value(guest.get("grupo", ""))
+
+    if grupo == "casal":
+        return "casal"
+    if grupo == "amigos":
+        return "amigos"
+    if grupo == "familia":
+        return "familia_com_criancas"
+
+    return "neutro"
+
+
+def restaurant_profile_priority_score(item, profile):
+    profile_n = normalize_profile_value(profile)
+    score = 0
+
+    ideals = normalize_str_list(item.get("ideal_para", []))
+    nome = normalize_text(item.get("nome", ""))
+    tipo = normalize_text(item.get("tipo", ""))
+    subtipo = normalize_text(item.get("subtipo", ""))
+
+    if profile_n == "casal":
+        if restaurant_matches_especial(item):
+            score += 40
+        if restaurant_matches_rooftop(item):
+            score += 20
+        if "casal" in ideals:
+            score += 35
+        if restaurant_has_any(item, ["romantico", "romântico", "atmosferico", "atmosférico", "sensorial", "lounge"]):
+            score += 20
+        if restaurant_matches_kids(item):
+            score -= 15
+
+    elif profile_n == "familia_sem_criancas":
+        if "familia_sem_criancas" in ideals:
+            score += 45
+        if "familia" in ideals:
+            score += 20
+        if restaurant_has_any(item, ["conforto", "refeicao estruturada", "refeição estruturada", "tradicional", "variedade"]):
+            score += 25
+        if restaurant_matches_especial(item):
+            score -= 10
+
+    elif profile_n == "familia_com_criancas":
+        if "familia_com_criancas" in ideals:
+            score += 55
+        if restaurant_matches_kids(item):
+            score += 45
+        if restaurant_has_any(item, ["variedade", "pizza", "hamburguer", "hambúrguer", "cardapio amplo", "cardápio amplo"]):
+            score += 20
+        if restaurant_matches_especial(item):
+            score -= 20
+        if restaurant_has_any(item, ["exotico", "exótico"]):
+            score -= 10
+
+    elif profile_n == "amigos":
+        if "amigos" in ideals:
+            score += 45
+        if restaurant_matches_happy_hour(item):
+            score += 40
+        if restaurant_matches_burger(item):
+            score += 20
+        if restaurant_has_any(item, ["orla", "rooftop", "drinks", "entretenimento", "boliche", "conversar"]):
+            score += 20
+        if restaurant_matches_especial(item):
+            score -= 25
+
+    elif profile_n == "grupo":
+        if "grupo" in ideals:
+            score += 55
+        if restaurant_matches_happy_hour(item):
+            score += 35
+        if restaurant_matches_burger(item):
+            score += 20
+        if restaurant_matches_pizza(item):
+            score += 20
+        if restaurant_matches_japanese(item):
+            score += 10
+        if restaurant_has_any(item, ["entretenimento", "conversar", "happy hour", "hamburguer", "hambúrguer", "pizzaria"]):
+            score += 20
+        if restaurant_has_any(item, ["romantico", "romântico"]):
+            score -= 35
+
+    return score
+
+
+def sort_restaurants_for_profile(items, profile):
+    profile_n = normalize_profile_value(profile)
+
+    return sorted(
+        items,
+        key=lambda item: (
+            -restaurant_profile_priority_score(item, profile_n),
+            -restaurant_mode_priority_score(item, "happy hour") if profile_n in ["amigos", "grupo"] else 0,
+            distance_sort_key(item.get("distancia", ""))
+        )
+    )
+
+
+def build_profile_opening_line(profile):
+    profile_n = normalize_profile_value(profile)
+
+    if profile_n == "casal":
+        return "Pensando no perfil de **casal**, eu tenderia a começar por opções com mais clima, praticidade e experiência 😊"
+    if profile_n == "familia_sem_criancas":
+        return "Pensando em **família sem crianças**, eu tenderia a começar por lugares mais confortáveis e com refeição mais estruturada 😊"
+    if profile_n == "familia_com_criancas":
+        return "Pensando em **família com crianças**, eu tenderia a começar por opções mais práticas, confortáveis e com apelo melhor para crianças 😊"
+    if profile_n == "amigos":
+        return "Pensando em **amigos**, eu tenderia a começar por opções com mais clima de happy hour, conversa e praticidade 😊"
+    if profile_n == "grupo":
+        return "Pensando em **grupo**, eu tenderia a começar por opções mais sociais, leves e que não prendam tanto no apartamento 😊"
+
+    return "Eu posso começar pelas opções que tendem a funcionar melhor para este tipo de estadia 😊"
 
 
 def get_recent_messages(limit=10):
@@ -3431,6 +3573,8 @@ def get_servico_praia_localizacao_reply():
 def get_restaurantes_reply(text):
     text_n = normalize_text(text)
     restaurantes = get_restaurants_data()
+    guest = load_guest()
+    guest_profile = get_guest_profile(guest)
 
     if not restaurantes:
         return "Posso te ajudar com restaurantes 😊 Mas ainda não encontrei opções cadastradas na base neste momento."
@@ -3439,7 +3583,7 @@ def get_restaurantes_reply(text):
 
     if has_any(text_n, ["happy hour", "drinks", "rooftop"]):
         mode = "happy hour"
-    elif has_any(text_n, ["crianca", "criança", "criancas", "crianças", "kids", "area kids", "área kids", "espaco kids", "espaço kids", "familia", "família"]):
+    elif has_any(text_n, ["crianca", "criança", "criancas", "crianças", "kids", "area kids", "área kids", "espaco kids", "espaço kids"]):
         mode = "kids"
     elif has_any(text_n, ["hamburguer", "hambúrguer", "burger", "lanche"]):
         mode = "hamburguer"
@@ -3463,7 +3607,8 @@ def get_restaurantes_reply(text):
         mode = "todos"
 
     if mode == "todos":
-        ordered = sort_restaurants_by_distance(restaurantes)
+        ordered = sort_restaurants_for_profile(restaurantes, guest_profile)
+
         set_active_recommendations(
             "restaurantes",
             names_from_items(ordered),
@@ -3473,11 +3618,96 @@ def get_restaurantes_reply(text):
         linhas = [build_restaurant_line(r) for r in ordered[:12]]
         return (
             "Claro 😊\n\n"
-            "Aqui vão algumas boas referências gastronômicas por perto:\n\n"
+            + build_profile_opening_line(guest_profile)
+            + "\n\n"
+            + "Aqui vão algumas boas referências gastronômicas:\n\n"
             + "\n".join(linhas)
             + "\n\nSe quiser, eu também posso filtrar isso por **happy hour**, **hambúrguer**, **pizza**, **japonês**, **doce**, **algo tradicional**, **frutos do mar** ou **lugar bom para criança**."
         )
 
+    candidates = unique_restaurants(get_restaurant_candidates_by_mode(restaurantes, mode)) if mode else []
+
+    if mode and candidates:
+        ordered = sorted(
+            candidates,
+            key=lambda r: (
+                -restaurant_profile_priority_score(r, guest_profile),
+                -restaurant_mode_priority_score(r, mode),
+                distance_sort_key(r.get("distancia", ""))
+            )
+        )
+
+        top = ordered[0]
+        nome = top.get("nome", "")
+        perfil = top.get("perfil", "")
+        obs = top.get("observacao", "")
+        dist = format_distance(top.get("distancia", ""))
+
+        set_last_entity(nome, "restaurantes")
+        update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items(ordered),
+            current_name=nome
+        )
+
+        intro_map = {
+            "rapido": f"Se a ideia for algo mais prático, eu iria no **{nome}**.",
+            "especial": f"Se vocês quiserem algo mais especial, o **{nome}** costuma funcionar muito bem ✨",
+            "tradicional": f"Se a ideia for algo mais tradicional, uma boa referência é o **{nome}**.",
+            "frutos do mar": f"Se a ideia for **frutos do mar** 🌊\n\nUma boa referência é o **{nome}**.",
+            "japones": f"Se a vontade for japonês 🍣\n\nUma boa referência é o **{nome}**.",
+            "pizza": f"Se a ideia for pizza 🍕\n\nUma boa pedida é o **{nome}**.",
+            "doce": f"Se a ideia for um doce ou chocolate 🍫\n\nUma boa referência é a **{nome}**.",
+            "hamburguer": f"Se vocês quiserem hambúrguer 🍔\n\nUma boa linha é começar pelo **{nome}**.",
+            "kids": f"Se a ideia for um lugar bom para criança e confortável para o grupo 😊\n\nEu começaria pelo **{nome}**.",
+            "happy hour": f"Se vocês quiserem happy hour 🍻\n\nUma boa linha é começar pelo **{nome}**.",
+            "vista": f"Se a ideia for um lugar com clima ou vista ✨\n\nO **{nome}** pode funcionar muito bem."
+        }
+
+        reply = intro_map.get(mode, f"Uma boa opção por aqui é o **{nome}**.")
+
+        if dist:
+            reply += f"\n\n• Distância: {dist}"
+        if top.get("tempo_a_pe"):
+            reply += f"\n• A pé: {top.get('tempo_a_pe')}"
+        if top.get("tempo_de_carro"):
+            reply += f"\n• De carro: {top.get('tempo_de_carro')}"
+        if perfil:
+            reply += f"\n\n{perfil}."
+        if obs:
+            reply += f"\n\n{obs}"
+
+        if len(ordered) > 1:
+            extras = [f"• **{r.get('nome', '')}**" for r in ordered[1:4]]
+            reply += "\n\nOutras opções nessa linha:\n" + "\n".join(extras)
+
+        reply += "\n\nSe quiser, eu também posso abrir mais opções fora dessa linha."
+        return reply
+
+    ordered = sort_restaurants_for_profile(restaurantes, guest_profile)
+    top = ordered[0]
+    nome = top.get("nome", "")
+
+    set_last_entity(nome, "restaurantes")
+    update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+    set_active_recommendations(
+        "restaurantes",
+        names_from_items(ordered),
+        current_name=nome
+    )
+
+    linhas = [build_restaurant_line(r) for r in ordered[:6]]
+
+    return (
+        "Claro 😊\n\n"
+        + build_profile_opening_line(guest_profile)
+        + "\n\n"
+        + "Estas seriam as sugestões imediatas para começar:\n\n"
+        + "\n".join(linhas)
+        + "\n\nSe quiser, eu também posso afinar isso por **happy hour**, **hambúrguer**, **pizza**, **japonês**, **doce**, **algo tradicional**, **frutos do mar** ou **lugar bom para criança**."
+    )
+    
     candidates = unique_restaurants(get_restaurant_candidates_by_mode(restaurantes, mode)) if mode else []
 
     if mode and candidates:
@@ -4948,6 +5178,7 @@ def handle_admin_command(message):
                 "Agora você pode usar:\n"
                 "/set nome Fernanda\n"
                 "/set grupo familia\n"
+                "/set perfil_hospede casal\n"
                 "/set checkin_date 26/03/2026\n"
                 "/set checkout_date 29/03/2026\n"
                 "/set checkout_time 11h\n"
@@ -5010,7 +5241,8 @@ def handle_admin_command(message):
             "checkout_date",
             "checkout_time",
             "idioma",
-            "observacoes"
+            "observacoes",
+            "perfil_hospede"
         ]
         if field not in valid_fields:
             return f"Campo inválido. Use um destes: {', '.join(valid_fields)}"
@@ -5020,6 +5252,9 @@ def handle_admin_command(message):
         if field == "grupo":
             value = normalize_group_value(value)
 
+        if field == "perfil_hospede":
+             value = normalize_profile_value(value)
+        
         if field == "idioma":
             value = normalize_text(value)
             if value not in ["pt", "en"]:
