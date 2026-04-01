@@ -5022,6 +5022,7 @@ def get_guided_reply(intent):
                     names_from_items(ordered),
                     current_name=current_name
                 )
+
                 if current_name:
                     set_last_entity(current_name, "restaurantes")
                     update_session(
@@ -5127,7 +5128,6 @@ def get_guided_reply(intent):
         )
 
     return ""
-
 
 def get_fallback_reply(guest):
     last_msgs = get_recent_messages(5)
