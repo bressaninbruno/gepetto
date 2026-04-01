@@ -83,31 +83,55 @@
       "nome": "McDonald's Enseada",
       "tipo": "rapido",
       "subtipo": "lanche",
-      "distancia": "5 minutos",
+      "distancia": "1,7km",
+      "tempo_a_pe": "17 minutos",
+      "tempo_de_carro": "6 minutos",
+      "friccao_logistica": "media",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
       "endereco": "Av. Dom Pedro I, 1891 - Jardim Belmar, Guarujá - SP, 11440-002",
       "horario": "Domingo à quinta: 11h às 00h | Sexta e sábado: 11h às 02h",
       "drive_through": "Segunda à quinta: 11h às 00h | Sexta e sábado: 11h às 02h | Domingo: 11h às 01h",
-      "perfil": "opção prática, rápida e simples",
+      "perfil": "opção prática, previsível e rápida",
       "ideal_para": [
+        "familia_com_criancas",
+        "grupo",
         "lanche",
         "praticidade",
-        "algo sem complicação"
+        "chegada_cansada",
+        "algo_sem_complicacao"
+      ],
+      "melhor_momento": [
+        "almoco_rapido",
+        "jantar_rapido",
+        "noite"
       ],
       "faixa_preco": "baixo",
       "observacao": "boa escolha quando a ideia é resolver rápido"
     },
     {
-      "nome": "Burguer King",
+      "nome": "Burger King",
       "tipo": "rapido",
       "subtipo": "lanche",
-      "distancia": "região central",
+      "distancia": "1,5km",
+      "tempo_a_pe": "20 minutos",
+      "tempo_de_carro": "3 minutos",
+      "friccao_logistica": "media",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
       "endereco": "Av. Dom Pedro I, S/N - Centro, Guarujá - SP, 11440-002",
       "horario": "11h às 04h",
       "perfil": "lanche rápido com horário estendido",
       "ideal_para": [
+        "amigos",
+        "grupo",
         "lanche",
         "madrugada",
         "praticidade"
+      ],
+      "melhor_momento": [
+        "noite",
+        "madrugada"
       ],
       "faixa_preco": "baixo",
       "observacao": "boa alternativa quando a ideia é comer algo rápido mais tarde"
@@ -136,7 +160,12 @@
       "nome": "Alcide’s",
       "tipo": "tradicional",
       "subtipo": "frutos_do_mar",
-      "distancia": "próximo da região da Enseada",
+      "distancia": "200m",
+      "tempo_a_pe": "3 minutos",
+      "tempo_de_carro": "2 minutos",
+      "friccao_logistica": "baixa",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
       "endereco": "Av. Dom Pedro I, 398 - Jardim Tejereba, Guarujá - SP, 11440-000",
       "horario": "11:30h às 23h",
       "delivery": "11:30h às 22h",
@@ -145,28 +174,50 @@
       "site": "http://www.alcidesrestaurante.com.br",
       "perfil": "clássico, tradicional e muito lembrado no Guarujá",
       "ideal_para": [
-        "almoço",
+        "familia_sem_criancas",
+        "casal",
+        "neutro",
+        "almoco",
         "jantar",
-        "quem quer algo mais clássico",
-        "frutos do mar"
+        "algo_classico",
+        "frutos_do_mar"
+      ],
+      "melhor_momento": [
+        "almoco",
+        "jantar"
       ],
       "faixa_preco": "medio",
+      "assinatura_curatorial": "Desde 1979, o Alcide’s conta sua história em cada prato.",
+      "alertas_alimentares": [
+        "atenção para alergia a frutos do mar e camarão"
+      ],
       "observacao": "boa escolha para quem quer uma referência tradicional da cidade"
     },
     {
       "nome": "Alcides Pizzaria",
       "tipo": "pizza",
       "subtipo": "pizzaria",
-      "distancia": "Enseada",
+      "distancia": "160m",
+      "tempo_a_pe": "2 minutos",
+      "tempo_de_carro": "2 minutos",
+      "friccao_logistica": "baixa",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
       "endereco": "Av. Dom Pedro I, 618 - Enseada, Guarujá - SP, 11440-000",
       "horario": "18:30h às 23h",
       "telefone": "(13) 3355-9885",
       "perfil": "boa pedida para noite de pizza",
       "ideal_para": [
+        "familia_com_criancas",
+        "familia_sem_criancas",
+        "grupo",
         "pizza",
         "jantar",
-        "familia",
-        "grupo"
+        "compartilhar"
+      ],
+      "melhor_momento": [
+        "jantar",
+        "noite"
       ],
       "faixa_preco": "medio",
       "observacao": "faz sentido quando a ideia é algo fácil de compartilhar"
@@ -174,54 +225,95 @@
     {
       "nome": "Thai Lounge Bar",
       "tipo": "especial",
-      "subtipo": "restaurante_bar",
-      "distancia": "5 minutos",
+      "subtipo": "lounge_tematico",
+      "distancia": "300m",
+      "tempo_a_pe": "6 minutos",
+      "tempo_de_carro": "2 minutos",
+      "friccao_logistica": "baixa",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
       "endereco": "Av. Miguel Estefno, 1001 - Enseada, Guarujá - SP, 11440-530",
       "horario": "Quinta a domingo: 19h às 00h | Segunda a quarta: fechado",
       "telefone": "(13) 3389-4000",
-      "perfil": "experiência mais especial, sofisticada e agradável para a noite",
+      "perfil": "ambiente atmosférico, sensorial e temático, com gastronomia regional sob influência asiática",
       "ideal_para": [
         "casal",
+        "familia_sem_criancas",
         "jantar",
-        "ocasião especial",
+        "ocasiao_especial",
+        "noite",
+        "experiencia"
+      ],
+      "melhor_momento": [
+        "jantar",
         "noite"
       ],
       "faixa_preco": "medio-alto",
-      "observacao": "ótima pedida para uma noite mais especial"
+      "alertas_alimentares": [
+        "confirmar cardápio em caso de restrições específicas"
+      ],
+      "observacao": "lounge diferencial do Casa Grande Hotel, muito forte para uma noite memorável"
     },
     {
       "nome": "Restaurante Atlântico Signature",
       "tipo": "especial",
       "subtipo": "hotel",
-      "distancia": "Casa Grande Hotel",
+      "distancia": "300m",
+      "tempo_a_pe": "5 minutos",
+      "tempo_de_carro": "2 minutos",
+      "friccao_logistica": "baixa",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
       "endereco": "Av. Miguel Estefno, 1001 - Jardim Tres Marias, Guarujá - SP, 11440-530",
       "horario": "12h às 16h e 19h às 00h",
       "telefone": "(13) 3389-4000",
-      "perfil": "experiência mais refinada dentro do Casa Grande Hotel",
+      "perfil": "experiência refinada dentro do Casa Grande Hotel",
       "ideal_para": [
         "casal",
-        "jantar especial",
-        "experiência",
-        "almoço especial"
+        "familia_sem_criancas",
+        "jantar_especial",
+        "almoco_especial",
+        "experiencia"
+      ],
+      "melhor_momento": [
+        "almoco_especial",
+        "jantar"
       ],
       "faixa_preco": "alto",
+      "alertas_alimentares": [
+        "atenção para alergia a camarão e frutos do mar, embora haja outras opções"
+      ],
       "observacao": "boa escolha para quem busca uma experiência mais elegante"
     },
     {
       "nome": "Dati",
       "tipo": "especial",
       "subtipo": "bar_restaurante",
-      "distancia": "beira da praia da Enseada",
+      "distancia": "1,6km",
+      "tempo_a_pe": "17 minutos",
+      "tempo_de_carro": "4 minutos",
+      "friccao_logistica": "media",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
       "endereco": "Av. Miguel Estefno, 1755 - Jardim Vitoria, Guarujá - SP, 11440-531",
       "horario": "Domingo à quinta: 11h até 00h | Sexta e sábado: 11h até 01h",
       "telefone": "(13) 3351-9231",
-      "perfil": "bar descolado-chique, espaçoso e com ambiente agradável",
+      "perfil": "bar e restaurante amplo, agradável e versátil, na beira da praia",
       "ideal_para": [
+        "familia_com_criancas",
         "grupo",
+        "amigos",
         "jantar",
-        "hambúrguer artesanal",
+        "almoco",
+        "hamburguer_artesanal",
         "pizza",
-        "familia"
+        "viva_a_orla"
+      ],
+      "melhor_momento": [
+        "almoco",
+        "fim_de_tarde",
+        "jantar",
+        "noite"
       ],
       "faixa_preco": "medio",
       "observacao": "fica na beira da praia e possui espaço kids"
@@ -230,32 +322,125 @@
       "nome": "Sushi Katoshi 23",
       "tipo": "japones",
       "subtipo": "sushi",
-      "distancia": "4 minutos",
+      "distancia": "600m",
+      "tempo_a_pe": "7 minutos",
+      "tempo_de_carro": "1 minuto",
+      "friccao_logistica": "baixa",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
       "endereco": "Av. Dom Pedro I, 1265 - Jardim Tres Marias, Guarujá - SP, 11440-001",
       "horario": "Segunda à quinta: 12h às 15h e 19h às 23h | Sexta: 12h às 15h e 19h às 23:30h | Sábado e domingo: 13h às 23h",
       "telefone": "(13) 3395-6356",
       "perfil": "boa referência para comida japonesa",
       "ideal_para": [
+        "casal",
+        "familia_sem_criancas",
+        "amigos",
         "jantar",
         "sushi",
-        "quem gosta de japonês"
+        "quem_gosta_de_japones"
+      ],
+      "melhor_momento": [
+        "almoco",
+        "jantar"
       ],
       "faixa_preco": "medio",
+      "alertas_alimentares": [
+        "confirmar opções específicas em caso de alergias e restrições"
+      ],
       "observacao": "boa opção quando bate vontade de comida japonesa"
+    },
+    {
+      "nome": "Dona Eva - Restaurante, Bar e Chopperia",
+      "tipo": "tradicional",
+      "subtipo": "restaurante_bar",
+      "distancia": "750m",
+      "tempo_a_pe": "10 minutos",
+      "tempo_de_carro": "3 minutos",
+      "friccao_logistica": "baixa",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
+      "endereco": "Av. Miguel Estefno, 1295 - Praia da Enseada, Guarujá - SP, 11440-530",
+      "horario": "12h às 22h | Café da manhã: 07h às 10h",
+      "telefone": "(13) 99185-4745",
+      "perfil": "opção litorânea agradável, com clima de restaurante e bar",
+      "ideal_para": [
+        "casal",
+        "familia_sem_criancas",
+        "almoco",
+        "bar",
+        "chopp",
+        "grupo",
+        "cafe_da_manha"
+      ],
+      "melhor_momento": [
+        "almoco",
+        "fim_de_tarde",
+        "jantar"
+      ],
+      "faixa_preco": "medio",
+      "alertas_alimentares": [
+        "atenção para frutos do mar e camarão"
+      ],
+      "observacao": "boa opção híbrida para comer e curtir com mais calma"
+    },
+    {
+      "nome": "Padaria Pitangueiras",
+      "tipo": "apoio_alimentar",
+      "subtipo": "padaria_restaurante_pizzaria",
+      "distancia": "220m",
+      "tempo_a_pe": "3 minutos",
+      "tempo_de_carro": "2 minutos",
+      "friccao_logistica": "baixa",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
+      "endereco": "Av. Dom Pedro I, 887 - Jardim Tres Marias, Guarujá - SP, 11440-001",
+      "horario": "06h às 23h",
+      "almoco": "11:30h às 16h",
+      "telefone": "(13) 98217-5889",
+      "perfil": "boa referência para café da manhã, almoço, lanche ou algo prático",
+      "ideal_para": [
+        "familia_com_criancas",
+        "familia_sem_criancas",
+        "grupo",
+        "cafe_da_manha",
+        "lanche",
+        "almoco",
+        "algo_rapido"
+      ],
+      "melhor_momento": [
+        "manha",
+        "almoco",
+        "tarde",
+        "noite"
+      ],
+      "faixa_preco": "medio",
+      "observacao": "padaria, confeitaria, restaurante e pizzaria"
     },
     {
       "nome": "Kopenhagen Enseada",
       "tipo": "doce",
       "subtipo": "chocolateria",
-      "distancia": "4 minutos",
+      "distancia": "1,5km",
+      "tempo_a_pe": "14 minutos",
+      "tempo_de_carro": "3 minutos",
+      "friccao_logistica": "media",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": false,
       "endereco": "Av. Miguel Estefno, 1763 - Jardim Vitoria, Guarujá - SP, 11440-532",
       "horario": "Segunda à quinta: 10h às 20h | Sexta e sábado: 10h às 22h | Domingo: 12h às 20h",
       "instagram": "@kopenhagen_enseada",
       "perfil": "boa opção para chocolate, sobremesa ou lembrança",
       "ideal_para": [
+        "casal",
         "sobremesa",
         "doce",
-        "lembrança"
+        "lembranca",
+        "presente"
+      ],
+      "melhor_momento": [
+        "tarde",
+        "pos_jantar"
       ],
       "faixa_preco": "medio",
       "observacao": "boa pedida para um mimo ou algo gostoso depois do jantar"
@@ -264,15 +449,25 @@
       "nome": "Cacau Show",
       "tipo": "doce",
       "subtipo": "chocolateria",
-      "distancia": "Enseada",
+      "distancia": "800m",
+      "tempo_a_pe": "11 minutos",
+      "tempo_de_carro": "3 minutos",
+      "friccao_logistica": "baixa",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": false,
       "endereco": "Av. Dom Pedro I, 1415 - Enseada, Guarujá - SP, 11440-001",
       "horario": "Segunda-feira à sábado: 09h às 19:45h | Domingo: 10h às 17h",
       "telefone": "(13) 3386-5514",
       "perfil": "opção prática para chocolate e lembranças",
       "ideal_para": [
         "doce",
-        "lembrança",
-        "presente"
+        "lembranca",
+        "presente",
+        "zero_acucar"
+      ],
+      "melhor_momento": [
+        "tarde",
+        "pos_jantar"
       ],
       "faixa_preco": "baixo-medio",
       "observacao": "boa alternativa para algo rápido e gostoso"
@@ -281,19 +476,181 @@
       "nome": "Restaurante Mirante Bela Vista",
       "tipo": "vista",
       "subtipo": "mirante_restaurante",
-      "distancia": "Canto da Enseada",
+      "distancia": "6,6km",
+      "tempo_a_pe": "1h20min",
+      "tempo_de_carro": "15 minutos",
+      "friccao_logistica": "media",
+      "tipo_de_saida": "planejada",
+      "escopo_de_saida": "guaruja_expandido",
+      "vale_pos_praia": false,
       "endereco": "Gilberto Glascer, Rua Canto da Enseada, 705, Guarujá - SP, 11443-475",
       "horario": "10h às 21h",
       "telefone": "(13) 97405-9242",
       "perfil": "bar e restaurante despojado com vista panorâmica",
       "ideal_para": [
+        "casal",
+        "amigos",
+        "grupo",
         "vista",
         "fotos",
-        "frutos do mar",
-        "passeio com refeição"
+        "fim_de_tarde",
+        "happy_hour"
+      ],
+      "melhor_momento": [
+        "fim_de_tarde",
+        "por_do_sol"
       ],
       "faixa_preco": "medio",
-      "observacao": "tem visual muito bonito e vale pela experiência"
+      "alertas_alimentares": [
+        "atenção para frutos do mar e camarão"
+      ],
+      "observacao": "vale mais pela experiência, pelo visual e pelo trajeto do que pela praticidade"
+    },
+    {
+      "nome": "Boteco Burgman Enseada",
+      "tipo": "happy_hour_entretenimento",
+      "subtipo": "bar_boliche",
+      "distancia": "3,8km",
+      "tempo_a_pe": "45 minutos",
+      "tempo_de_carro": "8 minutos",
+      "friccao_logistica": "media",
+      "tipo_de_saida": "planejada",
+      "escopo_de_saida": "guaruja_expandido",
+      "vale_pos_praia": true,
+      "endereco": "Av. Miguel Estefno, 3979 - Lot. Joao Batista Juliao, Guarujá - SP, 11440-534",
+      "horario": "Domingo à quinta: 15:40h às 00h | Sexta-feira e sábado: 15:40h às 02h",
+      "telefone": "(13) 3395-9054",
+      "perfil": "mais animado, familiar e com entretenimento",
+      "ideal_para": [
+        "grupo",
+        "amigos",
+        "familia_com_criancas",
+        "noite",
+        "boliche",
+        "musica_ao_vivo",
+        "happy_hour"
+      ],
+      "melhor_momento": [
+        "fim_de_tarde",
+        "noite"
+      ],
+      "faixa_preco": "medio",
+      "happy_hour": {
+        "ativo": true,
+        "horario": "16h às 20h"
+      },
+      "boliche": {
+        "ativo": true,
+        "valor_1h": "R$200",
+        "capacidade_pista": 6,
+        "valor_medio_por_pessoa_aprox": "R$33,33",
+        "desconto_domingo_a_sexta": "50% de desconto na compra de 1 hora",
+        "brinde_aniversariante": "30 minutos extras com reserva"
+      },
+      "observacao": "possui pistas de boliche, música ao vivo, telão para futebol e área kids"
+    },
+    {
+      "nome": "Villa Di Phoenix Praia",
+      "tipo": "orla_happy_hour_familia",
+      "subtipo": "restaurante_rooftop",
+      "distancia": "1,5km",
+      "tempo_a_pe": "8 minutos",
+      "tempo_de_carro": "5 minutos",
+      "friccao_logistica": "media",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
+      "endereco": "Av. Miguel Estefno, 623 - Enseada, Guarujá - SP",
+      "perfil": "restaurante de orla com rooftop, pizzas artesanais, música ao vivo e espaço criança",
+      "ideal_para": [
+        "familia_com_criancas",
+        "grupo",
+        "amigos",
+        "casal_informal",
+        "happy_hour",
+        "pizza",
+        "viva_a_orla"
+      ],
+      "melhor_momento": [
+        "almoco",
+        "fim_de_tarde",
+        "jantar",
+        "noite"
+      ],
+      "faixa_preco": "medio",
+      "happy_hour": {
+        "ativo": true,
+        "observacao": "há posts públicos com double drinks e promoções de chopp"
+      },
+      "observacao": "candidato fortíssimo da Enseada para família, grupo e happy hour"
+    },
+    {
+      "nome": "Dolores Bar & Restaurante",
+      "tipo": "rooftop_happy_hour",
+      "subtipo": "bar_restaurante",
+      "distancia": "1,8km",
+      "tempo_a_pe": "20 minutos",
+      "tempo_de_carro": "4 minutos",
+      "friccao_logistica": "media",
+      "tipo_de_saida": "espontanea",
+      "vale_pos_praia": true,
+      "endereco": "Av. Miguel Estefno, 2055 - Enseada, Guarujá - SP",
+      "horario": "11h30 em diante",
+      "perfil": "bar e restaurante de rooftop com música, drinks e cardápio amplo",
+      "ideal_para": [
+        "casal",
+        "familia_sem_criancas",
+        "amigos",
+        "grupo",
+        "happy_hour",
+        "jantar",
+        "noite"
+      ],
+      "melhor_momento": [
+        "almoco",
+        "fim_de_tarde",
+        "jantar",
+        "noite"
+      ],
+      "faixa_preco": "medio",
+      "happy_hour": {
+        "ativo": true,
+        "observacao": "há posts públicos com drinks em dobro e faixa de happy hour"
+      },
+      "alertas_alimentares": [
+        "atenção para camarão e frutos do mar, embora haja cardápio amplo"
+      ],
+      "observacao": "forte candidato local para jantar, rooftop e clima social"
+    },
+    {
+      "nome": "Pirata’s Burger Rooftop",
+      "tipo": "hamburguer_happy_hour",
+      "subtipo": "burger_rooftop",
+      "distancia": "3,7km",
+      "tempo_a_pe": "46 minutos",
+      "tempo_de_carro": "8 minutos",
+      "friccao_logistica": "media",
+      "tipo_de_saida": "planejada",
+      "vale_pos_praia": true,
+      "endereco": "Av. Miguel Estefno, 3947 - Enseada, Guarujá - SP",
+      "perfil": "burger, choperia e rooftop com clima de noite",
+      "ideal_para": [
+        "amigos",
+        "grupo",
+        "casal_informal",
+        "happy_hour",
+        "hamburguer",
+        "noite"
+      ],
+      "melhor_momento": [
+        "fim_de_tarde",
+        "noite"
+      ],
+      "faixa_preco": "medio",
+      "happy_hour": {
+        "ativo": true,
+        "observacao": "há posts públicos com doubles e promoções de drinks/chopp"
+      },
+      "observacao": "entra como peça complementar da Enseada, não como protagonista"
     }
   ],
   "passeios": [
@@ -773,5 +1130,11 @@
         "observacao": "sistema self-service automático"
       }
     ]
+  },
+  "gastronomia_lacunas_abertas": {
+    "restricoes_alimentares": {
+      "status": "aberta",
+      "observacao": "Ainda falta uma boa referência local mais clara para vegano, vegetariano, sem glúten e sem lactose."
+    }
   }
 }
