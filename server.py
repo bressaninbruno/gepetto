@@ -595,6 +595,8 @@ def normalize_group_value(value: str) -> str:
         return "casal"
     if v in ["amigos", "amigo"]:
         return "amigos"
+    if v in ["grupo", "turma", "galera", "pessoal"]:
+        return "grupo"
     return value.strip().lower()
 
 
@@ -617,6 +619,58 @@ def normalize_profile_value(value: str) -> str:
     return mapping.get(v, "neutro")
 
 
+def infer_explicit_profile_from_text(text_raw):
+    text_n = normalize_text(text_raw)
+
+    if has_any(text_n, [
+        "somos um casal", "somos casal", "eu e minha esposa", "eu e meu marido",
+        "vim com minha esposa", "vim com meu marido", "viagem a dois", "somos nós dois"
+    ]):
+        return "casal"
+
+    if has_any(text_n, [
+        "familia sem crianca", "familia sem crianças", "familia sem criancas",
+        "família sem criança", "família sem crianças", "so adultos", "só adultos",
+        "apenas adultos", "sem criancas", "sem crianças"
+    ]):
+        return "familia_sem_criancas"
+
+    if has_any(text_n, [
+        "familia com crianca", "familia com crianças", "familia com criancas",
+        "família com criança", "família com crianças", "estamos com crianca",
+        "estamos com criança", "estamos com criancas", "estamos com crianças",
+        "com filhos", "com bebe", "com bebê", "com as criancas", "com as crianças"
+    ]):
+        return "familia_com_criancas"
+
+    if has_any(text_n, [
+        "somos amigos", "estou com amigos", "vim com amigos", "grupo de amigos"
+    ]):
+        return "amigos"
+
+    if has_any(text_n, [
+        "somos um grupo", "estamos em grupo", "grupo grande", "turma", "galera", "pessoal"
+    ]):
+        return "grupo"
+
+    return ""
+
+
+def maybe_sync_group_from_profile(guest, profile):
+    profile_n = normalize_profile_value(profile)
+
+    if profile_n == "casal":
+        guest["grupo"] = "casal"
+    elif profile_n in ["familia_sem_criancas", "familia_com_criancas"]:
+        guest["grupo"] = "familia"
+    elif profile_n == "amigos":
+        guest["grupo"] = "amigos"
+    elif profile_n == "grupo":
+        guest["grupo"] = "grupo"
+
+    return guest
+
+
 def get_guest_profile(guest):
     perfil = normalize_profile_value(guest.get("perfil_hospede", ""))
 
@@ -624,13 +678,29 @@ def get_guest_profile(guest):
         return perfil
 
     grupo = normalize_group_value(guest.get("grupo", ""))
+    obs = normalize_text(guest.get("observacoes", ""))
 
     if grupo == "casal":
         return "casal"
+
     if grupo == "amigos":
         return "amigos"
+
+    if grupo == "grupo":
+        return "grupo"
+
     if grupo == "familia":
-        return "familia_com_criancas"
+        if has_any(obs, [
+            "sem crianca", "sem crianças", "so adultos", "só adultos", "apenas adultos"
+        ]):
+            return "familia_sem_criancas"
+
+        if has_any(obs, [
+            "com crianca", "com crianças", "com filhos", "com bebe", "com bebê"
+        ]):
+            return "familia_com_criancas"
+
+        return "neutro"
 
     return "neutro"
 
@@ -640,9 +710,6 @@ def restaurant_profile_priority_score(item, profile):
     score = 0
 
     ideals = normalize_str_list(item.get("ideal_para", []))
-    nome = normalize_text(item.get("nome", ""))
-    tipo = normalize_text(item.get("tipo", ""))
-    subtipo = normalize_text(item.get("subtipo", ""))
 
     if profile_n == "casal":
         if restaurant_matches_especial(item):
@@ -1129,6 +1196,8 @@ def guest_group_label(guest):
         return "amigos"
     if grupo == "casal":
         return "casal"
+    if grupo == "grupo":
+        return "grupo"
     return ""
 
 
@@ -1159,6 +1228,8 @@ def saudacao_personalizada(guest):
         return f"Olá {nome} e amigos 😄"
     if grupo == "casal":
         return f"Olá {nome} 😊"
+    if grupo == "grupo":
+        return f"Olá {nome} e grupo 😊"
 
     return f"Olá {nome} 😊"
 
@@ -1489,6 +1560,7 @@ def get_restaurant_candidates_by_mode(restaurantes, mode):
         ]
 
     return []
+
 
 def restaurant_mode_priority_score(item, mode):
     mode_n = normalize_text(mode)
@@ -2381,6 +2453,7 @@ def mensagem_boas_vindas():
 def proactive_prompt(guest):
     grupo = guest_group_label(guest)
     top_pref = top_guest_preference(guest)
+    perfil = get_guest_profile(guest)
 
     if guest_language(guest) == "en":
         if top_pref == "japones":
@@ -2399,6 +2472,24 @@ def proactive_prompt(guest):
         return "Se quiser, já posso te orientar sobre a **praia** e o serviço por aqui 🏖️"
     if top_pref == "mercado":
         return "Se quiser, já posso te indicar um **mercado rápido** ou um mais **completo** 🛒"
+
+    if perfil == "familia_com_criancas":
+        return (
+            "Se quiser, posso te indicar agora:\n"
+            "• um restaurante bom para **família com crianças** 🍽️\n"
+            "• um **mercado próximo** 🛒\n"
+            "• como funciona a **praia** 🏖️\n"
+            "• ou as principais **regras da casa** 📋"
+        )
+
+    if perfil == "familia_sem_criancas":
+        return (
+            "Se quiser, posso te indicar agora:\n"
+            "• um restaurante mais confortável e sem complicação 🍽️\n"
+            "• um **mercado próximo** 🛒\n"
+            "• como funciona a **praia** 🏖️\n"
+            "• ou as principais **regras da casa** 📋"
+        )
 
     if grupo == "família":
         return (
@@ -2424,6 +2515,15 @@ def proactive_prompt(guest):
             "• um restaurante mais **especial** ✨\n"
             "• uma opção rápida de **mercado** 🛒\n"
             "• te orientar sobre a **praia** 🏖️\n"
+            "• ou te passar as principais **regras da casa** 📋"
+        )
+
+    if grupo == "grupo":
+        return (
+            "Se quiser, posso te indicar agora:\n"
+            "• um lugar mais **social / leve** para sair 🍽️\n"
+            "• uma opção rápida de **mercado** 🛒\n"
+            "• como funciona a **praia** 🏖️\n"
             "• ou te passar as principais **regras da casa** 📋"
         )
 
@@ -2454,7 +2554,7 @@ def remember_guest_details(text_raw):
     blocked = [
         "gepetto", "concierge", "hospede", "hóspede",
         "anfitriao", "anfitrião", "bruno", "cara", "amigo",
-        "casal", "familia", "família", "amigos",
+        "casal", "familia", "família", "amigos", "grupo",
         "do rio", "do interior", "fa de", "fã de"
     ]
 
@@ -2482,6 +2582,17 @@ def remember_guest_details(text_raw):
             changed = True
         elif has_any(text_n, ["estou com amigos", "somos amigos", "vim com amigos"]):
             guest["grupo"] = "amigos"
+            changed = True
+        elif has_any(text_n, ["somos um grupo", "estamos em grupo", "grupo grande", "turma", "galera", "pessoal"]):
+            guest["grupo"] = "grupo"
+            changed = True
+
+    explicit_profile = infer_explicit_profile_from_text(text_raw)
+    if explicit_profile:
+        current_profile = normalize_profile_value(guest.get("perfil_hospede", "neutro"))
+        if current_profile != explicit_profile:
+            guest["perfil_hospede"] = explicit_profile
+            guest = maybe_sync_group_from_profile(guest, explicit_profile)
             changed = True
 
     if changed:
@@ -3712,158 +3823,6 @@ def get_restaurantes_reply(text):
         + "Estas seriam as sugestões imediatas para começar:\n\n"
         + "\n".join(linhas)
         + "\n\nSe quiser, eu também posso afinar isso por **happy hour**, **hambúrguer**, **pizza**, **japonês**, **doce**, **algo tradicional**, **frutos do mar** ou **lugar bom para criança**."
-    )
-    
-    candidates = unique_restaurants(get_restaurant_candidates_by_mode(restaurantes, mode)) if mode else []
-
-    if mode and candidates:
-        ordered = sorted(
-            candidates,
-            key=lambda r: (
-                -restaurant_mode_priority_score(r, mode),
-                distance_sort_key(r.get("distancia", ""))
-            )
-        )
-
-        top = ordered[0]
-        nome = top.get("nome", "")
-        perfil = top.get("perfil", "")
-        obs = top.get("observacao", "")
-        dist = format_distance(top.get("distancia", ""))
-
-        set_last_entity(nome, "restaurantes")
-        update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-        set_active_recommendations(
-            "restaurantes",
-            names_from_items(ordered),
-            current_name=nome
-        )
-
-        intro_map = {
-            "rapido": f"Se a ideia for algo mais prático, eu iria no **{nome}**.",
-            "especial": f"Se vocês quiserem algo mais especial, o **{nome}** costuma funcionar muito bem ✨",
-            "tradicional": f"Se a ideia for algo mais tradicional, uma boa referência é o **{nome}**.",
-            "frutos do mar": f"Se a ideia for **frutos do mar** 🌊\n\nUma boa referência é o **{nome}**.",
-            "japones": f"Se a vontade for japonês 🍣\n\nUma boa referência é o **{nome}**.",
-            "pizza": f"Se a ideia for pizza 🍕\n\nUma boa pedida é o **{nome}**.",
-            "doce": f"Se a ideia for um doce ou chocolate 🍫\n\nUma boa referência é a **{nome}**.",
-            "hamburguer": f"Se vocês quiserem hambúrguer 🍔\n\nUma boa linha é começar pelo **{nome}**.",
-            "kids": f"Se a ideia for um lugar bom para criança e confortável para o grupo 😊\n\nEu começaria pelo **{nome}**.",
-            "happy hour": f"Se vocês quiserem happy hour 🍻\n\nUma boa linha é começar pelo **{nome}**.",
-            "vista": f"Se a ideia for um lugar com clima ou vista ✨\n\nO **{nome}** pode funcionar muito bem."
-        }
-
-        reply = intro_map.get(mode, f"Uma boa opção por aqui é o **{nome}**.")
-
-        if dist:
-            reply += f"\n\n• Distância: {dist}"
-        if top.get("tempo_a_pe"):
-            reply += f"\n• A pé: {top.get('tempo_a_pe')}"
-        if top.get("tempo_de_carro"):
-            reply += f"\n• De carro: {top.get('tempo_de_carro')}"
-        if perfil:
-            reply += f"\n\n{perfil}."
-        if obs:
-            reply += f"\n\n{obs}"
-
-        if len(ordered) > 1:
-            extras = [f"• **{r.get('nome', '')}**" for r in ordered[1:4]]
-            reply += "\n\nOutras opções nessa linha:\n" + "\n".join(extras)
-
-        reply += "\n\nSe quiser, eu também posso abrir mais opções fora dessa linha."
-        return reply
-
-    ordered = sort_restaurants_by_distance(restaurantes)
-    top = ordered[0]
-    nome = top.get("nome", "")
-
-    set_last_entity(nome, "restaurantes")
-    update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-    set_active_recommendations(
-        "restaurantes",
-        names_from_items(ordered),
-        current_name=nome
-    )
-
-    linhas = [build_restaurant_line(r) for r in ordered[:6]]
-
-    return (
-        "Claro 😊\n\n"
-        "Aqui vão algumas boas opções gastronômicas por perto:\n\n"
-        + "\n".join(linhas)
-        + "\n\nSe quiser, eu também posso afinar isso por **happy hour**, **hambúrguer**, **pizza**, **japonês**, **doce**, **algo tradicional**, **frutos do mar** ou **lugar bom para criança**."
-    )
-    
-    candidates = unique_restaurants(get_restaurant_candidates_by_mode(restaurantes, mode)) if mode else []
-
-    if mode and candidates:
-        ordered = sort_restaurants_by_distance(candidates)
-        top = ordered[0]
-        nome = top.get("nome", "")
-        perfil = top.get("perfil", "")
-        obs = top.get("observacao", "")
-        dist = format_distance(top.get("distancia", ""))
-
-        set_last_entity(nome, "restaurantes")
-        update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-        set_active_recommendations(
-            "restaurantes",
-            names_from_items(ordered),
-            current_name=nome
-        )
-
-        intro_map = {
-            "rapido": f"Se a ideia for algo mais prático, eu iria no **{nome}**.",
-            "especial": f"Se vocês quiserem algo mais especial, o **{nome}** costuma funcionar muito bem ✨",
-            "tradicional": f"Se a ideia for algo mais tradicional, uma boa referência é o **{nome}**.",
-            "japones": f"Se a vontade for japonês 🍣\n\nUma boa referência é o **{nome}**.",
-            "pizza": f"Se a ideia for pizza 🍕\n\nUma boa pedida é o **{nome}**.",
-            "doce": f"Se a ideia for um doce ou chocolate 🍫\n\nUma boa referência é a **{nome}**.",
-            "hamburguer": f"Se vocês quiserem hambúrguer 🍔\n\nUma boa linha é começar pelo **{nome}**.",
-            "kids": f"Se a ideia for um lugar bom para criança e confortável para o grupo 😊\n\nEu começaria pelo **{nome}**.",
-            "happy hour": f"Se vocês quiserem happy hour 🍻\n\nUma boa linha é começar pelo **{nome}**.",
-            "vista": f"Se a ideia for um lugar com clima ou vista ✨\n\nO **{nome}** pode funcionar muito bem."
-        }
-
-        reply = intro_map.get(mode, f"Uma boa opção por aqui é o **{nome}**.")
-
-        if dist:
-            reply += f"\n\n• Distância: {dist}"
-        if top.get("tempo_a_pe"):
-            reply += f"\n• A pé: {top.get('tempo_a_pe')}"
-        if top.get("tempo_de_carro"):
-            reply += f"\n• De carro: {top.get('tempo_de_carro')}"
-        if perfil:
-            reply += f"\n\n{perfil}."
-        if obs:
-            reply += f"\n\n{obs}"
-
-        if len(ordered) > 1:
-            extras = [f"• **{r.get('nome', '')}**" for r in ordered[1:4]]
-            reply += "\n\nOutras opções nessa linha:\n" + "\n".join(extras)
-
-        reply += "\n\nSe quiser, eu também posso abrir mais opções fora dessa linha."
-        return reply
-
-    ordered = sort_restaurants_by_distance(restaurantes)
-    top = ordered[0]
-    nome = top.get("nome", "")
-
-    set_last_entity(nome, "restaurantes")
-    update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
-    set_active_recommendations(
-        "restaurantes",
-        names_from_items(ordered),
-        current_name=nome
-    )
-
-    linhas = [build_restaurant_line(r) for r in ordered[:6]]
-
-    return (
-        "Claro 😊\n\n"
-        "Aqui vão algumas boas opções gastronômicas por perto:\n\n"
-        + "\n".join(linhas)
-        + "\n\nSe quiser, eu também posso afinar isso por **happy hour**, **hambúrguer**, **pizza**, **japonês**, **doce**, **algo tradicional** ou **lugar bom para criança**."
     )
 
 
@@ -5128,7 +5087,7 @@ def get_guided_reply(intent):
         )
 
     return ""
-    
+
 
 def get_fallback_reply(guest):
     last_msgs = get_recent_messages(5)
@@ -5269,18 +5228,18 @@ def handle_admin_command(message):
         return "Modo admin desativado 🔒"
 
     if cmd == "/show":
-    guest = load_guest()
-    return (
-        "Hóspede atual 👇\n\n"
-        f"nome: {guest.get('nome','')}\n"
-        f"grupo: {guest.get('grupo','')}\n"
-        f"perfil_hospede: {guest.get('perfil_hospede','neutro')}\n"
-        f"checkin_date: {guest.get('checkin_date','')}\n"
-        f"checkout_date: {guest.get('checkout_date','')}\n"
-        f"checkout_time: {guest.get('checkout_time','')}\n"
-        f"idioma: {guest.get('idioma','')}\n"
-        f"observacoes: {guest.get('observacoes','')}"
-    )
+        guest = load_guest()
+        return (
+            "Hóspede atual 👇\n\n"
+            f"nome: {guest.get('nome','')}\n"
+            f"grupo: {guest.get('grupo','')}\n"
+            f"perfil_hospede: {guest.get('perfil_hospede','neutro')}\n"
+            f"checkin_date: {guest.get('checkin_date','')}\n"
+            f"checkout_date: {guest.get('checkout_date','')}\n"
+            f"checkout_time: {guest.get('checkout_time','')}\n"
+            f"idioma: {guest.get('idioma','')}\n"
+            f"observacoes: {guest.get('observacoes','')}"
+        )
 
     if cmd == "/dashboard":
         if not ADMIN_UNLOCKED:
@@ -5327,8 +5286,9 @@ def handle_admin_command(message):
             value = normalize_group_value(value)
 
         if field == "perfil_hospede":
-             value = normalize_profile_value(value)
-        
+            value = normalize_profile_value(value)
+            guest = maybe_sync_group_from_profile(guest, value)
+
         if field == "idioma":
             value = normalize_text(value)
             if value not in ["pt", "en"]:
