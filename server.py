@@ -2549,7 +2549,8 @@ def infer_contextual_followup(text_raw, last_topic):
         "pizza", "japones", "japonês", "doce", "vista", "24h", "entrega",
         "shopping", "cinema", "mirante", "chuva", "familia", "família",
         "tradicional", "classico", "clássico",
-        "happy hour", "hamburguer", "hambúrguer", "kids", "chocolate",
+        "happy hour", "hamburguer", "hambúrguer", "kids", "chocolate", "animado", "conversar",
+        "lugar para conversar", "lugar pra conversar", "lugar animado",
         "e o endereco", "e o endereço", "e o horario", "e o horário",
         "e entrega", "e delivery"
     ]):
@@ -2564,7 +2565,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "servico", "serviço", "envie", "manda", "pode mandar",
         "farmacia", "farmácia", "upa", "hospital", "todos", "todas",
         "pizza", "japones", "japonês", "doce", "vista", "happy hour",
-        "hamburguer", "hambúrguer", "kids", "chocolate",
+        "hamburguer", "hambúrguer", "kids", "chocolate", "animado", "conversar",
         "que horas", "como funciona", "shopping", "cinema", "mirante", "feira",
         "o outro", "a outra", "outro", "outra",
         "esse lugar", "essa opcao", "essa opção",
@@ -2896,7 +2897,8 @@ def score_intents(text_raw, last_topic=""):
         "pizza", "japones", "japonês", "sushi",
         "doce", "sobremesa", "chocolate", "chocolateria",
         "hamburguer", "hambúrguer", "burger", "lanche",
-        "happy hour", "drinks", "rooftop",
+        "happy hour", "drinks", "rooftop", "lugar animado", "animado", "conversar", "lugar para conversar",
+        "ambiente animado", "ambiente legal", "mesa para conversar",
         "crianca", "criança", "criancas", "crianças", "kids", "area kids", "área kids", "espaco kids", "espaço kids",
         "kopenhagen", "cacau show", "mcdonald", "burger king",
         "alcides", "thai lounge", "atlantico signature", "atlântico signature", "dati",
@@ -3581,7 +3583,11 @@ def get_restaurantes_reply(text):
 
     mode = ""
 
-    if has_any(text_n, ["happy hour", "drinks", "rooftop"]):
+    if has_any(text_n, [
+        "happy hour", "drinks", "rooftop",
+        "lugar animado", "animado", "ambiente animado",
+        "lugar para conversar", "conversar", "mesa para conversar"
+    ]):
         mode = "happy hour"
     elif has_any(text_n, ["crianca", "criança", "criancas", "crianças", "kids", "area kids", "área kids", "espaco kids", "espaço kids"]):
         mode = "kids"
@@ -4703,7 +4709,11 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["vista", "mirante", "lugar bonito"]):
             return get_restaurantes_reply("vista")
 
-        if has_any(text_n, ["happy hour", "drinks", "rooftop"]):
+        if has_any(text_n, [
+            "happy hour", "drinks", "rooftop",
+            "lugar animado", "animado", "ambiente animado",
+            "lugar para conversar", "conversar", "mesa para conversar"
+        ]):
             return get_restaurantes_reply("happy hour")
 
         if has_any(text_n, ["crianca", "criança", "criancas", "crianças", "kids", "area kids", "área kids", "espaco kids", "espaço kids", "familia", "família"]):
@@ -4995,12 +5005,74 @@ def get_followup_reply(text, last_topic, guest):
 
 def get_guided_reply(intent):
     if intent == "restaurantes":
+        guest = load_guest()
+        profile = get_guest_profile(guest)
+        restaurantes = get_restaurants_data()
+
+        intro = build_profile_opening_line(profile)
+
+        if restaurantes:
+            ordered = sort_restaurants_for_profile(restaurantes, profile)
+            ordered = [r for r in ordered if isinstance(r, dict) and r.get("nome")]
+
+            if ordered:
+                current_name = ordered[0].get("nome", "")
+                set_active_recommendations(
+                    "restaurantes",
+                    names_from_items(ordered),
+                    current_name=current_name
+                )
+                if current_name:
+                    set_last_entity(current_name, "restaurantes")
+                    update_session(
+                        last_recommendation_type="restaurantes",
+                        last_recommendation_name=current_name
+                    )
+
+                top_1 = ordered[0]
+                top_2 = ordered[1] if len(ordered) > 1 else None
+
+                sugestoes = []
+
+                line_1 = f"• **{top_1.get('nome', '')}**"
+                if top_1.get("perfil"):
+                    line_1 += f" → {top_1.get('perfil')}"
+                sugestoes.append(line_1)
+
+                if top_2:
+                    line_2 = f"• **{top_2.get('nome', '')}**"
+                    if top_2.get("perfil"):
+                        line_2 += f" → {top_2.get('perfil')}"
+                    sugestoes.append(line_2)
+
+                return (
+                    "Claro 😊\n\n"
+                    f"{intro}\n\n"
+                    "Se eu fosse começar sem complicar, eu olharia primeiro para estas opções:\n\n"
+                    + "\n".join(sugestoes)
+                    + "\n\n"
+                    "Se quiser, eu também posso refinar agora por estilo:\n"
+                    "• mais **rápido**\n"
+                    "• mais **especial**\n"
+                    "• mais **tradicional**\n"
+                    "• **frutos do mar**\n"
+                    "• **japonês**\n"
+                    "• **pizza**\n"
+                    "• **hambúrguer**\n"
+                    "• **happy hour**\n"
+                    "• lugar bom para **criança**\n"
+                    "• **doce**\n"
+                    "• ou **todos**"
+                )
+
         return (
             "Claro 😊\n\n"
+            f"{intro}\n\n"
             "Pra eu te direcionar melhor, me diga o estilo que faria mais sentido agora:\n"
             "• mais **rápido**\n"
             "• mais **especial**\n"
             "• mais **tradicional**\n"
+            "• **frutos do mar**\n"
             "• **japonês**\n"
             "• **pizza**\n"
             "• **hambúrguer**\n"
@@ -5196,17 +5268,18 @@ def handle_admin_command(message):
         return "Modo admin desativado 🔒"
 
     if cmd == "/show":
-        guest = load_guest()
-        return (
-            "Hóspede atual 👇\n\n"
-            f"nome: {guest.get('nome','')}\n"
-            f"grupo: {guest.get('grupo','')}\n"
-            f"checkin_date: {guest.get('checkin_date','')}\n"
-            f"checkout_date: {guest.get('checkout_date','')}\n"
-            f"checkout_time: {guest.get('checkout_time','')}\n"
-            f"idioma: {guest.get('idioma','')}\n"
-            f"observacoes: {guest.get('observacoes','')}"
-        )
+    guest = load_guest()
+    return (
+        "Hóspede atual 👇\n\n"
+        f"nome: {guest.get('nome','')}\n"
+        f"grupo: {guest.get('grupo','')}\n"
+        f"perfil_hospede: {guest.get('perfil_hospede','neutro')}\n"
+        f"checkin_date: {guest.get('checkin_date','')}\n"
+        f"checkout_date: {guest.get('checkout_date','')}\n"
+        f"checkout_time: {guest.get('checkout_time','')}\n"
+        f"idioma: {guest.get('idioma','')}\n"
+        f"observacoes: {guest.get('observacoes','')}"
+    )
 
     if cmd == "/dashboard":
         if not ADMIN_UNLOCKED:
