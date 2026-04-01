@@ -1288,13 +1288,28 @@ def get_restaurant_candidates_by_mode(restaurantes, mode):
     mode_n = normalize_text(mode)
 
     if mode_n in ["rapido", "rápido", "lanche", "pratico", "prático"]:
-        return [r for r in restaurantes if restaurant_has_any(r, ["rapido", "rápido", "lanche", "praticidade", "sem complicacao", "sem complicação"])]
+        return [
+            r for r in restaurantes
+            if normalize_text(r.get("tipo", "")) == "rapido"
+            or restaurant_has_any(r, ["lanche", "praticidade", "sem complicacao", "sem complicação"])
+        ]
 
     if mode_n in ["especial", "romantico", "romântico", "sofisticado", "premium"]:
         return [r for r in restaurantes if restaurant_matches_especial(r)]
 
-    if mode_n in ["tradicional", "classico", "clássico", "frutos do mar"]:
-        return [r for r in restaurantes if restaurant_matches_tradicional(r)]
+    if mode_n in ["tradicional", "classico", "clássico"]:
+        return [
+            r for r in restaurantes
+            if normalize_text(r.get("tipo", "")) == "tradicional"
+            or restaurant_has_any(r, ["tradicional", "classico", "clássico"])
+        ]
+
+    if mode_n in ["frutos do mar"]:
+        return [
+            r for r in restaurantes
+            if normalize_text(r.get("subtipo", "")) == "frutos_do_mar"
+            or restaurant_has_any(r, ["frutos do mar", "camarão", "camarao", "litoranea", "litorânea"])
+        ]
 
     if mode_n in ["japones", "japonês", "sushi"]:
         return [r for r in restaurantes if restaurant_matches_japanese(r)]
@@ -1309,15 +1324,88 @@ def get_restaurant_candidates_by_mode(restaurantes, mode):
         return [r for r in restaurantes if restaurant_matches_burger(r)]
 
     if mode_n in ["kids", "crianca", "criança", "criancas", "crianças", "familia", "família"]:
-        return [r for r in restaurantes if restaurant_matches_kids(r)]
+        return [
+            r for r in restaurantes
+            if restaurant_matches_kids(r)
+            or "familia_com_criancas" in normalize_str_list(r.get("ideal_para", []))
+        ]
 
     if mode_n in ["happy hour", "happy_hour", "drinks", "rooftop"]:
-        return [r for r in restaurantes if restaurant_matches_happy_hour(r)]
+        return [
+            r for r in restaurantes
+            if (
+                isinstance(r.get("happy_hour", {}), dict)
+                and r.get("happy_hour", {}).get("ativo") is True
+            )
+        ]
 
     if mode_n in ["vista", "mirante", "lugar bonito", "lugar com vista", "rooftop_vista"]:
-        return [r for r in restaurantes if restaurant_matches_rooftop(r) or restaurant_has_any(r, ["vista", "mirante"])]
+        return [
+            r for r in restaurantes
+            if restaurant_matches_rooftop(r)
+            or restaurant_has_any(r, ["vista", "mirante"])
+        ]
 
     return []
+
+def restaurant_mode_priority_score(item, mode):
+    mode_n = normalize_text(mode)
+    score = 0
+
+    ideals = normalize_str_list(item.get("ideal_para", []))
+    subtipo = normalize_text(item.get("subtipo", ""))
+    tipo = normalize_text(item.get("tipo", ""))
+
+    if mode_n == "kids":
+        if "familia_com_criancas" in ideals:
+            score += 50
+        if restaurant_has_any(item, ["area kids", "área kids", "kids", "espaco criança", "espaço criança", "espaco kids", "espaço kids"]):
+            score += 40
+        if restaurant_has_any(item, ["pizza", "variedade", "familia", "família"]):
+            score += 15
+
+    elif mode_n == "happy hour":
+        hh = item.get("happy_hour", {})
+        if isinstance(hh, dict) and hh.get("ativo") is True:
+            score += 60
+            if hh.get("horario"):
+                score += 10
+        if restaurant_has_any(item, ["rooftop", "drinks", "chopp", "musica ao vivo", "música ao vivo"]):
+            score += 20
+
+    elif mode_n == "frutos do mar":
+        if subtipo == "frutos_do_mar":
+            score += 60
+        if restaurant_has_any(item, ["frutos do mar", "camarão", "camarao", "litoranea", "litorânea"]):
+            score += 25
+        if tipo == "tradicional":
+            score += 10
+
+    elif mode_n == "hamburguer":
+        if restaurant_has_any(item, ["hamburguer", "hambúrguer", "burger"]):
+            score += 50
+
+    elif mode_n == "doce":
+        if restaurant_has_any(item, ["chocolate", "chocolateria", "sobremesa", "doce"]):
+            score += 50
+
+    elif mode_n == "pizza":
+        if subtipo == "pizzaria" or restaurant_has_any(item, ["pizza", "pizzaria"]):
+            score += 50
+
+    elif mode_n == "japones":
+        if subtipo == "sushi" or restaurant_has_any(item, ["japones", "japonês", "sushi"]):
+            score += 50
+
+    elif mode_n == "especial":
+        if restaurant_matches_especial(item):
+            score += 40
+
+    elif mode_n == "tradicional":
+        if tipo == "tradicional":
+            score += 40
+
+    return score
 
 
 def get_markets_data():
@@ -3361,7 +3449,9 @@ def get_restaurantes_reply(text):
         mode = "pizza"
     elif has_any(text_n, ["japones", "japonês", "sushi"]):
         mode = "japones"
-    elif has_any(text_n, ["tradicional", "classico", "clássico", "frutos do mar"]):
+    elif has_any(text_n, ["frutos do mar"]):
+        mode = "frutos do mar"
+    elif has_any(text_n, ["tradicional", "classico", "clássico"]):
         mode = "tradicional"
     elif has_any(text_n, ["especial", "romantico", "romântico", "sofisticado", "premium", "atmosferico", "atmosférico", "sensorial"]):
         mode = "especial"
@@ -3385,9 +3475,89 @@ def get_restaurantes_reply(text):
             "Claro 😊\n\n"
             "Aqui vão algumas boas referências gastronômicas por perto:\n\n"
             + "\n".join(linhas)
-            + "\n\nSe quiser, eu também posso filtrar isso por **happy hour**, **hambúrguer**, **pizza**, **japonês**, **doce**, **algo tradicional** ou **lugar bom para criança**."
+            + "\n\nSe quiser, eu também posso filtrar isso por **happy hour**, **hambúrguer**, **pizza**, **japonês**, **doce**, **algo tradicional**, **frutos do mar** ou **lugar bom para criança**."
         )
 
+    candidates = unique_restaurants(get_restaurant_candidates_by_mode(restaurantes, mode)) if mode else []
+
+    if mode and candidates:
+        ordered = sorted(
+            candidates,
+            key=lambda r: (
+                -restaurant_mode_priority_score(r, mode),
+                distance_sort_key(r.get("distancia", ""))
+            )
+        )
+
+        top = ordered[0]
+        nome = top.get("nome", "")
+        perfil = top.get("perfil", "")
+        obs = top.get("observacao", "")
+        dist = format_distance(top.get("distancia", ""))
+
+        set_last_entity(nome, "restaurantes")
+        update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+        set_active_recommendations(
+            "restaurantes",
+            names_from_items(ordered),
+            current_name=nome
+        )
+
+        intro_map = {
+            "rapido": f"Se a ideia for algo mais prático, eu iria no **{nome}**.",
+            "especial": f"Se vocês quiserem algo mais especial, o **{nome}** costuma funcionar muito bem ✨",
+            "tradicional": f"Se a ideia for algo mais tradicional, uma boa referência é o **{nome}**.",
+            "frutos do mar": f"Se a ideia for **frutos do mar** 🌊\n\nUma boa referência é o **{nome}**.",
+            "japones": f"Se a vontade for japonês 🍣\n\nUma boa referência é o **{nome}**.",
+            "pizza": f"Se a ideia for pizza 🍕\n\nUma boa pedida é o **{nome}**.",
+            "doce": f"Se a ideia for um doce ou chocolate 🍫\n\nUma boa referência é a **{nome}**.",
+            "hamburguer": f"Se vocês quiserem hambúrguer 🍔\n\nUma boa linha é começar pelo **{nome}**.",
+            "kids": f"Se a ideia for um lugar bom para criança e confortável para o grupo 😊\n\nEu começaria pelo **{nome}**.",
+            "happy hour": f"Se vocês quiserem happy hour 🍻\n\nUma boa linha é começar pelo **{nome}**.",
+            "vista": f"Se a ideia for um lugar com clima ou vista ✨\n\nO **{nome}** pode funcionar muito bem."
+        }
+
+        reply = intro_map.get(mode, f"Uma boa opção por aqui é o **{nome}**.")
+
+        if dist:
+            reply += f"\n\n• Distância: {dist}"
+        if top.get("tempo_a_pe"):
+            reply += f"\n• A pé: {top.get('tempo_a_pe')}"
+        if top.get("tempo_de_carro"):
+            reply += f"\n• De carro: {top.get('tempo_de_carro')}"
+        if perfil:
+            reply += f"\n\n{perfil}."
+        if obs:
+            reply += f"\n\n{obs}"
+
+        if len(ordered) > 1:
+            extras = [f"• **{r.get('nome', '')}**" for r in ordered[1:4]]
+            reply += "\n\nOutras opções nessa linha:\n" + "\n".join(extras)
+
+        reply += "\n\nSe quiser, eu também posso abrir mais opções fora dessa linha."
+        return reply
+
+    ordered = sort_restaurants_by_distance(restaurantes)
+    top = ordered[0]
+    nome = top.get("nome", "")
+
+    set_last_entity(nome, "restaurantes")
+    update_session(last_recommendation_type="restaurantes", last_recommendation_name=nome)
+    set_active_recommendations(
+        "restaurantes",
+        names_from_items(ordered),
+        current_name=nome
+    )
+
+    linhas = [build_restaurant_line(r) for r in ordered[:6]]
+
+    return (
+        "Claro 😊\n\n"
+        "Aqui vão algumas boas opções gastronômicas por perto:\n\n"
+        + "\n".join(linhas)
+        + "\n\nSe quiser, eu também posso afinar isso por **happy hour**, **hambúrguer**, **pizza**, **japonês**, **doce**, **algo tradicional**, **frutos do mar** ou **lugar bom para criança**."
+    )
+    
     candidates = unique_restaurants(get_restaurant_candidates_by_mode(restaurantes, mode)) if mode else []
 
     if mode and candidates:
@@ -4285,7 +4455,10 @@ def get_followup_reply(text, last_topic, guest):
         if has_any(text_n, ["mais especial", "especial", "romantico", "romântico", "sofisticado"]):
             return get_restaurantes_reply("especial")
 
-        if has_any(text_n, ["tradicional", "classico", "clássico", "frutos do mar"]):
+        if has_any(text_n, ["frutos do mar"]):
+            return get_restaurantes_reply("frutos do mar")
+
+        if has_any(text_n, ["tradicional", "classico", "clássico"]):
             return get_restaurantes_reply("tradicional")
 
         if has_any(text_n, ["pizza", "pizzaria"]):
