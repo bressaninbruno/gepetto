@@ -695,6 +695,7 @@ def append_incident(payload):
     data.append(payload)
     data = data[-500:]
     save_incidents(data)
+    db_append_incident(payload)
 
 
 # =========================
