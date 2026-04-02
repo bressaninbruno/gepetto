@@ -6147,6 +6147,21 @@ def welcome():
         return json_response({"message": "Olá 😊"})
 
 
+@app.route("/db-check", methods=["GET"])
+def db_check():
+    try:
+        if not has_database():
+            return json_response({"ok": False, "message": "DATABASE_URL não configurado"}, status=500)
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1 AS ok;")
+                row = cur.fetchone()
+
+        return json_response({"ok": True, "db": row["ok"]})
+    except Exception as e:
+        return json_response({"ok": False, "message": str(e)}, status=500)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
