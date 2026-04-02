@@ -8,6 +8,8 @@ import unicodedata
 from pathlib import Path
 from datetime import datetime, date
 from zoneinfo import ZoneInfo
+import psycopg
+from psycopg.rows import dict_row
 
 try:
     import requests
@@ -32,6 +34,7 @@ ADMIN_UNLOCKED = False
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 
 APP_TIMEZONE = ZoneInfo("America/Sao_Paulo")
 
@@ -55,6 +58,15 @@ def time_local_str():
 def current_local_hour():
     return now_local().hour
 
+
+def has_database():
+    return bool(DATABASE_URL)
+
+
+def get_db_connection():
+    if not has_database():
+        raise RuntimeError("DATABASE_URL não configurado")
+    return psycopg.connect(DATABASE_URL, row_factory=dict_row)
 
 # =========================
 # JSON / ESTADO
