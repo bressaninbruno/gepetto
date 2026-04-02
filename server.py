@@ -6147,6 +6147,147 @@ def welcome():
         return json_response({"message": "Olá 😊"})
 
 
+@app.route("/db-init", methods=["GET"])
+def db_init():
+    try:
+        if not has_database():
+            return json_response({"ok": False, "message": "DATABASE_URL não configurado"}, status=500)
+
+        ddl_statements = [
+            """
+            CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS guests (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                nome TEXT NOT NULL DEFAULT '',
+                grupo TEXT NOT NULL DEFAULT '',
+                checkin_date DATE,
+                checkout_date DATE,
+                checkout_time TIME,
+                idioma TEXT NOT NULL DEFAULT 'pt',
+                observacoes TEXT NOT NULL DEFAULT '',
+                perfil_hospede TEXT NOT NULL DEFAULT 'neutro',
+                preferencias_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS session_states (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                guest_id UUID NOT NULL REFERENCES guests(id) ON DELETE CASCADE,
+                last_topic TEXT NOT NULL DEFAULT '',
+                last_intent TEXT NOT NULL DEFAULT '',
+                last_followup_hint TEXT NOT NULL DEFAULT '',
+                last_recommendation_type TEXT NOT NULL DEFAULT '',
+                last_recommendation_name TEXT NOT NULL DEFAULT '',
+                last_entity_name TEXT NOT NULL DEFAULT '',
+                last_entity_category TEXT NOT NULL DEFAULT '',
+                pending_bruno_contact BOOLEAN NOT NULL DEFAULT FALSE,
+                pending_incident_context BOOLEAN NOT NULL DEFAULT FALSE,
+                last_incident_context TEXT NOT NULL DEFAULT '',
+                active_recommendation_type TEXT NOT NULL DEFAULT '',
+                active_recommendation_options_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+                active_recommendation_index INTEGER NOT NULL DEFAULT 0,
+                active_recommendation_updated_at TIMESTAMPTZ,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                UNIQUE (guest_id)
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS conversation_threads (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                guest_id UUID NOT NULL REFERENCES guests(id) ON DELETE CASCADE,
+                status TEXT NOT NULL DEFAULT 'active',
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS conversation_messages (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                thread_id UUID REFERENCES conversation_threads(id) ON DELETE CASCADE,
+                guest_id UUID REFERENCES guests(id) ON DELETE CASCADE,
+                role TEXT NOT NULL,
+                text TEXT NOT NULL,
+                topic TEXT NOT NULL DEFAULT '',
+                meta_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+                timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS conversation_logs (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                guest_id UUID REFERENCES guests(id) ON DELETE SET NULL,
+                thread_id UUID REFERENCES conversation_threads(id) ON DELETE SET NULL,
+                guest_nome TEXT NOT NULL DEFAULT '',
+                message TEXT NOT NULL,
+                intent TEXT NOT NULL DEFAULT '',
+                response TEXT NOT NULL,
+                timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS incidents (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                guest_id UUID REFERENCES guests(id) ON DELETE SET NULL,
+                thread_id UUID REFERENCES conversation_threads(id) ON DELETE SET NULL,
+                tipo TEXT NOT NULL,
+                gravidade TEXT NOT NULL DEFAULT '',
+                mensagem TEXT NOT NULL,
+                detalhe TEXT NOT NULL DEFAULT '',
+                status TEXT NOT NULL DEFAULT 'aberto',
+                grupo TEXT NOT NULL DEFAULT '',
+                checkout_label TEXT NOT NULL DEFAULT '',
+                timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS intent_events (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                guest_id UUID REFERENCES guests(id) ON DELETE SET NULL,
+                thread_id UUID REFERENCES conversation_threads(id) ON DELETE SET NULL,
+                intent TEXT NOT NULL,
+                topic TEXT NOT NULL DEFAULT '',
+                timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS guest_insight_events (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                guest_id UUID REFERENCES guests(id) ON DELETE SET NULL,
+                thread_id UUID REFERENCES conversation_threads(id) ON DELETE SET NULL,
+                insight_key TEXT NOT NULL,
+                source_message TEXT NOT NULL DEFAULT '',
+                timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS usage_events (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                guest_id UUID REFERENCES guests(id) ON DELETE SET NULL,
+                thread_id UUID REFERENCES conversation_threads(id) ON DELETE SET NULL,
+                topic TEXT NOT NULL DEFAULT '',
+                used_followup BOOLEAN NOT NULL DEFAULT FALSE,
+                user_text TEXT NOT NULL DEFAULT '',
+                assistant_text TEXT NOT NULL DEFAULT '',
+                timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+            """
+        ]
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                for stmt in ddl_statements:
+                    cur.execute(stmt)
+            conn.commit()
+
+        return json_response({"ok": True, "message": "db init ok"})
+    except Exception as e:
+        return json_response({"ok": False, "message": str(e)}, status=500)
+
+
 @app.route("/db-check", methods=["GET"])
 def db_check():
     try:
