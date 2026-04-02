@@ -68,6 +68,242 @@ def get_db_connection():
         raise RuntimeError("DATABASE_URL não configurado")
     return psycopg.connect(DATABASE_URL, row_factory=dict_row)
 
+
+def get_or_create_db_guest():
+    guest = load_guest()
+
+    nome = (guest.get("nome") or "").strip()
+    grupo = (guest.get("grupo") or "").strip()
+    perfil_hospede = (guest.get("perfil_hospede") or "neutro").strip()
+    idioma = (guest.get("idioma") or "pt").strip()
+    observacoes = (guest.get("observacoes") or "").strip()
+    preferencias = guest.get("preferencias", {}) or {}
+
+    checkin_date = parse_guest_date(guest.get("checkin_date", ""))
+    checkout_date = parse_guest_date(guest.get("checkout_date", ""))
+    checkout_time = parse_guest_time(guest.get("checkout_time", ""))
+
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id
+                FROM guests
+                ORDER BY updated_at DESC
+                LIMIT 1
+            """)
+            row = cur.fetchone()
+
+            if row:
+                guest_id = row["id"]
+                cur.execute("""
+                    UPDATE guests
+                    SET nome = %s,
+                        grupo = %s,
+                        checkin_date = %s,
+                        checkout_date = %s,
+                        checkout_time = %s,
+                        idioma = %s,
+                        observacoes = %s,
+                        perfil_hospede = %s,
+                        preferencias_json = %s,
+                        updated_at = NOW()
+                    WHERE id = %s
+                """, (
+                    nome,
+                    grupo,
+                    checkin_date,
+                    checkout_date,
+                    checkout_time,
+                    idioma,
+                    observacoes,
+                    perfil_hospede,
+                    json.dumps(preferencias, ensure_ascii=False),
+                    guest_id
+                ))
+            else:
+                cur.execute("""
+                    INSERT INTO guests (
+                        nome, grupo, checkin_date, checkout_date, checkout_time,
+                        idioma, observacoes, perfil_hospede, preferencias_json
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id
+                """, (
+                    nome,
+                    grupo,
+                    checkin_date,
+                    checkout_date,
+                    checkout_time,
+                    idioma,
+                    observacoes,
+                    perfil_hospede,
+                    json.dumps(preferencias, ensure_ascii=False)
+                ))
+                guest_id = cur.fetchone()["id"]
+
+        conn.commit()
+
+    return str(guest_id)
+
+
+def get_or_create_active_thread(guest_id: str):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id
+                FROM conversation_threads
+                WHERE guest_id = %s AND status = 'active'
+                ORDER BY updated_at DESC
+                LIMIT 1
+            """, (guest_id,))
+            row = cur.fetchone()
+
+            if row:
+                thread_id = row["id"]
+                cur.execute("""
+                    UPDATE conversation_threads
+                    SET updated_at = NOW()
+                    WHERE id = %s
+                """, (thread_id,))
+            else:
+                cur.execute("""
+                    INSERT INTO conversation_threads (guest_id, status)
+                    VALUES (%s, 'active')
+                    RETURNING id
+                """, (guest_id,))
+                thread_id = cur.fetchone()["id"]
+
+        conn.commit()
+
+    return str(thread_id)
+
+
+def db_log_conversation(guest, message, intent, response):
+    if not has_database():
+        return
+
+    try:
+        guest_id = get_or_create_db_guest()
+        thread_id = get_or_create_active_thread(guest_id)
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO conversation_logs (
+                        guest_id, thread_id, guest_nome, message, intent, response, timestamp
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, NOW())
+                """, (
+                    guest_id,
+                    thread_id,
+                    guest.get("nome", ""),
+                    message,
+                    intent or "",
+                    response
+                ))
+            conn.commit()
+    except Exception as e:
+        print("DB LOG ERROR:", e)
+
+
+def db_insert_intent_event(intent, topic=""):
+    if not has_database():
+        return
+
+    try:
+        guest_id = get_or_create_db_guest()
+        thread_id = get_or_create_active_thread(guest_id)
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO intent_events (guest_id, thread_id, intent, topic, timestamp)
+                    VALUES (%s, %s, %s, %s, NOW())
+                """, (guest_id, thread_id, intent or "", topic or ""))
+            conn.commit()
+    except Exception as e:
+        print("DB INTENT ERROR:", e)
+
+
+def db_insert_guest_insight_event(insight_key, source_message=""):
+    if not has_database():
+        return
+
+    try:
+        guest_id = get_or_create_db_guest()
+        thread_id = get_or_create_active_thread(guest_id)
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO guest_insight_events (guest_id, thread_id, insight_key, source_message, timestamp)
+                    VALUES (%s, %s, %s, %s, NOW())
+                """, (guest_id, thread_id, insight_key, source_message))
+            conn.commit()
+    except Exception as e:
+        print("DB INSIGHT ERROR:", e)
+
+
+def db_insert_usage_event(topic, used_followup=False, user_text="", assistant_text=""):
+    if not has_database():
+        return
+
+    try:
+        guest_id = get_or_create_db_guest()
+        thread_id = get_or_create_active_thread(guest_id)
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO usage_events (
+                        guest_id, thread_id, topic, used_followup, user_text, assistant_text, timestamp
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, NOW())
+                """, (
+                    guest_id,
+                    thread_id,
+                    topic or "",
+                    used_followup,
+                    user_text,
+                    assistant_text
+                ))
+            conn.commit()
+    except Exception as e:
+        print("DB USAGE ERROR:", e)
+
+
+def db_append_incident(payload):
+    if not has_database():
+        return
+
+    try:
+        guest_id = get_or_create_db_guest()
+        thread_id = get_or_create_active_thread(guest_id)
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO incidents (
+                        guest_id, thread_id, tipo, gravidade, mensagem, detalhe, status, grupo, checkout_label, timestamp
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    guest_id,
+                    thread_id,
+                    payload.get("tipo", ""),
+                    payload.get("gravidade", ""),
+                    payload.get("mensagem", ""),
+                    payload.get("detalhe", ""),
+                    payload.get("status", ""),
+                    payload.get("grupo", ""),
+                    payload.get("checkout", ""),
+                    payload.get("timestamp")
+                ))
+            conn.commit()
+    except Exception as e:
+        print("DB INCIDENT ERROR:", e)
+
+
 # =========================
 # JSON / ESTADO
 # =========================
