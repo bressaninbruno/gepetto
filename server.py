@@ -6527,6 +6527,41 @@ def db_init():
         return json_response({"ok": True, "message": "db init ok"})
     except Exception as e:
         return json_response({"ok": False, "message": str(e)}, status=500)
+        
+
+@app.route("/db-stats", methods=["GET"])
+def db_stats():
+    try:
+        if not has_database():
+            return json_response({"ok": False, "message": "DATABASE_URL não configurado"}, status=500)
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT COUNT(*) AS total FROM conversation_logs;")
+                conversation_logs = cur.fetchone()["total"]
+
+                cur.execute("SELECT COUNT(*) AS total FROM intent_events;")
+                intent_events = cur.fetchone()["total"]
+
+                cur.execute("SELECT COUNT(*) AS total FROM guest_insight_events;")
+                guest_insight_events = cur.fetchone()["total"]
+
+                cur.execute("SELECT COUNT(*) AS total FROM usage_events;")
+                usage_events = cur.fetchone()["total"]
+
+                cur.execute("SELECT COUNT(*) AS total FROM incidents;")
+                incidents = cur.fetchone()["total"]
+
+        return json_response({
+            "ok": True,
+            "conversation_logs": conversation_logs,
+            "intent_events": intent_events,
+            "guest_insight_events": guest_insight_events,
+            "usage_events": usage_events,
+            "incidents": incidents
+        })
+    except Exception as e:
+        return json_response({"ok": False, "message": str(e)}, status=500)
 
 
 @app.route("/db-check", methods=["GET"])
