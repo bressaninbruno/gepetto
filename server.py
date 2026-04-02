@@ -1,3 +1,4 @@
+
 from flask import Flask, request, send_from_directory, Response
 import os
 import json
@@ -595,8 +596,6 @@ def normalize_group_value(value: str) -> str:
         return "casal"
     if v in ["amigos", "amigo"]:
         return "amigos"
-    if v in ["grupo", "turma", "galera", "pessoal"]:
-        return "grupo"
     return value.strip().lower()
 
 
@@ -619,58 +618,6 @@ def normalize_profile_value(value: str) -> str:
     return mapping.get(v, "neutro")
 
 
-def infer_explicit_profile_from_text(text_raw):
-    text_n = normalize_text(text_raw)
-
-    if has_any(text_n, [
-        "somos um casal", "somos casal", "eu e minha esposa", "eu e meu marido",
-        "vim com minha esposa", "vim com meu marido", "viagem a dois", "somos nós dois"
-    ]):
-        return "casal"
-
-    if has_any(text_n, [
-        "familia sem crianca", "familia sem crianças", "familia sem criancas",
-        "família sem criança", "família sem crianças", "so adultos", "só adultos",
-        "apenas adultos", "sem criancas", "sem crianças"
-    ]):
-        return "familia_sem_criancas"
-
-    if has_any(text_n, [
-        "familia com crianca", "familia com crianças", "familia com criancas",
-        "família com criança", "família com crianças", "estamos com crianca",
-        "estamos com criança", "estamos com criancas", "estamos com crianças",
-        "com filhos", "com bebe", "com bebê", "com as criancas", "com as crianças"
-    ]):
-        return "familia_com_criancas"
-
-    if has_any(text_n, [
-        "somos amigos", "estou com amigos", "vim com amigos", "grupo de amigos"
-    ]):
-        return "amigos"
-
-    if has_any(text_n, [
-        "somos um grupo", "estamos em grupo", "grupo grande", "turma", "galera", "pessoal"
-    ]):
-        return "grupo"
-
-    return ""
-
-
-def maybe_sync_group_from_profile(guest, profile):
-    profile_n = normalize_profile_value(profile)
-
-    if profile_n == "casal":
-        guest["grupo"] = "casal"
-    elif profile_n in ["familia_sem_criancas", "familia_com_criancas"]:
-        guest["grupo"] = "familia"
-    elif profile_n == "amigos":
-        guest["grupo"] = "amigos"
-    elif profile_n == "grupo":
-        guest["grupo"] = "grupo"
-
-    return guest
-
-
 def get_guest_profile(guest):
     perfil = normalize_profile_value(guest.get("perfil_hospede", ""))
 
@@ -678,29 +625,13 @@ def get_guest_profile(guest):
         return perfil
 
     grupo = normalize_group_value(guest.get("grupo", ""))
-    obs = normalize_text(guest.get("observacoes", ""))
 
     if grupo == "casal":
         return "casal"
-
     if grupo == "amigos":
         return "amigos"
-
-    if grupo == "grupo":
-        return "grupo"
-
     if grupo == "familia":
-        if has_any(obs, [
-            "sem crianca", "sem crianças", "so adultos", "só adultos", "apenas adultos"
-        ]):
-            return "familia_sem_criancas"
-
-        if has_any(obs, [
-            "com crianca", "com crianças", "com filhos", "com bebe", "com bebê"
-        ]):
-            return "familia_com_criancas"
-
-        return "neutro"
+        return "familia_com_criancas"
 
     return "neutro"
 
@@ -710,6 +641,9 @@ def restaurant_profile_priority_score(item, profile):
     score = 0
 
     ideals = normalize_str_list(item.get("ideal_para", []))
+    nome = normalize_text(item.get("nome", ""))
+    tipo = normalize_text(item.get("tipo", ""))
+    subtipo = normalize_text(item.get("subtipo", ""))
 
     if profile_n == "casal":
         if restaurant_matches_especial(item):
@@ -1048,6 +982,191 @@ def get_praia_service_status(context=None):
     return "closed_night"
 
 
+def get_checkout_day_window(context=None, guest=None):
+    if context is None:
+        guest = guest or load_guest()
+        context = get_stay_context(guest)
+
+    checkout_time_str = (context.get("checkout_time") or "").strip()
+    if not checkout_time_str:
+        return ""
+
+    try:
+        checkout_hour = int(checkout_time_str.split(":", 1)[0])
+    except Exception:
+        return ""
+
+    if checkout_hour <= 13:
+        return "corrido"
+    if checkout_hour <= 17:
+        return "intermediario"
+    return "folgado"
+
+
+def get_stay_restaurant_moment(context=None, guest=None):
+    if context is None:
+        guest = guest or load_guest()
+        context = get_stay_context(guest)
+
+    phase = context.get("stay_phase", "unknown")
+
+    if phase == "primeira_noite":
+        return "primeira_noite"
+    if phase == "chegada":
+        return "chegada"
+    if phase == "vespera_saida":
+        return "vespera_saida"
+    if phase == "dia_checkout":
+        window = get_checkout_day_window(context)
+        if window == "corrido":
+            return "checkout_corrido"
+        if window == "folgado":
+            return "checkout_folgado"
+        return "checkout_intermediario"
+    if phase == "meio_estadia":
+        return "meio_estadia"
+
+    return "momento_neutro"
+
+
+def restaurant_moment_priority_score(item, context, mode=""):
+    moment = get_stay_restaurant_moment(context)
+    score = 0
+    mode_n = normalize_text(mode)
+    profile_n = normalize_text(context.get("guest_profile", ""))
+
+    if normalize_text(item.get("tipo_de_saida", "")) == "espontanea":
+        score += 8
+    if normalize_text(item.get("friccao_logistica", "")) == "baixa":
+        score += 10
+    elif normalize_text(item.get("friccao_logistica", "")) == "media":
+        score += 3
+    if item.get("vale_pos_praia") is True:
+        score += 5
+
+    if moment in ["chegada", "primeira_noite"]:
+        if restaurant_matches_tradicional(item):
+            score += 18
+        if restaurant_matches_pizza(item):
+            score += 16
+        if restaurant_matches_burger(item):
+            score += 8
+        if restaurant_matches_happy_hour(item) and mode_n != "happy hour":
+            score -= 10
+        if normalize_text(item.get("tipo_de_saida", "")) == "planejada":
+            score -= 18
+        if restaurant_matches_especial(item) and mode_n not in ["especial", "vista"]:
+            score -= 10
+
+    elif moment == "meio_estadia":
+        if restaurant_matches_happy_hour(item):
+            score += 12
+        if restaurant_matches_especial(item):
+            score += 8
+        if normalize_text(item.get("tipo_de_saida", "")) == "planejada":
+            score += 4
+
+    elif moment == "vespera_saida":
+        if restaurant_matches_tradicional(item):
+            score += 12
+        if restaurant_matches_pizza(item):
+            score += 10
+        if restaurant_matches_happy_hour(item):
+            score += 8
+        if normalize_text(item.get("friccao_logistica", "")) == "media":
+            score -= 3
+
+    elif moment == "checkout_corrido":
+        if restaurant_matches_burger(item):
+            score += 10
+        if restaurant_matches_pizza(item):
+            score += 10
+        if restaurant_matches_happy_hour(item) and mode_n != "happy hour":
+            score -= 22
+        if normalize_text(item.get("tipo_de_saida", "")) == "planejada":
+            score -= 24
+        if normalize_text(item.get("friccao_logistica", "")) == "media":
+            score -= 10
+        if restaurant_matches_especial(item) and mode_n not in ["especial", "vista"]:
+            score -= 16
+
+    elif moment == "checkout_intermediario":
+        if restaurant_matches_tradicional(item):
+            score += 12
+        if restaurant_matches_pizza(item):
+            score += 8
+        if restaurant_matches_happy_hour(item) and mode_n == "happy hour":
+            score += 10
+
+    elif moment == "checkout_folgado":
+        if restaurant_matches_happy_hour(item):
+            score += 18
+        if restaurant_matches_rooftop(item):
+            score += 10
+        if restaurant_matches_especial(item):
+            score += 10
+
+    if mode_n == "happy hour":
+        if restaurant_matches_happy_hour(item):
+            score += 50
+        if restaurant_matches_rooftop(item):
+            score += 18
+        if restaurant_matches_burger(item) and not restaurant_matches_happy_hour(item):
+            score -= 10
+        if moment == "checkout_corrido" and normalize_text(item.get("tipo_de_saida", "")) == "planejada":
+            score -= 8
+
+    if mode_n in ["", "todos"] and profile_n in ["", "neutro"]:
+        item_name_n = normalize_text(item.get("nome", ""))
+        item_tipo_n = normalize_text(item.get("tipo", ""))
+
+        if item_tipo_n == "rapido":
+            score -= 18
+        if restaurant_matches_burger(item):
+            score -= 26
+        if item_name_n in ["burger king", "mcdonald's enseada", "mcdonalds enseada"]:
+            score -= 22
+        if restaurant_matches_tradicional(item):
+            score += 22
+        if restaurant_matches_pizza(item):
+            score += 16
+        if restaurant_matches_especial(item):
+            score += 16
+        if restaurant_matches_happy_hour(item):
+            score += 10
+        if restaurant_matches_rooftop(item):
+            score += 8
+
+    return score
+
+
+def build_checkout_concierge_line(guest, context=None):
+    context = context or get_stay_context(guest)
+    window = get_checkout_day_window(context, guest)
+    checkout_time = (context.get("checkout_time") or guest.get("checkout_time") or "11:00").strip() or "11:00"
+    checkout_date = parse_guest_date(guest.get("checkout_date", ""))
+
+    if checkout_date:
+        label = f"**{checkout_time}** do dia **{checkout_date.strftime('%d/%m')}**"
+    else:
+        label = f"**{checkout_time}**"
+
+    if window == "corrido":
+        return (
+            f"O check-out está previsto para {label}. Como esse horário costuma deixar o dia mais corrido, eu tenderia a pensar o restante da programação com mais leveza 😊"
+        )
+    if window == "intermediario":
+        return (
+            f"O check-out está previsto para {label}. Ainda dá para organizar o dia com tranquilidade, só valendo manter um ritmo mais redondo 😊"
+        )
+    if window == "folgado":
+        return (
+            f"O check-out está previsto para {label}. Como vocês ainda têm uma janela mais folgada, dá para aproveitar o dia com bem menos pressa 😊"
+        )
+
+    return f"O check-out está previsto para {label} 😊"
+
+
 def get_praia_temporal_followup_reply(guest, text_raw):
     context = get_stay_context(guest, text_raw)
     refs = context.get("temporal_refs", {})
@@ -1196,8 +1315,6 @@ def guest_group_label(guest):
         return "amigos"
     if grupo == "casal":
         return "casal"
-    if grupo == "grupo":
-        return "grupo"
     return ""
 
 
@@ -1228,11 +1345,116 @@ def saudacao_personalizada(guest):
         return f"Olá {nome} e amigos 😄"
     if grupo == "casal":
         return f"Olá {nome} 😊"
-    if grupo == "grupo":
-        return f"Olá {nome} e grupo 😊"
 
     return f"Olá {nome} 😊"
 
+
+def sort_restaurants_for_moment(items, profile, context, mode=""):
+    context = dict(context or {})
+    context["guest_profile"] = normalize_profile_value(profile)
+
+    return sorted(
+        unique_restaurants(items),
+        key=lambda item: (
+            -restaurant_profile_priority_score(item, profile),
+            -restaurant_moment_priority_score(item, context, mode),
+            -restaurant_mode_priority_score(item, mode) if normalize_text(mode) not in ["", "todos"] else 0,
+            distance_sort_key(item.get("distancia", ""))
+        )
+    )
+
+
+def build_restaurant_concierge_intro(profile, context, mode=""):
+    profile_n = normalize_profile_value(profile)
+    moment = get_stay_restaurant_moment(context)
+    mode_n = normalize_text(mode)
+
+    if mode_n == "happy hour":
+        if moment == "checkout_corrido":
+            return "Mesmo com a saída pedindo um pouco mais de leveza hoje, ainda dá para pensar em um happy hour que não complique o ritmo do dia 😊"
+        if moment == "checkout_folgado":
+            return "Como vocês ainda têm uma boa margem no dia, dá para olhar happy hour com mais tranquilidade 😊"
+        return "Se a ideia for happy hour, eu tenderia a abrir opções com clima gostoso e boa fluidez para este momento 😊"
+
+    if moment == "primeira_noite":
+        if profile_n == "casal":
+            return "Como é a primeira noite, eu tenderia a começar por algo gostoso, acolhedor e com um pouco mais de clima 😊"
+        if profile_n == "familia_com_criancas":
+            return "Como é a primeira noite, eu tenderia a começar por algo mais confortável e fácil de encaixar para todo mundo 😊"
+        return "Como é a primeira noite, eu tenderia a começar por algo gostoso, acolhedor e sem muita fricção 😊"
+
+    if moment == "chegada":
+        return "Como vocês ainda estão entrando no ritmo da estadia, eu tenderia a começar por algo simples de encaixar e agradável 😊"
+
+    if moment == "meio_estadia":
+        return build_profile_opening_line(profile_n)
+
+    if moment == "vespera_saida":
+        return "Como vocês já entram na reta final da hospedagem, eu tenderia a olhar algo gostoso, mas ainda confortável de encaixar 😊"
+
+    if moment == "checkout_corrido":
+        return "Como hoje tende a ser um pouco mais corrido, eu olharia primeiro para algo gostoso e mais simples de encaixar 😊"
+
+    if moment == "checkout_intermediario":
+        return "Como hoje ainda permite aproveitar com alguma folga, eu tenderia a buscar algo agradável e sem pesar a logística 😊"
+
+    if moment == "checkout_folgado":
+        return "Como vocês ainda têm uma boa margem para aproveitar o dia, dá para pensar em algo com mais calma 😊"
+
+    return build_profile_opening_line(profile_n)
+
+
+def get_restaurant_kids_highlight(item):
+    if not isinstance(item, dict):
+        return ""
+
+    blob = restaurant_search_blob(item)
+
+    if phrase_in_text(blob, "area kids") or phrase_in_text(blob, "área kids"):
+        return "Esse lugar conta com **área kids**, o que costuma ajudar bastante para famílias com crianças 😊"
+    if phrase_in_text(blob, "espaco kids") or phrase_in_text(blob, "espaço kids"):
+        return "Esse lugar conta com **espaço kids**, o que costuma funcionar muito bem para famílias com crianças 😊"
+    if phrase_in_text(blob, "espaco criança") or phrase_in_text(blob, "espaço criança"):
+        return "Esse lugar conta com **espaço para crianças**, o que costuma deixar a experiência mais confortável para o grupo 😊"
+    if restaurant_matches_kids(item):
+        return "Esse lugar costuma funcionar bem para **famílias com crianças** 😊"
+
+    return ""
+
+
+def pick_place_followup_close(index=None):
+    options = [
+        "Se quiser, posso ajudar mais na experiência de vocês por aqui. É só me perguntar sobre esse lugar 😊",
+        "Se quiser, também posso te passar mais detalhes sobre esse lugar e te ajudar a entender se ele combina com o momento de vocês 😊",
+        "Caso queira, posso continuar te ajudando por aqui com mais informações sobre esse lugar 😊"
+    ]
+
+    if index is None:
+        return random.choice(options)
+
+    return options[index % len(options)]
+
+
+def get_roteiro_style_label(text_raw, guest=None):
+    text_n = normalize_text(text_raw)
+    guest = guest or load_guest()
+
+    if has_any(text_n, ["casal", "romantico", "romântico", "a dois"]):
+        return "casal"
+    if has_any(text_n, ["familia", "família", "crianca", "criança", "criancas", "crianças"]):
+        return "familia"
+    if has_any(text_n, ["grupo", "amigos", "galera", "pessoal"]):
+        return "grupo"
+
+    perfil = get_guest_profile(guest)
+    if perfil == "casal":
+        return "casal"
+    if perfil in ["familia_sem_criancas", "familia_com_criancas"]:
+        return "familia"
+    if perfil in ["grupo", "amigos"]:
+        return "grupo"
+
+    return ""
 
 def observacao_especial(guest):
     obs = normalize_text(guest.get("observacoes", ""))
@@ -1245,6 +1467,9 @@ def observacao_especial(guest):
         return "E desejo um ótimo Natal para vocês 🎄✨\n\n"
     if has_any(obs, ["ano novo", "reveillon", "réveillon"]):
         return "Espero que vocês tenham uma virada incrível por aqui ✨🎆\n\n"
+
+    if has_any(obs, ["pascoa", "páscoa"]):
+        return "E desejo uma ótima Páscoa para vocês ✨🐣\n\n"
 
     return ""
 
@@ -1456,10 +1681,6 @@ def restaurant_matches_pizza(item):
     ])
 
 
-def sort_restaurants_by_distance(items):
-    return sorted(items, key=lambda x: distance_sort_key(x.get("distancia", "")))
-
-
 def unique_restaurants(items):
     result = []
     seen = set()
@@ -1561,7 +1782,6 @@ def get_restaurant_candidates_by_mode(restaurantes, mode):
 
     return []
 
-
 def restaurant_mode_priority_score(item, mode):
     mode_n = normalize_text(mode)
     score = 0
@@ -1651,19 +1871,6 @@ def filter_passeios_by_ideal(items, target):
         ideals = p.get("ideal_para", [])
         ideals_n = [normalize_text(i) for i in ideals if isinstance(i, str)]
         if target_n in ideals_n:
-            result.append(p)
-
-    return result
-
-
-def filter_passeios_by_momento(items, target):
-    target_n = normalize_text(target)
-    result = []
-
-    for p in items:
-        momentos = p.get("melhor_momento", [])
-        momentos_n = [normalize_text(i) for i in momentos if isinstance(i, str)]
-        if target_n in momentos_n:
             result.append(p)
 
     return result
@@ -2453,7 +2660,6 @@ def mensagem_boas_vindas():
 def proactive_prompt(guest):
     grupo = guest_group_label(guest)
     top_pref = top_guest_preference(guest)
-    perfil = get_guest_profile(guest)
 
     if guest_language(guest) == "en":
         if top_pref == "japones":
@@ -2472,24 +2678,6 @@ def proactive_prompt(guest):
         return "Se quiser, já posso te orientar sobre a **praia** e o serviço por aqui 🏖️"
     if top_pref == "mercado":
         return "Se quiser, já posso te indicar um **mercado rápido** ou um mais **completo** 🛒"
-
-    if perfil == "familia_com_criancas":
-        return (
-            "Se quiser, posso te indicar agora:\n"
-            "• um restaurante bom para **família com crianças** 🍽️\n"
-            "• um **mercado próximo** 🛒\n"
-            "• como funciona a **praia** 🏖️\n"
-            "• ou as principais **regras da casa** 📋"
-        )
-
-    if perfil == "familia_sem_criancas":
-        return (
-            "Se quiser, posso te indicar agora:\n"
-            "• um restaurante mais confortável e sem complicação 🍽️\n"
-            "• um **mercado próximo** 🛒\n"
-            "• como funciona a **praia** 🏖️\n"
-            "• ou as principais **regras da casa** 📋"
-        )
 
     if grupo == "família":
         return (
@@ -2515,15 +2703,6 @@ def proactive_prompt(guest):
             "• um restaurante mais **especial** ✨\n"
             "• uma opção rápida de **mercado** 🛒\n"
             "• te orientar sobre a **praia** 🏖️\n"
-            "• ou te passar as principais **regras da casa** 📋"
-        )
-
-    if grupo == "grupo":
-        return (
-            "Se quiser, posso te indicar agora:\n"
-            "• um lugar mais **social / leve** para sair 🍽️\n"
-            "• uma opção rápida de **mercado** 🛒\n"
-            "• como funciona a **praia** 🏖️\n"
             "• ou te passar as principais **regras da casa** 📋"
         )
 
@@ -2554,7 +2733,7 @@ def remember_guest_details(text_raw):
     blocked = [
         "gepetto", "concierge", "hospede", "hóspede",
         "anfitriao", "anfitrião", "bruno", "cara", "amigo",
-        "casal", "familia", "família", "amigos", "grupo",
+        "casal", "familia", "família", "amigos",
         "do rio", "do interior", "fa de", "fã de"
     ]
 
@@ -2582,17 +2761,6 @@ def remember_guest_details(text_raw):
             changed = True
         elif has_any(text_n, ["estou com amigos", "somos amigos", "vim com amigos"]):
             guest["grupo"] = "amigos"
-            changed = True
-        elif has_any(text_n, ["somos um grupo", "estamos em grupo", "grupo grande", "turma", "galera", "pessoal"]):
-            guest["grupo"] = "grupo"
-            changed = True
-
-    explicit_profile = infer_explicit_profile_from_text(text_raw)
-    if explicit_profile:
-        current_profile = normalize_profile_value(guest.get("perfil_hospede", "neutro"))
-        if current_profile != explicit_profile:
-            guest["perfil_hospede"] = explicit_profile
-            guest = maybe_sync_group_from_profile(guest, explicit_profile)
             changed = True
 
     if changed:
@@ -2639,6 +2807,14 @@ def infer_contextual_followup(text_raw, last_topic):
         ]):
             return "saude"
 
+    if last_topic == "roteiro":
+        if has_any(text_n, ["casal", "familia", "família", "grupo", "amigos", "galera", "pessoal"]):
+            return "roteiro"
+
+    if last_topic == "airbnb_info":
+        if has_any(text_n, ["envie o anuncio", "envie anuncio", "anuncio", "anúncio", "falar com bruno"]):
+            return "airbnb_info"
+
     if has_any(text_n, [
         "mais perto", "perto", "mais barato", "barato",
         "mais especial", "especial", "mais completo", "completo",
@@ -2671,7 +2847,8 @@ def infer_contextual_followup(text_raw, last_topic):
         "qual", "melhor", "barato", "perto", "especial",
         "completo", "tranquilo", "animado", "leve",
         "rapido", "rápido", "em conta",
-        "esse", "essa", "entao", "então", "vc indica",
+        "esse", "essa", "entao", "então", "vc indica", "casal", "familia", "família", "grupo",
+        "envie o anuncio", "envie anuncio", "anuncio", "anúncio", "falar com bruno",
         "localizacao", "localização", "horario", "horário", "horarios", "horários",
         "servico", "serviço", "envie", "manda", "pode mandar",
         "farmacia", "farmácia", "upa", "hospital", "todos", "todas",
@@ -2987,7 +3164,8 @@ def score_intents(text_raw, last_topic=""):
     if has_any(text_n, [
         "regra", "regras", "condominio", "condomínio", "silencio", "silêncio",
         "barulho", "som alto", "musica", "música", "musica alta", "música alta",
-        "caixa de som", "ruido", "ruído", "areia", "lixo", "fumar", "festa", "festas",
+        "caixa de som", "ruido", "ruído", "areia", "lixo", "louca", "louça", "louca suja", "louça suja",
+        "lavar louca", "lavar louça", "fumar", "festa", "festas",
         "reciclagem", "reciclavel", "reciclável", "pode fumar", "pode festa",
         "horario de silencio", "horário de silêncio"
     ]):
@@ -3485,13 +3663,16 @@ def get_regras_reply(text=""):
     obs = regras.get("observacao", "")
 
     if has_any(text_n, ["fumar", "cigarro", "pode fumar", "posso fumar"]):
-        return f"Não. {fumar}"
+        return f"Não é permitido fumar. {fumar}"
 
     if has_any(text_n, ["festa", "festas", "evento", "eventos", "pode fazer festa", "posso fazer festa"]):
-        return f"Não. {festas}"
+        return f"Não são permitidas festas ou eventos. {festas}"
 
     if has_any(text_n, ["reciclagem", "reciclavel", "reciclável", "lixo", "onde joga o lixo", "coleta", "onde descarta o lixo"]):
-        return f"Sobre o lixo: {lixo}"
+        return f"O lixo deve ser descartado conforme esta orientação: {lixo}"
+
+    if has_any(text_n, ["louca", "louça", "louca suja", "louça suja", "lavar louca", "lavar louça"]):
+        return "Pedimos que não deixem louça suja na cozinha; favor lavar antes do checkout."
 
     if has_any(text_n, [
         "silencio", "silêncio", "barulho", "som alto", "musica alta", "música alta",
@@ -3500,10 +3681,10 @@ def get_regras_reply(text=""):
         "posso por musica", "posso pôr música", "posso colocar musica", "posso colocar música",
         "pode som alto", "posso som alto"
     ]):
-        return f"O horário de silêncio é {silencio}."
+        return f"O horário de silêncio deve ser respeitado das {silencio}."
 
     if has_any(text_n, ["areia", "lava pes", "lava-pes", "lava pés", "e a areia"]):
-        return f"Sobre a areia: {areia}"
+        return f"A orientação sobre areia é esta: {areia}"
 
     return (
         "Claro 😊\n\n"
@@ -3688,6 +3869,7 @@ def get_restaurantes_reply(text):
     restaurantes = get_restaurants_data()
     guest = load_guest()
     guest_profile = get_guest_profile(guest)
+    context = get_stay_context(guest, text)
 
     if not restaurantes:
         return "Posso te ajudar com restaurantes 😊 Mas ainda não encontrei opções cadastradas na base neste momento."
@@ -3723,8 +3905,10 @@ def get_restaurantes_reply(text):
     elif has_any(text_n, ["todos", "todas", "outros restaurantes", "outro restaurante", "restaurantes"]):
         mode = "todos"
 
+    intro = build_restaurant_concierge_intro(guest_profile, context, mode)
+
     if mode == "todos":
-        ordered = sort_restaurants_for_profile(restaurantes, guest_profile)
+        ordered = sort_restaurants_for_moment(restaurantes, guest_profile, context, mode)
 
         set_active_recommendations(
             "restaurantes",
@@ -3735,9 +3919,9 @@ def get_restaurantes_reply(text):
         linhas = [build_restaurant_line(r) for r in ordered[:12]]
         return (
             "Claro 😊\n\n"
-            + build_profile_opening_line(guest_profile)
+            + intro
             + "\n\n"
-            + "Aqui vão algumas boas referências gastronômicas:\n\n"
+            + "Aqui vão algumas boas referências gastronômicas para este momento:\n\n"
             + "\n".join(linhas)
             + "\n\nSe quiser, eu também posso filtrar isso por **happy hour**, **hambúrguer**, **pizza**, **japonês**, **doce**, **algo tradicional**, **frutos do mar** ou **lugar bom para criança**."
         )
@@ -3745,14 +3929,7 @@ def get_restaurantes_reply(text):
     candidates = unique_restaurants(get_restaurant_candidates_by_mode(restaurantes, mode)) if mode else []
 
     if mode and candidates:
-        ordered = sorted(
-            candidates,
-            key=lambda r: (
-                -restaurant_profile_priority_score(r, guest_profile),
-                -restaurant_mode_priority_score(r, mode),
-                distance_sort_key(r.get("distancia", ""))
-            )
-        )
+        ordered = sort_restaurants_for_moment(candidates, guest_profile, context, mode)
 
         top = ordered[0]
         nome = top.get("nome", "")
@@ -3769,20 +3946,20 @@ def get_restaurantes_reply(text):
         )
 
         intro_map = {
-            "rapido": f"Se a ideia for algo mais prático, eu iria no **{nome}**.",
-            "especial": f"Se vocês quiserem algo mais especial, o **{nome}** costuma funcionar muito bem ✨",
-            "tradicional": f"Se a ideia for algo mais tradicional, uma boa referência é o **{nome}**.",
+            "rapido": f"Se a ideia for algo mais prático, eu tenderia a começar pelo **{nome}**.",
+            "especial": f"Se vocês quiserem algo mais especial, o **{nome}** pode funcionar muito bem ✨",
+            "tradicional": f"Se a ideia for algo mais tradicional, uma boa linha é começar pelo **{nome}**.",
             "frutos do mar": f"Se a ideia for **frutos do mar** 🌊\n\nUma boa referência é o **{nome}**.",
             "japones": f"Se a vontade for japonês 🍣\n\nUma boa referência é o **{nome}**.",
             "pizza": f"Se a ideia for pizza 🍕\n\nUma boa pedida é o **{nome}**.",
             "doce": f"Se a ideia for um doce ou chocolate 🍫\n\nUma boa referência é a **{nome}**.",
-            "hamburguer": f"Se vocês quiserem hambúrguer 🍔\n\nUma boa linha é começar pelo **{nome}**.",
+            "hamburguer": f"Se vocês quiserem hambúrguer 🍔\n\nEu começaria pelo **{nome}**.",
             "kids": f"Se a ideia for um lugar bom para criança e confortável para o grupo 😊\n\nEu começaria pelo **{nome}**.",
             "happy hour": f"Se vocês quiserem happy hour 🍻\n\nUma boa linha é começar pelo **{nome}**.",
             "vista": f"Se a ideia for um lugar com clima ou vista ✨\n\nO **{nome}** pode funcionar muito bem."
         }
 
-        reply = intro_map.get(mode, f"Uma boa opção por aqui é o **{nome}**.")
+        reply = "Claro 😊\n\n" + intro + "\n\n" + intro_map.get(mode, f"Uma boa opção por aqui é o **{nome}**.")
 
         if dist:
             reply += f"\n\n• Distância: {dist}"
@@ -3795,14 +3972,20 @@ def get_restaurantes_reply(text):
         if obs:
             reply += f"\n\n{obs}"
 
+        kids_context = (mode == "kids") or guest_profile == "familia_com_criancas" or has_any(text_n, ["crianca", "criança", "criancas", "crianças", "kids", "familia", "família"])
+        if kids_context:
+            kids_line = get_restaurant_kids_highlight(top)
+            if kids_line:
+                reply += f"\n\n{kids_line}"
+
         if len(ordered) > 1:
             extras = [f"• **{r.get('nome', '')}**" for r in ordered[1:4]]
             reply += "\n\nOutras opções nessa linha:\n" + "\n".join(extras)
 
-        reply += "\n\nSe quiser, eu também posso abrir mais opções fora dessa linha."
+        reply += "\n\n" + pick_place_followup_close(0)
         return reply
 
-    ordered = sort_restaurants_for_profile(restaurantes, guest_profile)
+    ordered = sort_restaurants_for_moment(restaurantes, guest_profile, context, mode)
     top = ordered[0]
     nome = top.get("nome", "")
 
@@ -3815,16 +3998,21 @@ def get_restaurantes_reply(text):
     )
 
     linhas = [build_restaurant_line(r) for r in ordered[:6]]
+    closing = pick_place_followup_close(1)
+    neutral_hint = ""
+    if normalize_profile_value(guest_profile) == "neutro":
+        neutral_hint = "\n\nProcurei abrir isso de um jeito mais equilibrado para o momento da estadia, sem te prender só a opções mais rápidas."
 
     return (
         "Claro 😊\n\n"
-        + build_profile_opening_line(guest_profile)
+        + intro
+        + neutral_hint
         + "\n\n"
         + "Estas seriam as sugestões imediatas para começar:\n\n"
         + "\n".join(linhas)
         + "\n\nSe quiser, eu também posso afinar isso por **happy hour**, **hambúrguer**, **pizza**, **japonês**, **doce**, **algo tradicional**, **frutos do mar** ou **lugar bom para criança**."
+        + "\n\n" + closing
     )
-
 
 def get_passeios_reply(text=""):
     text_n = normalize_text(text)
@@ -4267,40 +4455,39 @@ def get_chaves_reply():
     )
 
 
-def get_zelador_reply():
-    return get_apoio_predio_reply()
-
-
 def get_checkout_reply(guest):
-    checkout_time = (guest.get("checkout_time") or "").strip() or "11:00"
-    checkout_date = parse_guest_date(guest.get("checkout_date", ""))
-
-    if checkout_date:
-        date_br = checkout_date.strftime("%d/%m")
-        return f"O check-out está configurado para **{checkout_time}** do dia **{date_br}** 😊"
-
-    return f"O check-out está configurado para **{checkout_time}** 😊"
+    context = get_stay_context(guest)
+    return build_checkout_concierge_line(guest, context)
 
 
 def get_checkout_aviso_reply(guest):
-    checkout_time = (guest.get("checkout_time") or "").strip() or "11:00"
+    context = get_stay_context(guest)
+    checkout_time = (context.get("checkout_time") or guest.get("checkout_time") or "11:00").strip() or "11:00"
     checkout_date = parse_guest_date(guest.get("checkout_date", ""))
+    window = get_checkout_day_window(context, guest)
 
     if checkout_date:
         checkout_label = f"**{checkout_time}** do dia **{checkout_date.strftime('%d/%m')}**"
     else:
         checkout_label = f"**{checkout_time}**"
 
+    if window == "corrido":
+        intro = "Como a saída pede um pouco mais de objetividade hoje, eu deixaria estes pontos já no radar para tudo seguir leve 😊"
+    elif window == "folgado":
+        intro = "Como vocês ainda têm uma janela mais folgada hoje, vale só manter estes pontos no radar para o fim da estadia continuar redondo 😊"
+    else:
+        intro = "Para o fim da estadia seguir leve e sem correria desnecessária, eu deixaria estes pontos no radar 😊"
+
     return (
         f"{get_gepetto_checkout_line()}\n\n"
-        "• Verifique se janelas e porta de entrada ficarão travadas\n"
-        "• Favor retirar o lixo\n"
-        "• Apague as luzes e desligue os ventiladores\n"
-        "• Devolva as chaves na portaria do prédio\n"
-        "• Não deixem louça suja\n\n"
-        f"O check-out está configurado para {checkout_label}."
+        f"{intro}\n\n"
+        "• Por gentileza, verificar se as janelas e a porta de entrada ficaram bem travadas\n"
+        "• O lixo deve ser retirado antes da saída\n"
+        "• Apagar as luzes e desligar os ventiladores na saída\n"
+        "• As chaves devem ser devolvidas na portaria do prédio\n"
+        "• Pedimos que não deixem louça suja na cozinha; favor lavar antes do checkout\n\n"
+        f"O check-out está previsto para {checkout_label}."
     )
-
 
 def get_bruno_reply():
     set_bruno_pending(True)
@@ -4333,6 +4520,45 @@ def notify_bruno_request(guest, raw_message=""):
 
     ok, detail = send_telegram_message(msg)
     return ok, detail
+
+
+def is_airbnb_listing_info_request(text_raw):
+    text_n = normalize_text(text_raw)
+    return has_any(text_n, [
+        "utensilios", "utensílios", "roupas de cama", "roupa de cama",
+        "toalhas", "toalha", "enxoval", "enxovais", "amenidades",
+        "lencol", "lençol", "lencois", "lençóis",
+        "fronha", "fronhas", "edredom", "cobertor", "cobertores"
+    ])
+
+
+def get_airbnb_listing_info_reply():
+    return (
+        "Para esse tipo de informação, eu sugiro consultar o anúncio e também a sua reserva no Airbnb, onde esses detalhes costumam estar descritos de forma mais completa. O Bruno também está sempre disponível pelo chat do Airbnb e, se preferirem, eu posso avisá-lo agora para entrar em contato com vocês. Se quiser que eu te encaminhe o link do apartamento, é só responder — **'envie o anúncio'**. Se preferir, pode responder — **'falar com Bruno'** 😊"
+    )
+
+
+def get_airbnb_listing_link_reply():
+    return (
+        "Claro 😊\n\nVocê pode acessar o anúncio do apartamento por aqui:\nhttps://www.airbnb.com.br/rooms/559296170062314034"
+    )
+
+
+def notify_airbnb_listing_info_to_telegram(guest, raw_message):
+    nome = guest.get("nome", "").strip() or "Hóspede sem nome definido"
+    grupo = guest.get("grupo", "").strip() or "-"
+    checkout = guest_checkout_label(guest)
+    agora = now_iso()
+
+    msg = (
+        "🔎 CONSULTA SOBRE ANÚNCIO / RESERVA AIRBNB\n\n"
+        f"Hóspede: {nome}\n"
+        f"Grupo: {grupo}\n"
+        f"Checkout: {checkout}\n"
+        f"Horário: {agora}\n\n"
+        f"Mensagem do hóspede: {raw_message}"
+    )
+    return send_telegram_message(msg)
 
 
 def get_health_reply(text):
@@ -4396,10 +4622,6 @@ def get_problem_reply(text):
         "Me conta exatamente o que aconteceu.\n\n"
         "Já estava assim antes ou aconteceu agora?"
     )
-
-
-def get_acqua_mundo_reply():
-    return get_passeios_reply("acqua mundo")
 
 
 def get_eventos_reply():
@@ -4471,63 +4693,198 @@ def get_tempo_reply():
     return get_weather_reply()
 
 
-def get_roteiro_reply(guest):
+def get_roteiro_reply(guest, style_override=""):
+    context = get_stay_context(guest)
     parte_do_dia = current_time_label()
-    grupo = guest_group_label(guest)
-    last_pref = top_guest_preference(guest)
+    perfil = get_guest_profile(guest)
+    moment = get_stay_restaurant_moment(context)
+    style = normalize_text(style_override or get_roteiro_style_label(style_override, guest))
+    passeios = get_passeios_data()
+
+    aquario = best_closest_item(filter_passeios_by_tipo_or_categoria(passeios, "aquario"))
+    shopping_items = filter_passeios_by_tipo_or_categoria(passeios, "shopping")
+    shopping = shopping_items[0] if shopping_items else None
+    cinema = best_closest_item(filter_passeios_by_tipo_or_categoria(passeios, "cinema"))
+    feira = best_closest_item(filter_passeios_by_tipo_or_categoria(passeios, "feira"))
+    mirante = best_closest_item(filter_passeios_by_tipo_or_categoria(passeios, "mirante"))
+    burgman = find_item_by_name(get_restaurants_data(), "Boteco Burgman Enseada")
+
+    def style_close(default_text):
+        if style == "casal":
+            return default_text + "\n\nSe quiser, eu também posso puxar isso para algo mais romântico ou mais especial 😊"
+        if style == "familia":
+            return default_text + "\n\nSe quiser, eu também posso puxar isso para algo mais confortável para família 😊"
+        if style == "grupo":
+            return default_text + "\n\nSe quiser, eu também posso puxar isso para algo mais social e leve para grupo 😊"
+        return default_text + "\n\nSe quiser, eu também posso puxar isso para algo mais casal, família ou grupo."
+
+    if moment == "primeira_noite":
+        if style == "casal" or perfil == "casal":
+            parts = [
+                "Como é a primeira noite, eu tenderia a começar por algo gostoso, acolhedor e com um pouco mais de clima 😊",
+                "",
+                "• um jantar agradável para entrar no ritmo da estadia"
+            ]
+            if mirante:
+                parts.append(f"• e, se quiserem algo leve depois, o **{mirante.get('nome', 'Morro do Maluf - Mirante da Campina')}** pode funcionar bem")
+            return "\n".join(parts + ["", "Se quiser, eu também posso te indicar agora um lugar que combine mais com essa primeira noite."])
+
+        if style == "familia" or perfil == "familia_com_criancas":
+            parts = [
+                "Para a primeira noite, eu tenderia a manter tudo mais redondo e confortável para o grupo 😊",
+                "",
+                "• um jantar fácil de encaixar"
+            ]
+            if aquario:
+                parts.append(f"• e, em outro momento da estadia, o **{aquario.get('nome', 'Acqua Mundo')}** costuma funcionar bem para família")
+            return "\n".join(parts + ["", "Se quiser, eu posso te apontar agora uma opção que combine melhor com esse começo de estadia."])
+
+        if style == "grupo" or perfil in ["grupo", "amigos"]:
+            parts = [
+                "Como é a primeira noite, eu tenderia a começar por algo leve de encaixar, mas já com um pouco de clima social 😊",
+                "",
+                "• um jantar gostoso sem complicar a chegada"
+            ]
+            if feira:
+                parts.append(f"• e a **{feira.get('nome', 'Feira da Enseada')}** pode entrar depois como passeio leve")
+            return "\n".join(parts + ["", "Se quiser, eu também posso transformar isso numa sugestão mais objetiva para grupo."])
+
+        parts = [
+            "Como é a primeira noite, eu tenderia a começar por algo gostoso, simples de encaixar e sem muita fricção 😊",
+            "",
+            "• um jantar que funcione bem para o ritmo de chegada"
+        ]
+        if feira:
+            parts.append(f"• e, se vocês quiserem sair um pouco depois, a **{feira.get('nome', 'Feira da Enseada')}** pode entrar como passeio leve")
+        return "\n".join(parts + ["", "Se quiser, eu também posso transformar isso numa indicação mais objetiva agora."])
+
+    if moment == "checkout_corrido":
+        parts = [
+            "Como hoje pede um ritmo mais corrido, eu tenderia a deixar o plano mais leve e funcional — sem perder o clima bom da estadia 😊",
+            "",
+            "• algo prático para comer"
+        ]
+        if feira:
+            parts.append(f"• uma passada rápida pela **{feira.get('nome', 'Feira da Enseada')}**, se fizer sentido para vocês")
+        parts.extend(["• e o restante do dia mais alinhado com a organização da saída", "", "Se quiser, eu posso te sugerir algo para comer que combine bem com esse momento."])
+        return "\n".join(parts)
+
+    if moment == "checkout_folgado":
+        parts = [
+            "Como vocês ainda têm uma janela boa para aproveitar o dia, dá para pensar num roteiro mais gostoso, sem sensação de pressa 😊",
+            "",
+            "• praia ou passeio leve em algum momento do dia"
+        ]
+        if mirante:
+            parts.append(f"• o **{mirante.get('nome', 'Morro do Maluf - Mirante da Campina')}** pode funcionar bem para vista ou fim de tarde")
+        if burgman and (style == "grupo" or perfil in ["grupo", "amigos"]):
+            parts.append(f"• e até o **{burgman.get('nome', 'Boteco Burgman Enseada')}** pode entrar como opção de boliche / entretenimento mais tarde")
+        elif cinema or shopping:
+            parts.append(f"• um passeio coberto como **{(cinema or shopping).get('nome', 'Shopping Enseada')}** também pode funcionar bem")
+        parts.extend(["• e algo bom para comer depois", "", "Se quiser, eu posso afinar isso agora para algo mais leve, mais social ou mais especial."])
+        return "\n".join(parts)
+
+    if moment == "checkout_intermediario":
+        parts = [
+            "Hoje ainda dá para aproveitar o dia com alguma folga, só valendo manter um plano mais redondo 😊",
+            "",
+            "• praia ou passeio leve, se fizer sentido"
+        ]
+        if cinema or shopping:
+            parts.append(f"• um passeio coberto como o **{(cinema or shopping).get('nome', 'Shopping Enseada')}** também pode funcionar bem")
+        parts.extend(["• e uma refeição agradável sem alongar demais a logística", "", "Se quiser, eu posso te dizer o que eu encaixaria melhor neste contexto."])
+        return "\n".join(parts)
+
+    if moment == "vespera_saida":
+        parts = [
+            "Como vocês já entram na reta final da hospedagem, eu tenderia a pensar em algo gostoso, mas ainda confortável de encaixar 😊",
+            "",
+            "• praia ou passeio leve durante o dia"
+        ]
+        if feira:
+            parts.append(f"• a **{feira.get('nome', 'Feira da Enseada')}** pode entrar bem no fim do dia")
+        if mirante:
+            parts.append(f"• o **{mirante.get('nome', 'Morro do Maluf - Mirante da Campina')}** também pode funcionar como saída leve")
+        parts.extend(["• e, mais tarde, um jantar agradável para fechar bem a estadia", "", "Se quiser, eu também posso afinar isso para algo mais especial, mais prático ou mais família."])
+        return "\n".join(parts)
 
     if parte_do_dia == "manhã":
-        if grupo == "família":
-            return (
-                "Se eu fosse montar um roteiro leve para hoje 😊\n\n"
-                "☀️ **Manhã**\n"
-                "• aproveitar a praia e o serviço montado\n\n"
-                "🍽️ **Almoço**\n"
-                "• algo tradicional e confortável\n\n"
-                "🌤️ **Tarde**\n"
-                "• descanso ou passeio leve\n\n"
-                "🌙 **Noite**\n"
-                "• jantar tranquilo"
-            )
-        if last_pref == "surf":
-            return (
-                "Se eu fosse montar um plano pro seu estilo hoje 🌊\n\n"
-                "☀️ **Manhã**\n"
-                "• checar o mar e aproveitar a praia cedo\n\n"
-                "🍽️ **Almoço**\n"
-                "• algo prático e sem pressa\n\n"
-                "🌙 **Noite**\n"
-                "• jantar gostoso e descanso"
-            )
-        return (
-            "Se eu fosse montar um roteiro leve para hoje, faria assim 😊\n\n"
-            "☀️ **Manhã**\n"
-            "• aproveitar a praia e o serviço montado\n\n"
-            "🍽️ **Almoço**\n"
-            "• algo tradicional\n\n"
-            "🌤️ **Tarde**\n"
-            "• descanso, caminhada leve ou mercado rápido se precisar de algo\n\n"
-            "🌙 **Noite**\n"
-            "• jantar mais especial"
-        )
+        if style == "familia" or perfil == "familia_com_criancas":
+            parts = [
+                "Se eu fosse montar um roteiro leve para hoje 😊",
+                "",
+                "☀️ **Manhã**",
+                "• praia, se o tempo estiver ajudando"
+            ]
+            if aquario:
+                parts.append(f"• ou o **{aquario.get('nome', 'Acqua Mundo')}** se a ideia for algo coberto e bom para família")
+            parts.extend(["", "🍽️ **Depois**", "• um almoço confortável e fácil de encaixar", "", "Se quiser, eu transformo isso numa sugestão mais objetiva agora."])
+            return "\n".join(parts)
+
+        if style == "casal" or perfil == "casal":
+            parts = [
+                "Se eu fosse puxar isso para algo mais casal hoje 😊",
+                "",
+                "☀️ **Manhã**",
+                "• praia, se o ritmo de vocês pedir algo mais leve"
+            ]
+            if mirante:
+                parts.append(f"• ou, mais tarde, o **{mirante.get('nome', 'Morro do Maluf - Mirante da Campina')}** pode entrar bem para vista e fim de tarde")
+            parts.extend(["", "🍽️ **Depois**", "• um almoço ou jantar com mais clima", "", "Se quiser, eu também posso traduzir isso numa indicação mais objetiva."])
+            return "\n".join(parts)
+
+        if style == "grupo" or perfil in ["grupo", "amigos"]:
+            parts = [
+                "Se eu fosse puxar isso para algo mais grupo hoje 😊",
+                "",
+                "☀️ **Manhã / começo do dia**",
+                "• praia ou um começo mais tranquilo"
+            ]
+            if feira:
+                parts.append(f"• e, mais tarde, a **{feira.get('nome', 'Feira da Enseada')}** pode entrar bem como passeio leve")
+            parts.extend(["", "🍽️ **Depois**", "• um lugar gostoso para comer e manter o clima social", "", "Se quiser, eu também posso te direcionar nisso agora."])
+            return "\n".join(parts)
+
+        parts = [
+            "Se eu fosse montar um roteiro leve para hoje 😊",
+            "",
+            "☀️ **Manhã**",
+            "• praia ou um começo de dia mais tranquilo"
+        ]
+        if aquario:
+            parts.append(f"• se quiser algo coberto depois, o **{aquario.get('nome', 'Acqua Mundo')}** pode entrar bem")
+        parts.extend(["", "🍽️ **Depois**", "• almoço e uma programação mais leve para a tarde"])
+        return style_close("\n".join(parts))
 
     if parte_do_dia == "tarde":
-        return (
-            "Se quiser um roteiro para o resto do dia 😄\n\n"
-            "🌤️ **Agora à tarde**\n"
-            "• praia, descanso ou alguma saída leve pela região\n\n"
-            "🍽️ **Fim de tarde / noite**\n"
-            "• jantar em algo mais tradicional ou mais especial\n\n"
-            "Se quiser, eu adapto isso para algo mais romântico, mais família ou mais prático 😉"
-        )
+        parts = [
+            "Se quiser um roteiro para o restante do dia 😄",
+            "",
+            "🌤️ **Agora à tarde**",
+            "• praia, descanso ou uma saída leve pela região"
+        ]
+        if mirante:
+            parts.append(f"• o **{mirante.get('nome', 'Morro do Maluf - Mirante da Campina')}** pode funcionar bem para vista e fim de tarde")
+        if feira:
+            parts.append(f"• a **{feira.get('nome', 'Feira da Enseada')}** entra bem como passeio leve mais para o fim do dia")
+        if cinema or shopping:
+            parts.append(f"• e um programa coberto como **{(cinema or shopping).get('nome', 'Shopping Enseada')}** também pode funcionar, se fizer mais sentido")
+        parts.extend(["", "🍽️ **Mais tarde**", "• um jantar agradável ou algo mais social, se fizer sentido"])
+        return style_close("\n".join(parts))
 
-    return (
-        "Se quiser um plano bom para agora à noite ✨\n\n"
-        "• jantar em um lugar gostoso\n"
-        "• passeio leve pela região\n"
-        "• ou algo mais tranquilo para descansar e começar bem amanhã\n\n"
-        "Se quiser, eu monto um roteiro mais no seu estilo 😉"
-    )
+    options = []
+    if feira:
+        options.append(f"• **{feira.get('nome', 'Feira da Enseada')}** para um passeio leve")
+    if cinema:
+        options.append(f"• **{cinema.get('nome', 'Cinema Cine Guarujá')}** se a ideia for algo coberto")
+    elif shopping:
+        options.append(f"• **{shopping.get('nome', 'Shopping Enseada')}** se vocês quiserem algo coberto")
+    if burgman and (style == "grupo" or perfil in ["amigos", "grupo"]):
+        options.append(f"• **{burgman.get('nome', 'Boteco Burgman Enseada')}** se a ideia for algo mais animado com boliche")
+
+    parts = ["Se quiser um plano bom para agora à noite ✨", ""]
+    parts.extend(options)
+    return style_close("\n".join(parts))
 
 
 def get_followup_reply(text, last_topic, guest):
@@ -4535,6 +4892,15 @@ def get_followup_reply(text, last_topic, guest):
     topic = infer_contextual_followup(text, last_topic)
     session = load_session()
     last_rec_name = session.get("last_recommendation_name", "")
+
+    if last_topic == "airbnb_info" or topic == "airbnb_info":
+        if has_any(text_n, ["envie o anuncio", "envie anuncio", "anuncio", "anúncio"]):
+            return get_airbnb_listing_link_reply()
+        if has_any(text_n, ["falar com bruno"]):
+            ok, _ = notify_bruno_request(guest, "Pedido de contato após orientação para consultar anúncio/reserva do Airbnb")
+            if ok:
+                return "Perfeito 😊 Já avisei o Bruno para entrar em contato com vocês o quanto antes."
+            return "Entendi 😊 Tentei avisar o Bruno agora, mas não consegui enviar a solicitação de acompanhamento neste momento."
 
     if last_topic == "praia" or topic == "praia":
         if has_any(text_n, [
@@ -4840,6 +5206,12 @@ def get_followup_reply(text, last_topic, guest):
     if topic == "incidente":
         return get_problem_reply(text)
 
+    if topic == "roteiro" or last_topic == "roteiro":
+        if has_any(text_n, ["casal", "familia", "família", "grupo", "amigos", "galera", "pessoal"]):
+            style = get_roteiro_style_label(text, guest)
+            if style:
+                return get_roteiro_reply(guest, style_override=style)
+
     if topic == "passeio":
         passeios = get_passeios_data()
         active_current = get_current_active_recommendation("passeio")
@@ -5087,7 +5459,7 @@ def get_guided_reply(intent):
         )
 
     return ""
-
+    
 
 def get_fallback_reply(guest):
     last_msgs = get_recent_messages(5)
@@ -5230,16 +5602,16 @@ def handle_admin_command(message):
     if cmd == "/show":
         guest = load_guest()
         return (
-            "Hóspede atual 👇\n\n"
-            f"nome: {guest.get('nome','')}\n"
-            f"grupo: {guest.get('grupo','')}\n"
-            f"perfil_hospede: {guest.get('perfil_hospede','neutro')}\n"
-            f"checkin_date: {guest.get('checkin_date','')}\n"
-            f"checkout_date: {guest.get('checkout_date','')}\n"
-            f"checkout_time: {guest.get('checkout_time','')}\n"
-            f"idioma: {guest.get('idioma','')}\n"
-            f"observacoes: {guest.get('observacoes','')}"
-        )
+        "Hóspede atual 👇\n\n"
+        f"nome: {guest.get('nome','')}\n"
+        f"grupo: {guest.get('grupo','')}\n"
+        f"perfil_hospede: {guest.get('perfil_hospede','neutro')}\n"
+        f"checkin_date: {guest.get('checkin_date','')}\n"
+        f"checkout_date: {guest.get('checkout_date','')}\n"
+        f"checkout_time: {guest.get('checkout_time','')}\n"
+        f"idioma: {guest.get('idioma','')}\n"
+        f"observacoes: {guest.get('observacoes','')}"
+    )
 
     if cmd == "/dashboard":
         if not ADMIN_UNLOCKED:
@@ -5286,9 +5658,8 @@ def handle_admin_command(message):
             value = normalize_group_value(value)
 
         if field == "perfil_hospede":
-            value = normalize_profile_value(value)
-            guest = maybe_sync_group_from_profile(guest, value)
-
+             value = normalize_profile_value(value)
+        
         if field == "idioma":
             value = normalize_text(value)
             if value not in ["pt", "en"]:
@@ -5433,6 +5804,18 @@ def gepetto_responde(msg):
                 used_followup=True,
                 intent_for_session="bruno"
             )
+
+    if is_airbnb_listing_info_request(text_raw):
+        notify_airbnb_listing_info_to_telegram(guest, text_raw)
+        reply = get_airbnb_listing_info_reply()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "airbnb_info",
+            reply,
+            remembered,
+            intent_for_session="airbnb_info"
+        )
 
     inferred_intent_preview = infer_primary_intent(text_raw, last_topic)
 
@@ -5755,3 +6138,4 @@ def welcome():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
+    
