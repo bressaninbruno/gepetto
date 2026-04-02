@@ -729,8 +729,8 @@ def update_guest_insights(message):
     msg = normalize_text(message)
 
     def inc(key):
-    insights[key] = insights.get(key, 0) + 1
-    db_insert_guest_insight_event(key, message)
+        insights[key] = insights.get(key, 0) + 1
+        db_insert_guest_insight_event(key, message)
 
     if has_any(msg, ["sushi", "japones", "japonês", "japonesa"]):
         inc("japones")
