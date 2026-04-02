@@ -712,6 +712,7 @@ def log_conversation(guest, message, intent, response):
     })
     logs = logs[-3000:]
     write_json(LOG_FILE, logs)
+    db_log_conversation(guest, message, intent, response)
 
 
 def update_intent_stats(intent):
@@ -719,6 +720,7 @@ def update_intent_stats(intent):
     key = intent or "fallback"
     stats[key] = stats.get(key, 0) + 1
     write_json(INTENT_FILE, stats)
+    db_insert_intent_event(intent, intent)
 
 
 def update_guest_insights(message):
@@ -726,7 +728,8 @@ def update_guest_insights(message):
     msg = normalize_text(message)
 
     def inc(key):
-        insights[key] = insights.get(key, 0) + 1
+    insights[key] = insights.get(key, 0) + 1
+    db_insert_guest_insight_event(key, message)
 
     if has_any(msg, ["sushi", "japones", "japonês", "japonesa"]):
         inc("japones")
@@ -791,6 +794,7 @@ def update_usage_stats(user_text, assistant_text, topic, used_followup=False):
     stats["por_dia"][hoje]["last_activity"] = agora
 
     write_json(USAGE_FILE, stats)
+    db_insert_usage_event(topic, used_followup, user_text, assistant_text)
 
 
 # =========================
