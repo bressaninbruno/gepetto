@@ -6696,6 +6696,19 @@ def db_check():
         return json_response({"ok": True, "db": row["ok"]})
     except Exception as e:
         return json_response({"ok": False, "message": str(e)}, status=500)
+    
+
+@app.route("/db-guest", methods=["GET"])
+def db_guest():
+    try:
+        data = db_get_latest_guest()
+        if not data:
+            return json_response({"ok": False, "message": "nenhum guest encontrado"}, status=404)
+
+        return json_response({"ok": True, "guest": data})
+    except Exception as e:
+        return json_response({"ok": False, "message": str(e)}, status=500)
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
