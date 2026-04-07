@@ -6934,6 +6934,21 @@ def db_session():
         return json_response({"ok": True, "session": data})
     except Exception as e:
         return json_response({"ok": False, "message": str(e)}, status=500)
+    
+@app.route("/db-memory", methods=["GET"])
+def db_memory():
+    try:
+        data = db_get_recent_conversation_messages()
+        if not data:
+            return json_response({"ok": False, "message": "nenhuma memory encontrada"}, status=404)
+
+        return json_response({
+            "ok": True,
+            "total_messages": len(data.get("messages", [])),
+            "messages": data.get("messages", [])[-10:]
+        })
+    except Exception as e:
+        return json_response({"ok": False, "message": str(e)}, status=500)    
 
 
 if __name__ == "__main__":
