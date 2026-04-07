@@ -6858,6 +6858,17 @@ def db_guest():
     except Exception as e:
         return json_response({"ok": False, "message": str(e)}, status=500)
 
+@app.route("/db-session", methods=["GET"])
+def db_session():
+    try:
+        data = db_get_latest_session_state()
+        if not data:
+            return json_response({"ok": False, "message": "nenhuma session encontrada"}, status=404)
+
+        return json_response({"ok": True, "session": data})
+    except Exception as e:
+        return json_response({"ok": False, "message": str(e)}, status=500)
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
