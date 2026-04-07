@@ -68,6 +68,120 @@ def get_db_connection():
         raise RuntimeError("DATABASE_URL não configurado")
     return psycopg.connect(DATABASE_URL, row_factory=dict_row)
 
+def db_upsert_guest(data):
+    if not has_database():
+        return None
+
+    try:
+        nome = (data.get("nome") or "").strip()
+        grupo = (data.get("grupo") or "").strip()
+        perfil_hospede = (data.get("perfil_hospede") or "neutro").strip()
+        idioma = (data.get("idioma") or "pt").strip()
+        observacoes = (data.get("observacoes") or "").strip()
+        preferencias = data.get("preferencias", {}) or {}
+
+        checkin_date = parse_guest_date(data.get("checkin_date", ""))
+        checkout_date = parse_guest_date(data.get("checkout_date", ""))
+        checkout_time = parse_guest_time(data.get("checkout_time", ""))
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT id
+                    FROM guests
+                    ORDER BY updated_at DESC
+                    LIMIT 1
+                """)
+                row = cur.fetchone()
+
+                if row:
+                    guest_id = row["id"]
+                    cur.execute("""
+                        UPDATE guests
+                        SET nome = %s,
+                            grupo = %s,
+                            checkin_date = %s,
+                            checkout_date = %s,
+                            checkout_time = %s,
+                            idioma = %s,
+                            observacoes = %s,
+                            perfil_hospede = %s,
+                            preferencias_json = %s,
+                            updated_at = NOW()
+                        WHERE id = %s
+                    """, (
+                        nome,
+                        grupo,
+                        checkin_date,
+                        checkout_date,
+                        checkout_time,
+                        idioma,
+                        observacoes,
+                        perfil_hospede,
+                        json.dumps(preferencias, ensure_ascii=False),
+                        guest_id
+                    ))
+                else:
+                    cur.execute("""
+                        INSERT INTO guests (
+                            nome, grupo, checkin_date, checkout_date, checkout_time,
+                            idioma, observacoes, perfil_hospede, preferencias_json
+                        )
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        RETURNING id
+                    """, (
+                        nome,
+                        grupo,
+                        checkin_date,
+                        checkout_date,
+                        checkout_time,
+                        idioma,
+                        observacoes,
+                        perfil_hospede,
+                        json.dumps(preferencias, ensure_ascii=False)
+                    ))
+                    guest_id = cur.fetchone()["id"]
+
+            conn.commit()
+
+        return str(guest_id)
+    except Exception as e:
+        print("DB UPSERT GUEST ERROR:", e)
+        return None
+    
+def db_get_latest_guest():
+    if not has_database():
+        return None
+
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT *
+                    FROM guests
+                    ORDER BY updated_at DESC
+                    LIMIT 1
+                """)
+                row = cur.fetchone()
+
+        if not row:
+            return None
+
+        return {
+            "nome": row.get("nome") or "",
+            "grupo": row.get("grupo") or "",
+            "checkin_date": row.get("checkin_date").isoformat() if row.get("checkin_date") else "",
+            "checkout_date": row.get("checkout_date").isoformat() if row.get("checkout_date") else "",
+            "checkout_time": row.get("checkout_time").strftime("%H:%M") if row.get("checkout_time") else "11:00",
+            "idioma": row.get("idioma") or "pt",
+            "observacoes": row.get("observacoes") or "",
+            "perfil_hospede": row.get("perfil_hospede") or "neutro",
+            "preferencias": row.get("preferencias_json") or {}
+        }
+    except Exception as e:
+        print("DB GET GUEST ERROR:", e)
+        return None
+
 
 def get_or_create_db_guest():
     guest = load_guest()
@@ -350,7 +464,10 @@ def default_guest():
 
 
 def load_guest():
-    data = read_json(GUEST_FILE, None)
+    data = db_get_latest_guest()
+    if data is None:
+        data = read_json(GUEST_FILE, None)
+
     if data is None:
         data = default_guest()
         save_guest(data)
@@ -379,6 +496,7 @@ def load_guest():
 
 def save_guest(data):
     write_json(GUEST_FILE, data)
+    db_upsert_guest (data)
 
 
 def default_memory():
