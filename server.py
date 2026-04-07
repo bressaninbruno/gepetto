@@ -327,6 +327,69 @@ def db_get_latest_session_state():
     except Exception as e:
         print("DB GET SESSION ERROR:", e)
         return None
+    
+def db_insert_conversation_message(role, text, topic="", meta=None):
+    if not has_database():
+        return
+
+    try:
+        guest_id = get_or_create_db_guest()
+        thread_id = get_or_create_active_thread(guest_id)
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO conversation_messages (
+                        thread_id, guest_id, role, text, topic, meta_json, timestamp
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, NOW())
+                """, (
+                    thread_id,
+                    guest_id,
+                    role,
+                    text,
+                    topic or "",
+                    json.dumps(meta or {}, ensure_ascii=False)
+                ))
+            conn.commit()
+    except Exception as e:
+        print("DB MEMORY INSERT ERROR:", e)
+
+def db_get_recent_conversation_messages(limit=120):
+    if not has_database():
+        return None
+
+    try:
+        guest_id = get_or_create_db_guest()
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT role, text, topic, meta_json, timestamp
+                    FROM conversation_messages
+                    WHERE guest_id = %s
+                    ORDER BY timestamp DESC
+                    LIMIT %s
+                """, (guest_id, limit))
+                rows = cur.fetchall()
+
+        rows = list(reversed(rows))
+
+        messages = []
+        for row in rows:
+            timestamp = row.get("timestamp")
+            messages.append({
+                "role": row.get("role") or "",
+                "text": row.get("text") or "",
+                "topic": row.get("topic") or "",
+                "meta": row.get("meta_json") or {},
+                "timestamp": timestamp.isoformat() if timestamp else ""
+            })
+
+        return {"messages": messages}
+    except Exception as e:
+        print("DB MEMORY GET ERROR:", e)
+        return None
 
 def get_or_create_db_guest():
     guest = load_guest()
@@ -649,9 +712,11 @@ def default_memory():
 
 
 def load_memory():
-    data = read_json(MEMORY_FILE, None)
+    data = db_get_recent_conversation_messages()
     if data is None:
-        data = default_memory()
+        data = read_json(MEMORY_FILE, None)
+    if data is None:
+        data = default_memory()    
         save_memory(data)
     return data
 
@@ -671,6 +736,7 @@ def append_memory(role, text, topic="", meta=None):
     })
     memory["messages"] = memory["messages"][-120:]
     save_memory(memory)
+    db_insert_conversation_message(role, text, topic, meta or {})
 
 
 def reset_memory():
