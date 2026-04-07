@@ -182,6 +182,151 @@ def db_get_latest_guest():
         print("DB GET GUEST ERROR:", e)
         return None
 
+def db_upsert_session_state(data):
+    if not has_database():
+        return None
+
+    try:
+        guest_id = get_or_create_db_guest()
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT id
+                    FROM session_states
+                    WHERE guest_id = %s
+                    LIMIT 1
+                """, (guest_id,))
+                row = cur.fetchone()
+
+                if row:
+                    session_id = row["id"]
+                    cur.execute("""
+                        UPDATE session_states
+                        SET last_topic = %s,
+                            last_intent = %s,
+                            last_followup_hint = %s,
+                            last_recommendation_type = %s,
+                            last_recommendation_name = %s,
+                            last_entity_name = %s,
+                            last_entity_category = %s,
+                            pending_bruno_contact = %s,
+                            pending_incident_context = %s,
+                            last_incident_context = %s,
+                            active_recommendation_type = %s,
+                            active_recommendation_options_json = %s,
+                            active_recommendation_index = %s,
+                            active_recommendation_updated_at = %s,
+                            updated_at = NOW()
+                        WHERE id = %s
+                    """, (
+                        data.get("last_topic", ""),
+                        data.get("last_intent", ""),
+                        data.get("last_followup_hint", ""),
+                        data.get("last_recommendation_type", ""),
+                        data.get("last_recommendation_name", ""),
+                        data.get("last_entity_name", ""),
+                        data.get("last_entity_category", ""),
+                        bool(data.get("pending_bruno_contact", False)),
+                        bool(data.get("pending_incident_context", False)),
+                        data.get("last_incident_context", ""),
+                        data.get("active_recommendation_type", ""),
+                        json.dumps(data.get("active_recommendation_options", []) or [], ensure_ascii=False),
+                        int(data.get("active_recommendation_index", 0) or 0),
+                        data.get("active_recommendation_updated_at") or None,
+                        session_id
+                    ))
+                else:
+                    cur.execute("""
+                        INSERT INTO session_states (
+                            guest_id,
+                            last_topic,
+                            last_intent,
+                            last_followup_hint,
+                            last_recommendation_type,
+                            last_recommendation_name,
+                            last_entity_name,
+                            last_entity_category,
+                            pending_bruno_contact,
+                            pending_incident_context,
+                            last_incident_context,
+                            active_recommendation_type,
+                            active_recommendation_options_json,
+                            active_recommendation_index,
+                            active_recommendation_updated_at
+                        )
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        RETURNING id
+                    """, (
+                        guest_id,
+                        data.get("last_topic", ""),
+                        data.get("last_intent", ""),
+                        data.get("last_followup_hint", ""),
+                        data.get("last_recommendation_type", ""),
+                        data.get("last_recommendation_name", ""),
+                        data.get("last_entity_name", ""),
+                        data.get("last_entity_category", ""),
+                        bool(data.get("pending_bruno_contact", False)),
+                        bool(data.get("pending_incident_context", False)),
+                        data.get("last_incident_context", ""),
+                        data.get("active_recommendation_type", ""),
+                        json.dumps(data.get("active_recommendation_options", []) or [], ensure_ascii=False),
+                        int(data.get("active_recommendation_index", 0) or 0),
+                        data.get("active_recommendation_updated_at") or None
+                    ))
+                    session_id = cur.fetchone()["id"]
+
+            conn.commit()
+
+        return str(session_id)
+    except Exception as e:
+        print("DB UPSERT SESSION ERROR:", e)
+        return None
+    
+def db_get_latest_session_state():
+    if not has_database():
+        return None
+
+    try:
+        guest_id = get_or_create_db_guest()
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT *
+                    FROM session_states
+                    WHERE guest_id = %s
+                    LIMIT 1
+                """, (guest_id,))
+                row = cur.fetchone()
+
+        if not row:
+            return None
+
+        active_options = row.get("active_recommendation_options_json")
+        if not isinstance(active_options, list):
+            active_options = []
+
+        return {
+            "last_topic": row.get("last_topic") or "",
+            "last_intent": row.get("last_intent") or "",
+            "last_followup_hint": row.get("last_followup_hint") or "",
+            "last_recommendation_type": row.get("last_recommendation_type") or "",
+            "last_recommendation_name": row.get("last_recommendation_name") or "",
+            "last_entity_name": row.get("last_entity_name") or "",
+            "last_entity_category": row.get("last_entity_category") or "",
+            "pending_bruno_contact": bool(row.get("pending_bruno_contact", False)),
+            "pending_incident_context": bool(row.get("pending_incident_context", False)),
+            "last_incident_context": row.get("last_incident_context") or "",
+            "active_recommendation_type": row.get("active_recommendation_type") or "",
+            "active_recommendation_options": active_options,
+            "active_recommendation_index": int(row.get("active_recommendation_index", 0) or 0),
+            "active_recommendation_updated_at": row.get("active_recommendation_updated_at").isoformat() if row.get("active_recommendation_updated_at") else "",
+            "updated_at": row.get("updated_at").isoformat() if row.get("updated_at") else ""
+        }
+    except Exception as e:
+        print("DB GET SESSION ERROR:", e)
+        return None
 
 def get_or_create_db_guest():
     guest = load_guest()
@@ -553,7 +698,10 @@ def default_session():
 
 
 def load_session():
-    data = read_json(SESSION_FILE, None)
+    data = db_get_latest_session_state()
+    if data is None:
+        data = read_json(SESSION_FILE, None)
+
     if data is None:
         data = default_session()
         save_session(data)
@@ -566,6 +714,7 @@ def load_session():
 
 def save_session(data):
     write_json(SESSION_FILE, data)
+    db_upsert_session_state(data)
 
 
 def reset_session():
