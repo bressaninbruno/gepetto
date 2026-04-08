@@ -7308,6 +7308,9 @@ def admin_dashboard_current():
     guest_group = "-"
     guest_profile = "-"
     guest_updated_at = "-"
+    guest_checkin = "-"
+    guest_checkout = "-"
+    guest_checkout_time = "-"
     preferencias_html = '<span style="color:#666;">nenhuma</span>'
     guest_html = '<div style="color:#666;">Nenhum guest atual encontrado.</div>'
 
@@ -7316,6 +7319,9 @@ def admin_dashboard_current():
         guest_group = current_guest.get("grupo") or "-"
         guest_profile = current_guest.get("perfil_hospede") or "-"
         guest_updated_at = fmt_dt(current_guest.get("updated_at"))
+        guest_checkin = fmt_date(current_guest.get("checkin_date"))
+        guest_checkout = fmt_date(current_guest.get("checkout_date"))
+        guest_checkout_time = fmt_time(current_guest.get("checkout_time"))
 
         preferencias = current_guest.get("preferencias_json") or {}
         if isinstance(preferencias, dict) and preferencias:
@@ -7327,9 +7333,9 @@ def admin_dashboard_current():
             <div><strong>Grupo:</strong> {guest_group}</div>
             <div><strong>Perfil:</strong> {guest_profile}</div>
             <div><strong>Idioma:</strong> {current_guest.get("idioma") or "-"}</div>
-            <div><strong>Check-in:</strong> {fmt_date(current_guest.get("checkin_date"))}</div>
-            <div><strong>Check-out:</strong> {fmt_date(current_guest.get("checkout_date"))}</div>
-            <div><strong>Horário de saída:</strong> {fmt_time(current_guest.get("checkout_time"))}</div>
+            <div><strong>Check-in:</strong> {guest_checkin}</div>
+            <div><strong>Check-out:</strong> {guest_checkout}</div>
+            <div><strong>Horário de saída:</strong> {guest_checkout_time}</div>
             <div><strong>Atualizado em:</strong> {guest_updated_at}</div>
             <div style="margin-top:10px;"><strong>Observações:</strong><br>{(current_guest.get("observacoes") or "-")}</div>
             <div style="margin-top:10px;"><strong>Preferências:</strong><br>{preferencias_html}</div>
@@ -7488,8 +7494,37 @@ def admin_dashboard_current():
 
             <div style="background:white;border-radius:16px;padding:18px 20px;border:1px solid #e6e6e6;margin-bottom:18px;">
                 <div style="font-size:12px;letter-spacing:0.06em;color:#666;text-transform:uppercase;margin-bottom:10px;">Resumo atual</div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
                     {badges_html}
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Hóspede atual</div>
+                        <div style="font-size:20px;font-weight:700;">{guest_name}</div>
+                        <div style="margin-top:6px;color:#555;">{guest_group} • {guest_profile}</div>
+                    </div>
+
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Estadia</div>
+                        <div><strong>Check-in:</strong> {guest_checkin}</div>
+                        <div><strong>Check-out:</strong> {guest_checkout}</div>
+                        <div><strong>Saída:</strong> {guest_checkout_time}</div>
+                    </div>
+
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Direção atual</div>
+                        <div><strong>Tópico:</strong> {last_topic}</div>
+                        <div><strong>Intent:</strong> {last_intent}</div>
+                        <div><strong>Recomendação:</strong> {last_recommendation_name}</div>
+                    </div>
+
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Âncora da conversa</div>
+                        <div><strong>Tipo:</strong> {last_recommendation_type}</div>
+                        <div><strong>Entidade:</strong> {last_entity_name}</div>
+                        <div><strong>Ativo agora:</strong> {current_active_name}</div>
+                    </div>
                 </div>
             </div>
 
