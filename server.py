@@ -7920,7 +7920,129 @@ def admin_insights():
     </body>
     </html>
     """
-    return Response(html, mimetype="text/html")    
+    return Response(html, mimetype="text/html")
+
+
+@app.route("/admin/usage", methods=["GET"])
+@admin_required
+def admin_usage():
+    token = get_admin_token_from_request(request)
+    usage_events = []
+    db_error = ""
+
+    if has_database():
+        try:
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT
+                            topic,
+                            used_followup,
+                            user_text,
+                            assistant_text,
+                            timestamp
+                        FROM usage_events
+                        ORDER BY timestamp DESC
+                        LIMIT 80
+                    """)
+                    usage_events = cur.fetchall() or []
+        except Exception as e:
+            db_error = str(e)
+
+    def fmt_dt(value):
+        if not value:
+            return "-"
+        try:
+            return value.strftime("%d/%m/%Y %H:%M:%S")
+        except Exception:
+            return str(value)
+
+    if usage_events:
+        usage_blocks = []
+
+        for item in usage_events:
+            topic = item.get("topic") or "-"
+            used_followup = "sim" if item.get("used_followup") else "não"
+            user_text = (item.get("user_text") or "").replace("<", "&lt;").replace(">", "&gt;")
+            assistant_text = (item.get("assistant_text") or "").replace("<", "&lt;").replace(">", "&gt;")
+            timestamp = fmt_dt(item.get("timestamp"))
+
+            usage_blocks.append(f"""
+            <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:18px;margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+                    <div style="font-size:16px;font-weight:bold;">{topic}</div>
+                    <div style="font-size:13px;color:#666;">{timestamp}</div>
+                </div>
+
+                <div style="font-size:14px;line-height:1.6;margin-bottom:12px;">
+                    <strong>used_followup:</strong> {used_followup}
+                </div>
+
+                <div style="margin-top:8px;padding:12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;">
+                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>user_text</strong></div>
+                    <div style="font-size:14px;line-height:1.6;white-space:pre-wrap;">{user_text or '<span style="color:#666;">sem texto do usuário</span>'}</div>
+                </div>
+
+                <div style="margin-top:12px;padding:12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;">
+                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>assistant_text</strong></div>
+                    <div style="font-size:14px;line-height:1.6;white-space:pre-wrap;">{assistant_text or '<span style="color:#666;">sem texto do assistente</span>'}</div>
+                </div>
+            </div>
+            """)
+
+        usage_html = "".join(usage_blocks)
+    else:
+        usage_html = """
+        <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:20px;color:#666;">
+            Nenhum usage event encontrado.
+        </div>
+        """
+
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gepetto Admin Usage</title>
+    </head>
+    <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#111;">
+        <div style="max-width:1100px;margin:0 auto;padding:24px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:12px;letter-spacing:0.08em;color:#666;text-transform:uppercase;">
+                        Gepetto • Admin Usage
+                    </div>
+                    <h1 style="margin:8px 0 0 0;font-size:32px;line-height:1.1;">Usage recente</h1>
+                    <p style="margin:10px 0 0 0;color:#555;">
+                        Últimos 80 registros de <code>usage_events</code>.
+                    </p>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <a href="/admin?token={token}" style="text-decoration:none;color:#111;background:#fff;border:1px solid #ddd;padding:10px 14px;border-radius:10px;">
+                        ← Admin
+                    </a>
+                    <a href="/admin/dashboard?token={token}" style="text-decoration:none;color:#111;background:#fff;border:1px solid #ddd;padding:10px 14px;border-radius:10px;">
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div style="background:white;border-radius:16px;padding:18px 20px;border:1px solid #e6e6e6;margin-bottom:18px;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+                    <div><strong>Horário local:</strong> {now_iso()}</div>
+                    <div><strong>Banco:</strong> {"conectado" if has_database() and not db_error else ("erro" if db_error else "não configurado")}</div>
+                    <div><strong>Limite:</strong> 80 usage events</div>
+                </div>
+                {f'<div style="margin-top:12px;color:#a33;"><strong>Erro DB:</strong> {db_error}</div>' if db_error else ''}
+            </div>
+
+            {usage_html}
+        </div>
+    </body>
+    </html>
+    """
+    return Response(html, mimetype="text/html")
         
 
 
