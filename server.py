@@ -3039,14 +3039,16 @@ def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
         return False
 
     if last_topic == "praia" and has_any(text_n, [
-        "horario", "horário", "horarios", "horários",
-        "que horas", "que horas funciona",
-        "funciona que horas", "ate que horas", "até que horas",
-        "endereco", "endereço",
-        "servico de praia", "serviço de praia",
-        "como funciona", "funciona"
-    ]):
-        return False
+    "horario", "horário", "horarios", "horários",
+    "que horas", "que horas funciona",
+    "funciona que horas", "ate que horas", "até que horas",
+    "endereco", "endereço",
+    "localizacao", "localização",
+    "onde fica", "e a localizacao", "e a localização",
+    "servico de praia", "serviço de praia",
+    "como funciona", "funciona"
+]):
+     return False
 
     explicit_entity = resolve_entity_from_text(text_raw)
     if explicit_entity:
