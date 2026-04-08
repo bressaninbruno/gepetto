@@ -7752,41 +7752,61 @@ def admin_guests():
             updated_at = fmt_dt(item.get("updated_at"))
 
             preferencias_html = "<span style='color:#666;'>nenhuma</span>"
+            preferencias_count = 0
+
             if isinstance(preferencias, dict) and preferencias:
+                preferencias_count = len(preferencias)
                 preferencias_html = "<br>".join(
                     f"• {str(k)}: {str(v)}"
                     for k, v in preferencias.items()
                 )
 
             guest_blocks.append(f"""
-            <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:18px;margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
-                    <div style="font-size:16px;font-weight:bold;">{nome}</div>
-                    <div style="font-size:13px;color:#666;">Atualizado em: {updated_at}</div>
+            <div style="background:white;border:1px solid #dddddd;border-radius:18px;padding:20px;margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #ececec;">
+                    <div>
+                        <div style="font-size:12px;letter-spacing:0.06em;color:#666;text-transform:uppercase;margin-bottom:6px;">
+                            Guest
+                        </div>
+                        <div style="font-size:24px;font-weight:700;line-height:1.2;">
+                            {nome}
+                        </div>
+                        <div style="margin-top:8px;font-size:13px;color:#666;">
+                            Atualizado em: {updated_at}
+                        </div>
+                    </div>
+
+                    <div style="background:#f7f7f7;border:1px solid #e4e4e4;border-radius:12px;padding:10px 12px;min-width:130px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;">Preferências</div>
+                        <div style="margin-top:6px;font-size:22px;font-weight:bold;">{preferencias_count}</div>
+                    </div>
                 </div>
 
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;">
-                    <div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;">
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Identidade</div>
+                        <div><strong>Nome:</strong> {nome}</div>
                         <div><strong>Grupo:</strong> {grupo}</div>
                         <div><strong>Perfil:</strong> {perfil_hospede}</div>
                         <div><strong>Idioma:</strong> {idioma}</div>
                     </div>
 
-                    <div>
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Estadia</div>
                         <div><strong>Check-in:</strong> {checkin_date}</div>
                         <div><strong>Check-out:</strong> {checkout_date}</div>
                         <div><strong>Horário de saída:</strong> {checkout_time}</div>
                     </div>
-                </div>
 
-                <div style="margin-top:14px;padding:12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;">
-                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>Observações</strong></div>
-                    <div style="font-size:14px;line-height:1.6;white-space:pre-wrap;">{observacoes or '<span style="color:#666;">sem observações</span>'}</div>
-                </div>
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Contexto</div>
+                        <div style="font-size:14px;line-height:1.6;white-space:pre-wrap;">{observacoes or '<span style="color:#666;">sem observações</span>'}</div>
+                    </div>
 
-                <div style="margin-top:12px;padding:12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;">
-                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>Preferências</strong></div>
-                    <div style="font-size:14px;line-height:1.6;">{preferencias_html}</div>
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Preferências</div>
+                        <div style="font-size:14px;line-height:1.6;">{preferencias_html}</div>
+                    </div>
                 </div>
             </div>
             """)
