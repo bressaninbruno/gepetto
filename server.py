@@ -7405,48 +7405,89 @@ def admin_sessions():
             if not isinstance(active_options, list):
                 active_options = []
 
+            active_count = len(active_options)
+            active_index = item.get("active_recommendation_index", 0)
+            current_active_name = "-"
+
+            if active_options and isinstance(active_index, int) and 0 <= active_index < len(active_options):
+                current_active_name = str(active_options[active_index])
+
             options_html = (
                 "<br>".join(f"• {str(opt)}" for opt in active_options)
                 if active_options else
                 "<span style='color:#666;'>nenhuma</span>"
             )
 
+            pending_bruno = item.get("pending_bruno_contact")
+            pending_incident = item.get("pending_incident_context")
+
+            pending_bruno_html = (
+                '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#fff3cd;border:1px solid #f1d58a;">Bruno pendente</span>'
+                if pending_bruno else
+                '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f3f3;border:1px solid #e2e2e2;color:#666;">Bruno ok</span>'
+            )
+
+            pending_incident_html = (
+                '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#ffe3e3;border:1px solid #f0b2b2;">Incidente pendente</span>'
+                if pending_incident else
+                '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f3f3;border:1px solid #e2e2e2;color:#666;">Incidente ok</span>'
+            )
+
             session_blocks.append(f"""
-            <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:18px;margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
-                    <div style="font-size:15px;font-weight:bold;">Session</div>
-                    <div style="font-size:13px;color:#666;">Atualizado em: {fmt_dt(item.get("updated_at"))}</div>
+            <div style="background:white;border:1px solid #dddddd;border-radius:18px;padding:20px;margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #ececec;">
+                    <div>
+                        <div style="font-size:12px;letter-spacing:0.06em;color:#666;text-transform:uppercase;margin-bottom:6px;">
+                            Session
+                        </div>
+                        <div style="font-size:22px;font-weight:700;line-height:1.2;">
+                            guest_id: {item.get("guest_id") or "-"}
+                        </div>
+                        <div style="margin-top:8px;font-size:13px;color:#666;">
+                            Atualizado em: {fmt_dt(item.get("updated_at"))}
+                        </div>
+                    </div>
+
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        {pending_bruno_html}
+                        {pending_incident_html}
+                    </div>
                 </div>
 
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;">
-                    <div>
-                        <div><strong>guest_id:</strong> {item.get("guest_id") or "-"}</div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;">
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Contexto</div>
                         <div><strong>last_topic:</strong> {item.get("last_topic") or "-"}</div>
                         <div><strong>last_intent:</strong> {item.get("last_intent") or "-"}</div>
                         <div><strong>last_followup_hint:</strong> {item.get("last_followup_hint") or "-"}</div>
-                    </div>
-
-                    <div>
-                        <div><strong>last_recommendation_type:</strong> {item.get("last_recommendation_type") or "-"}</div>
-                        <div><strong>last_recommendation_name:</strong> {item.get("last_recommendation_name") or "-"}</div>
                         <div><strong>last_entity_name:</strong> {item.get("last_entity_name") or "-"}</div>
                         <div><strong>last_entity_category:</strong> {item.get("last_entity_category") or "-"}</div>
                     </div>
 
-                    <div>
-                        <div><strong>pending_bruno_contact:</strong> {"sim" if item.get("pending_bruno_contact") else "não"}</div>
-                        <div><strong>pending_incident_context:</strong> {"sim" if item.get("pending_incident_context") else "não"}</div>
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Recomendação</div>
+                        <div><strong>last_recommendation_type:</strong> {item.get("last_recommendation_type") or "-"}</div>
+                        <div><strong>last_recommendation_name:</strong> {item.get("last_recommendation_name") or "-"}</div>
+                        <div><strong>active_recommendation_type:</strong> {item.get("active_recommendation_type") or "-"}</div>
+                        <div><strong>current_active_name:</strong> {current_active_name}</div>
+                    </div>
+
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Pendências</div>
+                        <div><strong>pending_bruno_contact:</strong> {"sim" if pending_bruno else "não"}</div>
+                        <div><strong>pending_incident_context:</strong> {"sim" if pending_incident else "não"}</div>
                         <div><strong>last_incident_context:</strong> {item.get("last_incident_context") or "-"}</div>
                     </div>
 
-                    <div>
-                        <div><strong>active_recommendation_type:</strong> {item.get("active_recommendation_type") or "-"}</div>
-                        <div><strong>active_recommendation_index:</strong> {item.get("active_recommendation_index") if item.get("active_recommendation_index") is not None else "-"}</div>
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Estado ativo</div>
+                        <div><strong>active_recommendation_index:</strong> {active_index if active_index is not None else "-"}</div>
+                        <div><strong>active_options_count:</strong> {active_count}</div>
                         <div><strong>active_recommendation_updated_at:</strong> {fmt_dt(item.get("active_recommendation_updated_at"))}</div>
                     </div>
                 </div>
 
-                <div style="margin-top:14px;padding:12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;">
+                <div style="margin-top:14px;padding:12px;background:#fcfcfc;border:1px solid #ececec;border-radius:12px;">
                     <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>active_recommendation_options_json</strong></div>
                     <div style="font-size:14px;line-height:1.6;">{options_html}</div>
                 </div>
