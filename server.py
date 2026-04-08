@@ -7406,7 +7406,140 @@ def admin_sessions():
     </body>
     </html>
     """
-    return Response(html, mimetype="text/html")        
+    return Response(html, mimetype="text/html")
+
+@app.route("/admin/incidents", methods=["GET"])
+@admin_required
+def admin_incidents():
+    token = get_admin_token_from_request(request)
+    incidents = []
+    db_error = ""
+
+    if has_database():
+        try:
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT
+                            tipo,
+                            gravidade,
+                            mensagem,
+                            detalhe,
+                            status,
+                            grupo,
+                            checkout_label,
+                            timestamp
+                        FROM incidents
+                        ORDER BY timestamp DESC
+                        LIMIT 50
+                    """)
+                    incidents = cur.fetchall() or []
+        except Exception as e:
+            db_error = str(e)
+
+    def fmt_dt(value):
+        if not value:
+            return "-"
+        try:
+            return value.strftime("%d/%m/%Y %H:%M:%S")
+        except Exception:
+            return str(value)
+
+    if incidents:
+        incident_blocks = []
+
+        for item in incidents:
+            tipo = item.get("tipo") or "-"
+            gravidade = item.get("gravidade") or "-"
+            mensagem = (item.get("mensagem") or "-").replace("<", "&lt;").replace(">", "&gt;")
+            detalhe = (item.get("detalhe") or "").replace("<", "&lt;").replace(">", "&gt;")
+            status = item.get("status") or "-"
+            grupo = item.get("grupo") or "-"
+            checkout_label = item.get("checkout_label") or "-"
+            timestamp = fmt_dt(item.get("timestamp"))
+
+            incident_blocks.append(f"""
+            <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:18px;margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+                    <div style="font-size:16px;font-weight:bold;">{tipo}</div>
+                    <div style="font-size:13px;color:#666;">{timestamp}</div>
+                </div>
+
+                <div style="font-size:13px;color:#666;margin-bottom:12px;">
+                    <strong>gravidade:</strong> {gravidade}
+                    &nbsp;•&nbsp;
+                    <strong>status:</strong> {status}
+                    &nbsp;•&nbsp;
+                    <strong>grupo:</strong> {grupo}
+                    &nbsp;•&nbsp;
+                    <strong>checkout:</strong> {checkout_label}
+                </div>
+
+                <div style="font-size:15px;line-height:1.6;white-space:pre-wrap;">
+                    <strong>Mensagem:</strong><br>{mensagem}
+                </div>
+
+                <div style="margin-top:12px;padding:12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;">
+                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>Detalhe</strong></div>
+                    <div style="font-size:14px;line-height:1.6;white-space:pre-wrap;">{detalhe or '<span style="color:#666;">sem detalhe adicional</span>'}</div>
+                </div>
+            </div>
+            """)
+
+        incidents_html = "".join(incident_blocks)
+    else:
+        incidents_html = """
+        <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:20px;color:#666;">
+            Nenhum incidente encontrado.
+        </div>
+        """
+
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gepetto Admin Incidents</title>
+    </head>
+    <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#111;">
+        <div style="max-width:1150px;margin:0 auto;padding:24px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:12px;letter-spacing:0.08em;color:#666;text-transform:uppercase;">
+                        Gepetto • Admin Incidents
+                    </div>
+                    <h1 style="margin:8px 0 0 0;font-size:32px;line-height:1.1;">Incidentes recentes</h1>
+                    <p style="margin:10px 0 0 0;color:#555;">
+                        Últimos 50 registros de <code>incidents</code>.
+                    </p>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <a href="/admin?token={token}" style="text-decoration:none;color:#111;background:#fff;border:1px solid #ddd;padding:10px 14px;border-radius:10px;">
+                        ← Admin
+                    </a>
+                    <a href="/admin/dashboard?token={token}" style="text-decoration:none;color:#111;background:#fff;border:1px solid #ddd;padding:10px 14px;border-radius:10px;">
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div style="background:white;border-radius:16px;padding:18px 20px;border:1px solid #e6e6e6;margin-bottom:18px;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+                    <div><strong>Horário local:</strong> {now_iso()}</div>
+                    <div><strong>Banco:</strong> {"conectado" if has_database() and not db_error else ("erro" if db_error else "não configurado")}</div>
+                    <div><strong>Limite:</strong> 50 incidents</div>
+                </div>
+                {f'<div style="margin-top:12px;color:#a33;"><strong>Erro DB:</strong> {db_error}</div>' if db_error else ''}
+            </div>
+
+            {incidents_html}
+        </div>
+    </body>
+    </html>
+    """
+    return Response(html, mimetype="text/html")    
+        
 
 
 @app.route("/db-init", methods=["GET"])
