@@ -6799,23 +6799,30 @@ def admin_home():
     db_status = "conectado" if has_database() else "não configurado"
     token = get_admin_token_from_request(request)
 
-    nav_items = [
+    operational_items = [
         ("Dashboard", f"/admin/dashboard?token={token}"),
-        ("Guests", f"/admin/guests?token={token}"),
-        ("Sessions", f"/admin/sessions?token={token}"),
         ("Conversations", f"/admin/conversations?token={token}"),
+        ("Sessions", f"/admin/sessions?token={token}"),
         ("Incidents", f"/admin/incidents?token={token}"),
+        ("Guests", f"/admin/guests?token={token}")
+    ]
+
+    intelligence_items = [
         ("Intents", f"/admin/intents?token={token}"),
         ("Insights", f"/admin/insights?token={token}"),
         ("Usage", f"/admin/usage?token={token}")
     ]
 
-    nav_links = "".join(
-        f'<a href="{href}" style="display:block;padding:10px 12px;margin:8px 0;'
-        f'background:#f6f6f6;border:1px solid #e2e2e2;border-radius:10px;'
-        f'text-decoration:none;color:#111;">{label}</a>'
-        for label, href in nav_items
-    )
+    def build_nav_links(items):
+        return "".join(
+            f'<a href="{href}" style="display:block;padding:10px 12px;margin:8px 0;'
+            f'background:#f6f6f6;border:1px solid #e2e2e2;border-radius:10px;'
+            f'text-decoration:none;color:#111;">{label}</a>'
+            for label, href in items
+        )
+
+    operational_links = build_nav_links(operational_items)
+    intelligence_links = build_nav_links(intelligence_items)
 
     html = f"""
     <!DOCTYPE html>
@@ -6836,7 +6843,7 @@ def admin_home():
                         Painel administrativo
                     </h1>
                     <p style="margin:0;color:#555;font-size:16px;line-height:1.5;">
-                        Área protegida para acompanhamento operacional do Gepetto antes da 3.2.
+                        Área protegida para acompanhamento operacional e leitura de dados persistidos antes da 3.2.
                     </p>
                 </div>
 
@@ -6857,20 +6864,28 @@ def admin_home():
                     </div>
                 </div>
 
-                <div style="margin-bottom:24px;">
-                    <h2 style="margin:0 0 12px 0;font-size:20px;">Navegação</h2>
-                    <p style="margin:0 0 14px 0;color:#555;">
-                        Estas áreas serão abertas nos próximos micro blocos.
-                    </p>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
-                        {nav_links}
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-bottom:24px;">
+                    <div style="background:white;border:1px solid #e6e6e6;border-radius:14px;padding:18px;">
+                        <h2 style="margin:0 0 12px 0;font-size:20px;">Operação</h2>
+                        <p style="margin:0 0 14px 0;color:#555;">
+                            Leitura prática da hospedagem, conversa, sessão e incidentes.
+                        </p>
+                        {operational_links}
+                    </div>
+
+                    <div style="background:white;border:1px solid #e6e6e6;border-radius:14px;padding:18px;">
+                        <h2 style="margin:0 0 12px 0;font-size:20px;">Leitura e inteligência</h2>
+                        <p style="margin:0 0 14px 0;color:#555;">
+                            Sinais, intents, insights e uso recente do Gepetto.
+                        </p>
+                        {intelligence_links}
                     </div>
                 </div>
 
                 <div style="background:#fcfcfc;border:1px dashed #d8d8d8;border-radius:14px;padding:16px;">
                     <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;">Etapa atual</div>
                     <div style="margin-top:8px;font-size:16px;line-height:1.5;">
-                        Base administrativa protegida validada. Próximo passo: começar a plugar visualização real de dados persistidos.
+                        V1 administrativa já estruturada com navegação funcional. Próxima etapa recomendada: melhorar leitura temporal e navegação das conversas.
                     </div>
                 </div>
             </div>
