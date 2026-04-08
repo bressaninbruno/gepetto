@@ -10,6 +10,7 @@ from datetime import datetime, date
 from zoneinfo import ZoneInfo
 import psycopg
 from psycopg.rows import dict_row
+from functools import wraps
 
 try:
     import requests
@@ -35,6 +36,7 @@ ADMIN_UNLOCKED = False
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "").strip()
 
 APP_TIMEZONE = ZoneInfo("America/Sao_Paulo")
 
@@ -624,6 +626,76 @@ def db_append_incident(payload):
             conn.commit()
     except Exception as e:
         print("DB INCIDENT ERROR:", e)
+
+
+def get_admin_token_from_request(req):
+    """
+    Extrai token admin da request.
+    Ordem de tentativa:
+    1) query param ?token=
+    2) header X-Admin-Token
+    3) header Authorization: Bearer <token>
+    """
+    token = (req.args.get("token") or "").strip()
+    if token:
+        return token
+
+    token = (req.headers.get("X-Admin-Token") or "").strip()
+    if token:
+        return token
+
+    auth_header = (req.headers.get("Authorization") or "").strip()
+    if auth_header.lower().startswith("bearer "):
+        bearer_token = auth_header[7:].strip()
+        if bearer_token:
+            return bearer_token
+
+    return ""
+
+
+def is_admin_authorized(req):
+    """
+    Valida se a request está autorizada para acesso admin.
+    """
+    if not ADMIN_TOKEN:
+        # Se o token não estiver configurado no ambiente,
+        # o admin fica bloqueado por segurança.
+        return False
+
+    provided_token = get_admin_token_from_request(req)
+    if not provided_token:
+        return False
+
+    return provided_token == ADMIN_TOKEN
+
+
+def admin_forbidden_response():
+    """
+    Resposta padrão para acesso admin negado.
+    """
+    payload = {
+        "ok": False,
+        "error": "admin_forbidden",
+        "message": "Acesso administrativo não autorizado."
+    }
+    return Response(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        status=403,
+        mimetype="application/json"
+    )
+
+
+def admin_required(view_func):
+    """
+    Decorator para proteger rotas administrativas.
+    """
+    @wraps(view_func)
+    def wrapped_view(*args, **kwargs):
+        if not is_admin_authorized(request):
+            return admin_forbidden_response()
+        return view_func(*args, **kwargs)
+
+    return wrapped_view
 
 
 # =========================
@@ -6719,6 +6791,18 @@ def welcome():
     except Exception as e:
         print("ERRO NO WELCOME:", e)
         return json_response({"message": "Olá 😊"})
+
+
+@app.route("/admin", methods=["GET"])
+@admin_required
+def admin_home():
+    return json_response({
+        "ok": True,
+        "area": "admin",
+        "message": "Acesso administrativo autorizado.",
+        "stage": "admin_v1_base_ready",
+        "timestamp": now_iso()
+    })        
 
 
 @app.route("/db-init", methods=["GET"])
