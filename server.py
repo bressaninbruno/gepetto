@@ -1985,26 +1985,16 @@ def guest_language(guest):
 
 def saudacao_personalizada(guest):
     nome = (guest.get("nome") or "").strip()
-    grupo = normalize_group_value(guest.get("grupo", ""))
-
-    if not nome:
-        return "Hello 😊" if guest_language(guest) == "en" else "Olá 😊"
 
     if guest_language(guest) == "en":
-        if grupo == "familia":
-            return f"Hello {nome} and family 😊"
-        if grupo == "amigos":
-            return f"Hello {nome} and friends 😄"
-        return f"Hello {nome} 😊"
+        if nome:
+            return f"Hello {nome} 😊 I hope you had a good trip!"
+        return "Hello 😊 I hope you had a good trip!"
 
-    if grupo == "familia":
-        return f"Olá {nome} e família 😊"
-    if grupo == "amigos":
-        return f"Olá {nome} e amigos 😄"
-    if grupo == "casal":
-        return f"Olá {nome} 😊"
+    if nome:
+        return f"Olá {nome} 😊 Espero que tenham feito uma boa viagem!"
 
-    return f"Olá {nome} 😊"
+    return "Olá 😊 Espero que tenham feito uma boa viagem!"
 
 
 def sort_restaurants_for_moment(items, profile, context, mode=""):
@@ -3292,31 +3282,19 @@ def mensagem_boas_vindas():
         return (
             f"{inicio}\n\n"
             f"{especial}"
-            "🌴 Welcome to Enseada beach!\n\n"
-            "It is a pleasure to have you here 😊 I hope you had a great trip!\n\n"
-            "I am **Gepetto**, your personal concierge during your stay.\n\n"
-            "I can help with:\n"
-            "• **Apartment and building guidance**\n"
-            "• **House and building rules**\n"
-            "• **Restaurant recommendations**\n"
-            "• **Markets and convenience**\n"
-            "• **Beach, local tips and activities**\n"
-            "• **Weather and day suggestions**\n\n"
+            "I am **Gepetto**, your digital concierge during your stay.\n\n"
+            "My role is to make your experience here more practical, comfortable, and well supported — helping with apartment questions, guidance about **the beach**, **food**, **shopping**, **house rules**, and also support if anything unexpected comes up during your stay.\n\n"
+            "Whenever it makes sense, I can also bring you **recommendations** and suggestions that fit the moment of your stay.\n\n"
             "Feel free to call me anytime 😉"
         )
 
     return (
         f"{inicio}\n\n"
         f"{especial}"
-        f"{get_gepetto_welcome_line()}\n\n"
-        "Posso te ajudar com:\n"
-        "• **Guia do apartamento e do condomínio**\n"
-        "• **Regras da casa e do condomínio**\n"
-        "• **Recomendações de restaurantes**\n"
-        "• **Mercados e conveniências**\n"
-        "• **Praia, passeios e dicas locais**\n"
-        "• **Clima e sugestões para o dia**\n\n"
-        "Fique à vontade para me chamar a qualquer momento 😉"
+        "Eu sou o **Gepetto**, seu concierge digital durante a estadia.\n\n"
+        "Meu papel é tornar sua experiência mais prática, confortável e bem acompanhada por aqui — com apoio para dúvidas do apartamento, orientações sobre **praia**, **comida**, **compras**, **regras da casa** e também ajuda caso algo fuja do esperado durante a hospedagem.\n\n"
+        "Sempre que fizer sentido, também posso te trazer **recomendações** e sugestões mais alinhadas ao momento da sua estadia.\n\n"
+        "Fique à vontade para me chamar 😉"
     )
 
 
