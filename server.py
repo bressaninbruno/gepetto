@@ -7156,7 +7156,7 @@ def admin_dashboard():
 @admin_required
 def admin_conversations():
     token = get_admin_token_from_request(request)
-    messages = []
+    rows = []
     db_error = ""
 
     if has_database():
@@ -7164,16 +7164,28 @@ def admin_conversations():
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute("""
-                        SELECT role, text, topic, meta_json, timestamp
+                        SELECT
+                            thread_id,
+                            role,
+                            text,
+                            topic,
+                            meta_json,
+                            timestamp
                         FROM (
-                            SELECT role, text, topic, meta_json, timestamp
+                            SELECT
+                                thread_id,
+                                role,
+                                text,
+                                topic,
+                                meta_json,
+                                timestamp
                             FROM conversation_messages
                             ORDER BY timestamp DESC
-                            LIMIT 60
+                            LIMIT 120
                         ) recent_messages
                         ORDER BY timestamp ASC
                     """)
-                    messages = cur.fetchall() or []
+                    rows = cur.fetchall() or []
         except Exception as e:
             db_error = str(e)
 
@@ -7185,40 +7197,107 @@ def admin_conversations():
         except Exception:
             return str(value)
 
-    if messages:
-        message_blocks = []
-        for item in messages:
-            role = item.get("role") or "-"
-            topic = item.get("topic") or "-"
-            text = (item.get("text") or "").replace("<", "&lt;").replace(">", "&gt;")
-            timestamp = fmt_dt(item.get("timestamp"))
-            meta = item.get("meta_json") or {}
+    grouped_threads = []
+    thread_map = {}
 
-            meta_html = ""
-            if meta:
-                meta_html = f"""
-                <div style="margin-top:10px;padding:10px 12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;font-size:13px;color:#555;">
-                    <strong>Meta:</strong> {json.dumps(meta, ensure_ascii=False)}
-                </div>
-                """
+    for item in rows:
+        thread_id = item.get("thread_id") or "sem-thread"
 
-            role_label = "Hóspede" if role == "user" else ("Gepetto" if role == "assistant" else role)
+        if thread_id not in thread_map:
+            thread_map[thread_id] = {
+                "thread_id": thread_id,
+                "messages": [],
+                "started_at": item.get("timestamp"),
+                "ended_at": item.get("timestamp")
+            }
+            grouped_threads.append(thread_map[thread_id])
 
-            message_blocks.append(f"""
-            <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:18px;margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
-                    <div style="font-size:15px;font-weight:bold;">{role_label}</div>
-                    <div style="font-size:13px;color:#666;">{timestamp}</div>
+        thread_data = thread_map[thread_id]
+        thread_data["messages"].append(item)
+
+        current_ts = item.get("timestamp")
+        if current_ts:
+            if not thread_data["started_at"] or current_ts < thread_data["started_at"]:
+                thread_data["started_at"] = current_ts
+            if not thread_data["ended_at"] or current_ts > thread_data["ended_at"]:
+                thread_data["ended_at"] = current_ts
+
+    grouped_threads.sort(
+        key=lambda t: t["ended_at"] if t["ended_at"] else "",
+        reverse=True
+    )
+
+    if grouped_threads:
+        thread_blocks = []
+
+        for thread in grouped_threads:
+            thread_id = thread["thread_id"]
+            started_at = fmt_dt(thread["started_at"])
+            ended_at = fmt_dt(thread["ended_at"])
+            message_count = len(thread["messages"])
+
+            message_blocks = []
+
+            for item in thread["messages"]:
+                role = item.get("role") or "-"
+                topic = item.get("topic") or "-"
+                text = (item.get("text") or "").replace("<", "&lt;").replace(">", "&gt;")
+                timestamp = fmt_dt(item.get("timestamp"))
+                meta = item.get("meta_json") or {}
+
+                meta_html = ""
+                if meta:
+                    meta_html = f"""
+                    <div style="margin-top:10px;padding:10px 12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;font-size:13px;color:#555;">
+                        <strong>Meta:</strong> {json.dumps(meta, ensure_ascii=False)}
+                    </div>
+                    """
+
+                role_label = "Hóspede" if role == "user" else ("Gepetto" if role == "assistant" else role)
+
+                message_blocks.append(f"""
+                <div style="background:#fff;border:1px solid #ececec;border-radius:14px;padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+                        <div style="font-size:15px;font-weight:bold;">{role_label}</div>
+                        <div style="font-size:13px;color:#666;">{timestamp}</div>
+                    </div>
+                    <div style="font-size:13px;color:#666;margin-bottom:10px;">
+                        <strong>role:</strong> {role} &nbsp;•&nbsp; <strong>topic:</strong> {topic}
+                    </div>
+                    <div style="font-size:15px;line-height:1.6;white-space:pre-wrap;">{text}</div>
+                    {meta_html}
                 </div>
-                <div style="font-size:13px;color:#666;margin-bottom:10px;">
-                    <strong>role:</strong> {role} &nbsp;•&nbsp; <strong>topic:</strong> {topic}
+                """)
+
+            thread_blocks.append(f"""
+            <div style="background:white;border:1px solid #dddddd;border-radius:18px;padding:20px;margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #ececec;">
+                    <div>
+                        <div style="font-size:13px;letter-spacing:0.06em;color:#666;text-transform:uppercase;margin-bottom:6px;">
+                            Início da thread
+                        </div>
+                        <div style="font-size:24px;font-weight:700;line-height:1.2;">
+                            {started_at}
+                        </div>
+                        <div style="margin-top:8px;font-size:13px;color:#666;">
+                            <strong>thread_id:</strong> {thread_id}
+                        </div>
+                        <div style="margin-top:4px;font-size:13px;color:#666;">
+                            <strong>última atividade:</strong> {ended_at}
+                        </div>
+                    </div>
+
+                    <div style="background:#f7f7f7;border:1px solid #e4e4e4;border-radius:12px;padding:10px 12px;min-width:120px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;">Mensagens</div>
+                        <div style="margin-top:6px;font-size:22px;font-weight:bold;">{message_count}</div>
+                    </div>
                 </div>
-                <div style="font-size:15px;line-height:1.6;white-space:pre-wrap;">{text}</div>
-                {meta_html}
+
+                {''.join(message_blocks)}
             </div>
             """)
 
-        conversations_html = "".join(message_blocks)
+        conversations_html = "".join(thread_blocks)
     else:
         conversations_html = """
         <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:20px;color:#666;">
@@ -7241,9 +7320,9 @@ def admin_conversations():
                     <div style="font-size:12px;letter-spacing:0.08em;color:#666;text-transform:uppercase;">
                         Gepetto • Admin Conversations
                     </div>
-                    <h1 style="margin:8px 0 0 0;font-size:32px;line-height:1.1;">Conversas recentes</h1>
+                    <h1 style="margin:8px 0 0 0;font-size:32px;line-height:1.1;">Conversas por thread</h1>
                     <p style="margin:10px 0 0 0;color:#555;">
-                        Últimas 60 mensagens persistidas em <code>conversation_messages</code>.
+                        Últimas 120 mensagens agrupadas por <code>thread_id</code>, com mensagens em ordem cronológica dentro de cada thread.
                     </p>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -7260,7 +7339,7 @@ def admin_conversations():
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
                     <div><strong>Horário local:</strong> {now_iso()}</div>
                     <div><strong>Banco:</strong> {"conectado" if has_database() and not db_error else ("erro" if db_error else "não configurado")}</div>
-                    <div><strong>Limite:</strong> 60 mensagens</div>
+                    <div><strong>Recorte:</strong> 120 mensagens</div>
                 </div>
                 {f'<div style="margin-top:12px;color:#a33;"><strong>Erro DB:</strong> {db_error}</div>' if db_error else ''}
             </div>
@@ -7271,6 +7350,7 @@ def admin_conversations():
     </html>
     """
     return Response(html, mimetype="text/html")
+
 
 @app.route("/admin/sessions", methods=["GET"])
 @admin_required
