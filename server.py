@@ -3038,17 +3038,20 @@ def should_use_entity_detail_mode(text_raw, inferred_intent="", last_topic=""):
     if not field:
         return False
 
+    if last_topic in ["farmacia", "saude"] and field in ["delivery", "takeout", "drive_through"]:
+        return False
+
     if last_topic == "praia" and has_any(text_n, [
-    "horario", "horário", "horarios", "horários",
-    "que horas", "que horas funciona",
-    "funciona que horas", "ate que horas", "até que horas",
-    "endereco", "endereço",
-    "localizacao", "localização",
-    "onde fica", "e a localizacao", "e a localização",
-    "servico de praia", "serviço de praia",
-    "como funciona", "funciona"
-]):
-     return False
+        "horario", "horário", "horarios", "horários",
+        "que horas", "que horas funciona",
+        "funciona que horas", "ate que horas", "até que horas",
+        "endereco", "endereço",
+        "localizacao", "localização",
+        "onde fica", "e a localizacao", "e a localização",
+        "servico de praia", "serviço de praia",
+        "como funciona", "funciona"
+    ]):
+        return False
 
     explicit_entity = resolve_entity_from_text(text_raw)
     if explicit_entity:
@@ -6270,6 +6273,9 @@ def handle_admin_command(message):
         return "Modo admin desativado 🔒"
 
     if cmd == "/show":
+        if not ADMIN_UNLOCKED:
+            return "Ative primeiro com /admin SEU_PIN 🔒"
+
         guest = load_guest()
         return (
         "Hóspede atual 👇\n\n"
@@ -6294,6 +6300,9 @@ def handle_admin_command(message):
         return f"{text}\n\n⚠️ Não consegui enviar ao Telegram agora: {msg}"
 
     if cmd == "/reset":
+        if not ADMIN_UNLOCKED:
+            return "Ative primeiro com /admin SEU_PIN 🔒"
+
         save_guest(default_guest())
         reset_memory()
         reset_session()
@@ -6399,11 +6408,22 @@ def gepetto_responde(msg):
     guest = guest_after if remembered else guest_before
 
     if text_raw.startswith("/"):
-        admin_reply = handle_admin_command(text_raw)
-        if admin_reply is not None:
-            append_memory("user", text_raw, "admin")
-            append_memory("assistant", admin_reply, "admin")
-            return admin_reply
+        if not is_admin_authorized(request):
+            reply = "Este comando administrativo não está disponível neste canal."
+            return finalize_and_log(
+                guest,
+                text_raw,
+                "admin_bloqueado",
+                reply,
+                remembered,
+                intent_for_session="admin_bloqueado"
+            )
+
+    admin_reply = handle_admin_command(text_raw)
+    if admin_reply is not None:
+        append_memory("user", text_raw, "admin")
+        append_memory("assistant", admin_reply, "admin")
+        return admin_reply
 
     if is_social_checkin(text_raw):
         reply = get_social_reply()
@@ -8752,6 +8772,7 @@ def admin_usage():
 
 
 @app.route("/db-init", methods=["GET"])
+@admin_required
 def db_init():
     try:
         if not has_database():
@@ -8893,6 +8914,7 @@ def db_init():
         
 
 @app.route("/db-stats", methods=["GET"])
+@admin_required
 def db_stats():
     try:
         if not has_database():
@@ -8928,6 +8950,7 @@ def db_stats():
 
 
 @app.route("/db-check", methods=["GET"])
+@admin_required
 def db_check():
     try:
         if not has_database():
@@ -8944,6 +8967,7 @@ def db_check():
     
 
 @app.route("/db-guest", methods=["GET"])
+@admin_required
 def db_guest():
     try:
         data = db_get_latest_guest()
@@ -8955,6 +8979,7 @@ def db_guest():
         return json_response({"ok": False, "message": str(e)}, status=500)
 
 @app.route("/db-session", methods=["GET"])
+@admin_required
 def db_session():
     try:
         data = db_get_latest_session_state()
@@ -8966,6 +8991,7 @@ def db_session():
         return json_response({"ok": False, "message": str(e)}, status=500)
     
 @app.route("/db-memory", methods=["GET"])
+@admin_required
 def db_memory():
     try:
         data = db_get_recent_conversation_messages()
