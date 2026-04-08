@@ -7704,6 +7704,114 @@ def admin_guests():
     </html>
     """
     return Response(html, mimetype="text/html")
+
+
+@app.route("/admin/intents", methods=["GET"])
+@admin_required
+def admin_intents():
+    token = get_admin_token_from_request(request)
+    intents = []
+    db_error = ""
+
+    if has_database():
+        try:
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT
+                            intent,
+                            topic,
+                            timestamp
+                        FROM intent_events
+                        ORDER BY timestamp DESC
+                        LIMIT 80
+                    """)
+                    intents = cur.fetchall() or []
+        except Exception as e:
+            db_error = str(e)
+
+    def fmt_dt(value):
+        if not value:
+            return "-"
+        try:
+            return value.strftime("%d/%m/%Y %H:%M:%S")
+        except Exception:
+            return str(value)
+
+    if intents:
+        intent_blocks = []
+
+        for item in intents:
+            intent_value = item.get("intent") or "-"
+            topic = item.get("topic") or "-"
+            timestamp = fmt_dt(item.get("timestamp"))
+
+            intent_blocks.append(f"""
+            <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:18px;margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+                    <div style="font-size:16px;font-weight:bold;">{intent_value}</div>
+                    <div style="font-size:13px;color:#666;">{timestamp}</div>
+                </div>
+
+                <div style="font-size:14px;line-height:1.6;">
+                    <strong>topic:</strong> {topic}
+                </div>
+            </div>
+            """)
+
+        intents_html = "".join(intent_blocks)
+    else:
+        intents_html = """
+        <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:20px;color:#666;">
+            Nenhuma intent encontrada.
+        </div>
+        """
+
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gepetto Admin Intents</title>
+    </head>
+    <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#111;">
+        <div style="max-width:1050px;margin:0 auto;padding:24px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:12px;letter-spacing:0.08em;color:#666;text-transform:uppercase;">
+                        Gepetto • Admin Intents
+                    </div>
+                    <h1 style="margin:8px 0 0 0;font-size:32px;line-height:1.1;">Intents recentes</h1>
+                    <p style="margin:10px 0 0 0;color:#555;">
+                        Últimos 80 registros de <code>intent_events</code>.
+                    </p>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <a href="/admin?token={token}" style="text-decoration:none;color:#111;background:#fff;border:1px solid #ddd;padding:10px 14px;border-radius:10px;">
+                        ← Admin
+                    </a>
+                    <a href="/admin/dashboard?token={token}" style="text-decoration:none;color:#111;background:#fff;border:1px solid #ddd;padding:10px 14px;border-radius:10px;">
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div style="background:white;border-radius:16px;padding:18px 20px;border:1px solid #e6e6e6;margin-bottom:18px;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+                    <div><strong>Horário local:</strong> {now_iso()}</div>
+                    <div><strong>Banco:</strong> {"conectado" if has_database() and not db_error else ("erro" if db_error else "não configurado")}</div>
+                    <div><strong>Limite:</strong> 80 intents</div>
+                </div>
+                {f'<div style="margin-top:12px;color:#a33;"><strong>Erro DB:</strong> {db_error}</div>' if db_error else ''}
+            </div>
+
+            {intents_html}
+        </div>
+    </body>
+    </html>
+    """
+    return Response(html, mimetype="text/html")
         
 
 
