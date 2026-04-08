@@ -7954,14 +7954,31 @@ def admin_intents():
             timestamp = fmt_dt(item.get("timestamp"))
 
             intent_blocks.append(f"""
-            <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:18px;margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
-                    <div style="font-size:16px;font-weight:bold;">{intent_value}</div>
-                    <div style="font-size:13px;color:#666;">{timestamp}</div>
+            <div style="background:white;border:1px solid #dddddd;border-radius:18px;padding:20px;margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #ececec;">
+                    <div>
+                        <div style="font-size:12px;letter-spacing:0.06em;color:#666;text-transform:uppercase;margin-bottom:6px;">
+                            Intent event
+                        </div>
+                        <div style="font-size:24px;font-weight:700;line-height:1.2;">
+                            {intent_value}
+                        </div>
+                        <div style="margin-top:8px;font-size:13px;color:#666;">
+                            Registrado em: {timestamp}
+                        </div>
+                    </div>
+
+                    <div style="background:#f7f7f7;border:1px solid #e4e4e4;border-radius:12px;padding:10px 12px;min-width:140px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;">Topic</div>
+                        <div style="margin-top:6px;font-size:18px;font-weight:bold;">{topic}</div>
+                    </div>
                 </div>
 
-                <div style="font-size:14px;line-height:1.6;">
-                    <strong>topic:</strong> {topic}
+                <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                    <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Leitura rápida</div>
+                    <div><strong>Intent:</strong> {intent_value}</div>
+                    <div><strong>Topic:</strong> {topic}</div>
+                    <div><strong>Timestamp:</strong> {timestamp}</div>
                 </div>
             </div>
             """)
@@ -8062,15 +8079,35 @@ def admin_insights():
             timestamp = fmt_dt(item.get("timestamp"))
 
             insight_blocks.append(f"""
-            <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:18px;margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
-                    <div style="font-size:16px;font-weight:bold;">{insight_key}</div>
-                    <div style="font-size:13px;color:#666;">{timestamp}</div>
+            <div style="background:white;border:1px solid #dddddd;border-radius:18px;padding:20px;margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #ececec;">
+                    <div>
+                        <div style="font-size:12px;letter-spacing:0.06em;color:#666;text-transform:uppercase;margin-bottom:6px;">
+                            Insight event
+                        </div>
+                        <div style="font-size:24px;font-weight:700;line-height:1.2;">
+                            {insight_key}
+                        </div>
+                        <div style="margin-top:8px;font-size:13px;color:#666;">
+                            Registrado em: {timestamp}
+                        </div>
+                    </div>
+
+                    <div style="background:#f7f7f7;border:1px solid #e4e4e4;border-radius:12px;padding:10px 12px;min-width:140px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;">Insight</div>
+                        <div style="margin-top:6px;font-size:18px;font-weight:bold;">{insight_key}</div>
+                    </div>
                 </div>
 
-                <div style="margin-top:8px;padding:12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;">
-                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>source_message</strong></div>
+                <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                    <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Mensagem de origem</div>
                     <div style="font-size:14px;line-height:1.6;white-space:pre-wrap;">{source_message or '<span style="color:#666;">sem mensagem de origem</span>'}</div>
+                </div>
+
+                <div style="margin-top:12px;background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                    <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Leitura rápida</div>
+                    <div><strong>Insight:</strong> {insight_key}</div>
+                    <div><strong>Timestamp:</strong> {timestamp}</div>
                 </div>
             </div>
             """)
@@ -8164,35 +8201,56 @@ def admin_usage():
         except Exception:
             return str(value)
 
+    def followup_badge(value):
+        if value:
+            return '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#eef5ff;border:1px solid #c8dcff;">Follow-up: sim</span>'
+        return '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f3f3;border:1px solid #e2e2e2;color:#666;">Follow-up: não</span>'
+
     if usage_events:
         usage_blocks = []
 
         for item in usage_events:
             topic = item.get("topic") or "-"
-            used_followup = "sim" if item.get("used_followup") else "não"
+            used_followup = bool(item.get("used_followup"))
             user_text = (item.get("user_text") or "").replace("<", "&lt;").replace(">", "&gt;")
             assistant_text = (item.get("assistant_text") or "").replace("<", "&lt;").replace(">", "&gt;")
             timestamp = fmt_dt(item.get("timestamp"))
 
             usage_blocks.append(f"""
-            <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:18px;margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
-                    <div style="font-size:16px;font-weight:bold;">{topic}</div>
-                    <div style="font-size:13px;color:#666;">{timestamp}</div>
+            <div style="background:white;border:1px solid #dddddd;border-radius:18px;padding:20px;margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #ececec;">
+                    <div>
+                        <div style="font-size:12px;letter-spacing:0.06em;color:#666;text-transform:uppercase;margin-bottom:6px;">
+                            Usage event
+                        </div>
+                        <div style="font-size:24px;font-weight:700;line-height:1.2;">
+                            {topic}
+                        </div>
+                        <div style="margin-top:8px;font-size:13px;color:#666;">
+                            Registrado em: {timestamp}
+                        </div>
+                    </div>
+
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        {followup_badge(used_followup)}
+                    </div>
                 </div>
 
-                <div style="font-size:14px;line-height:1.6;margin-bottom:12px;">
-                    <strong>used_followup:</strong> {used_followup}
-                </div>
-
-                <div style="margin-top:8px;padding:12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;">
-                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>user_text</strong></div>
+                <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;margin-bottom:12px;">
+                    <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Texto do usuário</div>
                     <div style="font-size:14px;line-height:1.6;white-space:pre-wrap;">{user_text or '<span style="color:#666;">sem texto do usuário</span>'}</div>
                 </div>
 
-                <div style="margin-top:12px;padding:12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;">
-                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>assistant_text</strong></div>
+                <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;margin-bottom:12px;">
+                    <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Texto do Gepetto</div>
                     <div style="font-size:14px;line-height:1.6;white-space:pre-wrap;">{assistant_text or '<span style="color:#666;">sem texto do assistente</span>'}</div>
+                </div>
+
+                <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                    <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Leitura rápida</div>
+                    <div><strong>Topic:</strong> {topic}</div>
+                    <div><strong>Used follow-up:</strong> {"sim" if used_followup else "não"}</div>
+                    <div><strong>Timestamp:</strong> {timestamp}</div>
                 </div>
             </div>
             """)
