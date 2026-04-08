@@ -6796,13 +6796,346 @@ def welcome():
 @app.route("/admin", methods=["GET"])
 @admin_required
 def admin_home():
-    return json_response({
-        "ok": True,
-        "area": "admin",
-        "message": "Acesso administrativo autorizado.",
-        "stage": "admin_v1_base_ready",
-        "timestamp": now_iso()
-    })        
+    db_status = "conectado" if has_database() else "não configurado"
+    token = get_admin_token_from_request(request)
+
+    nav_items = [
+        ("Dashboard", f"/admin/dashboard?token={token}"),
+        ("Guests", f"/admin/guests?token={token}"),
+        ("Sessions", f"/admin/sessions?token={token}"),
+        ("Conversations", f"/admin/conversations?token={token}"),
+        ("Incidents", f"/admin/incidents?token={token}"),
+        ("Intents", f"/admin/intents?token={token}"),
+        ("Insights", f"/admin/insights?token={token}"),
+        ("Usage", f"/admin/usage?token={token}")
+    ]
+
+    nav_links = "".join(
+        f'<a href="{href}" style="display:block;padding:10px 12px;margin:8px 0;'
+        f'background:#f6f6f6;border:1px solid #e2e2e2;border-radius:10px;'
+        f'text-decoration:none;color:#111;">{label}</a>'
+        for label, href in nav_items
+    )
+
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gepetto Admin</title>
+    </head>
+    <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#111;">
+        <div style="max-width:980px;margin:0 auto;padding:24px;">
+            <div style="background:white;border-radius:16px;padding:24px;border:1px solid #e6e6e6;">
+                <div style="margin-bottom:24px;">
+                    <div style="font-size:12px;letter-spacing:0.08em;color:#666;text-transform:uppercase;">
+                        Gepetto • Admin V1
+                    </div>
+                    <h1 style="margin:8px 0 10px 0;font-size:32px;line-height:1.1;">
+                        Painel administrativo
+                    </h1>
+                    <p style="margin:0;color:#555;font-size:16px;line-height:1.5;">
+                        Área protegida para acompanhamento operacional do Gepetto antes da 3.2.
+                    </p>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:24px;">
+                    <div style="background:#fafafa;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;">Status</div>
+                        <div style="margin-top:8px;font-size:18px;font-weight:bold;">Acesso autorizado</div>
+                    </div>
+
+                    <div style="background:#fafafa;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;">Horário local</div>
+                        <div style="margin-top:8px;font-size:18px;font-weight:bold;">{now_iso()}</div>
+                    </div>
+
+                    <div style="background:#fafafa;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;">Banco</div>
+                        <div style="margin-top:8px;font-size:18px;font-weight:bold;">{db_status}</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:24px;">
+                    <h2 style="margin:0 0 12px 0;font-size:20px;">Navegação</h2>
+                    <p style="margin:0 0 14px 0;color:#555;">
+                        Estas áreas serão abertas nos próximos micro blocos.
+                    </p>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+                        {nav_links}
+                    </div>
+                </div>
+
+                <div style="background:#fcfcfc;border:1px dashed #d8d8d8;border-radius:14px;padding:16px;">
+                    <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;">Etapa atual</div>
+                    <div style="margin-top:8px;font-size:16px;line-height:1.5;">
+                        Base administrativa protegida validada. Próximo passo: começar a plugar visualização real de dados persistidos.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return Response(html, mimetype="text/html")
+
+
+@app.route("/admin/dashboard", methods=["GET"])
+@admin_required
+def admin_dashboard():
+    token = get_admin_token_from_request(request)
+
+    counts = {
+        "guests": 0,
+        "sessions": 0,
+        "conversation_logs": 0,
+        "conversation_messages": 0,
+        "incidents": 0,
+        "intent_events": 0,
+        "guest_insight_events": 0,
+        "usage_events": 0
+    }
+
+    latest_guest = None
+    latest_session = None
+    recent_incidents = []
+    recent_intents = []
+
+    db_error = ""
+
+    if has_database():
+        try:
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT COUNT(*) AS total FROM guests;")
+                    counts["guests"] = cur.fetchone()["total"]
+
+                    cur.execute("SELECT COUNT(*) AS total FROM session_states;")
+                    counts["sessions"] = cur.fetchone()["total"]
+
+                    cur.execute("SELECT COUNT(*) AS total FROM conversation_logs;")
+                    counts["conversation_logs"] = cur.fetchone()["total"]
+
+                    cur.execute("SELECT COUNT(*) AS total FROM conversation_messages;")
+                    counts["conversation_messages"] = cur.fetchone()["total"]
+
+                    cur.execute("SELECT COUNT(*) AS total FROM incidents;")
+                    counts["incidents"] = cur.fetchone()["total"]
+
+                    cur.execute("SELECT COUNT(*) AS total FROM intent_events;")
+                    counts["intent_events"] = cur.fetchone()["total"]
+
+                    cur.execute("SELECT COUNT(*) AS total FROM guest_insight_events;")
+                    counts["guest_insight_events"] = cur.fetchone()["total"]
+
+                    cur.execute("SELECT COUNT(*) AS total FROM usage_events;")
+                    counts["usage_events"] = cur.fetchone()["total"]
+
+                    cur.execute("""
+                        SELECT nome, grupo, perfil_hospede, idioma, checkin_date, checkout_date, checkout_time, updated_at
+                        FROM guests
+                        ORDER BY updated_at DESC
+                        LIMIT 1
+                    """)
+                    latest_guest = cur.fetchone()
+
+                    cur.execute("""
+                        SELECT last_topic, last_intent, last_recommendation_type, last_recommendation_name,
+                               pending_bruno_contact, pending_incident_context, updated_at
+                        FROM session_states
+                        ORDER BY updated_at DESC
+                        LIMIT 1
+                    """)
+                    latest_session = cur.fetchone()
+
+                    cur.execute("""
+                        SELECT tipo, gravidade, mensagem, status, timestamp
+                        FROM incidents
+                        ORDER BY timestamp DESC
+                        LIMIT 5
+                    """)
+                    recent_incidents = cur.fetchall() or []
+
+                    cur.execute("""
+                        SELECT intent, topic, timestamp
+                        FROM intent_events
+                        ORDER BY timestamp DESC
+                        LIMIT 5
+                    """)
+                    recent_intents = cur.fetchall() or []
+
+        except Exception as e:
+            db_error = str(e)
+
+    def fmt_dt(value):
+        if not value:
+            return "-"
+        try:
+            return value.strftime("%d/%m/%Y %H:%M:%S")
+        except Exception:
+            return str(value)
+
+    def fmt_date(value):
+        if not value:
+            return "-"
+        try:
+            return value.strftime("%d/%m/%Y")
+        except Exception:
+            return str(value)
+
+    def fmt_time(value):
+        if not value:
+            return "-"
+        try:
+            return value.strftime("%H:%M")
+        except Exception:
+            return str(value)
+
+    def build_count_card(label, value):
+        return f"""
+        <div style="background:#fafafa;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">
+            <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;">{label}</div>
+            <div style="margin-top:8px;font-size:26px;font-weight:bold;">{value}</div>
+        </div>
+        """
+
+    def build_rows(items, empty_message, row_builder):
+        if not items:
+            return f'<div style="color:#666;">{empty_message}</div>'
+        return "".join(row_builder(item) for item in items)
+
+    guest_html = """
+        <div style="color:#666;">Nenhum guest encontrado.</div>
+    """
+    if latest_guest:
+        guest_html = f"""
+        <div style="line-height:1.7;">
+            <div><strong>Nome:</strong> {latest_guest.get("nome") or "-"}</div>
+            <div><strong>Grupo:</strong> {latest_guest.get("grupo") or "-"}</div>
+            <div><strong>Perfil:</strong> {latest_guest.get("perfil_hospede") or "-"}</div>
+            <div><strong>Idioma:</strong> {latest_guest.get("idioma") or "-"}</div>
+            <div><strong>Check-in:</strong> {fmt_date(latest_guest.get("checkin_date"))}</div>
+            <div><strong>Check-out:</strong> {fmt_date(latest_guest.get("checkout_date"))}</div>
+            <div><strong>Horário de saída:</strong> {fmt_time(latest_guest.get("checkout_time"))}</div>
+            <div><strong>Atualizado em:</strong> {fmt_dt(latest_guest.get("updated_at"))}</div>
+        </div>
+        """
+
+    session_html = """
+        <div style="color:#666;">Nenhuma session encontrada.</div>
+    """
+    if latest_session:
+        session_html = f"""
+        <div style="line-height:1.7;">
+            <div><strong>Último tópico:</strong> {latest_session.get("last_topic") or "-"}</div>
+            <div><strong>Última intent:</strong> {latest_session.get("last_intent") or "-"}</div>
+            <div><strong>Último tipo de recomendação:</strong> {latest_session.get("last_recommendation_type") or "-"}</div>
+            <div><strong>Última recomendação:</strong> {latest_session.get("last_recommendation_name") or "-"}</div>
+            <div><strong>Bruno pendente:</strong> {"sim" if latest_session.get("pending_bruno_contact") else "não"}</div>
+            <div><strong>Incidente pendente:</strong> {"sim" if latest_session.get("pending_incident_context") else "não"}</div>
+            <div><strong>Atualizado em:</strong> {fmt_dt(latest_session.get("updated_at"))}</div>
+        </div>
+        """
+
+    incidents_html = build_rows(
+        recent_incidents,
+        "Nenhum incidente recente.",
+        lambda item: f"""
+        <div style="padding:12px 0;border-top:1px solid #efefef;">
+            <div><strong>{item.get("tipo") or "-"}</strong> • gravidade: {item.get("gravidade") or "-"}</div>
+            <div style="margin-top:4px;color:#444;">{item.get("mensagem") or "-"}</div>
+            <div style="margin-top:4px;font-size:13px;color:#666;">
+                status: {item.get("status") or "-"} • {fmt_dt(item.get("timestamp"))}
+            </div>
+        </div>
+        """
+    )
+
+    intents_html = build_rows(
+        recent_intents,
+        "Nenhuma intent recente.",
+        lambda item: f"""
+        <div style="padding:12px 0;border-top:1px solid #efefef;">
+            <div><strong>{item.get("intent") or "-"}</strong></div>
+            <div style="margin-top:4px;color:#444;">topic: {item.get("topic") or "-"}</div>
+            <div style="margin-top:4px;font-size:13px;color:#666;">{fmt_dt(item.get("timestamp"))}</div>
+        </div>
+        """
+    )
+
+    db_status = "conectado" if has_database() and not db_error else ("erro" if db_error else "não configurado")
+
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gepetto Admin Dashboard</title>
+    </head>
+    <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#111;">
+        <div style="max-width:1200px;margin:0 auto;padding:24px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;">
+                <div>
+                    <div style="font-size:12px;letter-spacing:0.08em;color:#666;text-transform:uppercase;">
+                        Gepetto • Admin Dashboard V1
+                    </div>
+                    <h1 style="margin:8px 0 0 0;font-size:32px;line-height:1.1;">Resumo operacional</h1>
+                </div>
+                <div>
+                    <a href="/admin?token={token}" style="text-decoration:none;color:#111;background:#fff;border:1px solid #ddd;padding:10px 14px;border-radius:10px;">
+                        ← Voltar ao admin
+                    </a>
+                </div>
+            </div>
+
+            <div style="background:white;border-radius:16px;padding:18px 20px;border:1px solid #e6e6e6;margin-bottom:18px;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+                    <div><strong>Horário local:</strong> {now_iso()}</div>
+                    <div><strong>Banco:</strong> {db_status}</div>
+                    <div><strong>Stage:</strong> admin_v1_dashboard_live</div>
+                </div>
+                {f'<div style="margin-top:12px;color:#a33;"><strong>Erro DB:</strong> {db_error}</div>' if db_error else ''}
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px;">
+                {build_count_card("Guests", counts["guests"])}
+                {build_count_card("Sessions", counts["sessions"])}
+                {build_count_card("Logs", counts["conversation_logs"])}
+                {build_count_card("Messages", counts["conversation_messages"])}
+                {build_count_card("Incidents", counts["incidents"])}
+                {build_count_card("Intents", counts["intent_events"])}
+                {build_count_card("Insights", counts["guest_insight_events"])}
+                {build_count_card("Usage", counts["usage_events"])}
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;">
+                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
+                    <h2 style="margin:0 0 14px 0;font-size:20px;">Último hóspede</h2>
+                    {guest_html}
+                </div>
+
+                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
+                    <h2 style="margin:0 0 14px 0;font-size:20px;">Última sessão</h2>
+                    {session_html}
+                </div>
+
+                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
+                    <h2 style="margin:0 0 14px 0;font-size:20px;">Incidentes recentes</h2>
+                    {incidents_html}
+                </div>
+
+                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
+                    <h2 style="margin:0 0 14px 0;font-size:20px;">Intents recentes</h2>
+                    {intents_html}
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return Response(html, mimetype="text/html")
 
 
 @app.route("/db-init", methods=["GET"])
