@@ -7289,60 +7289,96 @@ def admin_dashboard_current():
         except Exception:
             return str(value)
 
-    if current_guest:
-        preferencias = current_guest.get("preferencias_json") or {}
-        if isinstance(preferencias, dict) and preferencias:
-            preferencias_html = "<br>".join(f"• {k}: {v}" for k, v in preferencias.items())
-        else:
-            preferencias_html = '<span style="color:#666;">nenhuma</span>'
-
-        guest_html = f"""
-        <div style="line-height:1.7;">
-            <div><strong>Nome:</strong> {current_guest.get("nome") or "-"}</div>
-            <div><strong>Grupo:</strong> {current_guest.get("grupo") or "-"}</div>
-            <div><strong>Perfil:</strong> {current_guest.get("perfil_hospede") or "-"}</div>
-            <div><strong>Idioma:</strong> {current_guest.get("idioma") or "-"}</div>
-            <div><strong>Check-in:</strong> {fmt_date(current_guest.get("checkin_date"))}</div>
-            <div><strong>Check-out:</strong> {fmt_date(current_guest.get("checkout_date"))}</div>
-            <div><strong>Horário de saída:</strong> {fmt_time(current_guest.get("checkout_time"))}</div>
-            <div><strong>Atualizado em:</strong> {fmt_dt(current_guest.get("updated_at"))}</div>
-            <div style="margin-top:10px;"><strong>Observações:</strong><br>{(current_guest.get("observacoes") or "-")}</div>
-            <div style="margin-top:10px;"><strong>Preferências:</strong><br>{preferencias_html}</div>
-        </div>
-        """
-    else:
-        guest_html = '<div style="color:#666;">Nenhum guest atual encontrado.</div>'
-
-    if current_session:
-        active_options = current_session.get("active_recommendation_options_json")
-        if not isinstance(active_options, list):
-            active_options = []
-        current_name = "-"
-        idx = current_session.get("active_recommendation_index", 0)
-        if active_options and isinstance(idx, int) and 0 <= idx < len(active_options):
-            current_name = str(active_options[idx])
-
-        session_html = f"""
-        <div style="line-height:1.7;">
-            <div><strong>Último tópico:</strong> {current_session.get("last_topic") or "-"}</div>
-            <div><strong>Última intent:</strong> {current_session.get("last_intent") or "-"}</div>
-            <div><strong>Última recomendação:</strong> {current_session.get("last_recommendation_name") or "-"}</div>
-            <div><strong>Tipo de recomendação:</strong> {current_session.get("last_recommendation_type") or "-"}</div>
-            <div><strong>Entidade atual:</strong> {current_session.get("last_entity_name") or "-"}</div>
-            <div><strong>Categoria da entidade:</strong> {current_session.get("last_entity_category") or "-"}</div>
-            <div><strong>Bruno pendente:</strong> {"sim" if current_session.get("pending_bruno_contact") else "não"}</div>
-            <div><strong>Incidente pendente:</strong> {"sim" if current_session.get("pending_incident_context") else "não"}</div>
-            <div><strong>Current active name:</strong> {current_name}</div>
-            <div><strong>Atualizado em:</strong> {fmt_dt(current_session.get("updated_at"))}</div>
-        </div>
-        """
-    else:
-        session_html = '<div style="color:#666;">Nenhuma session atual encontrada.</div>'
+    def build_badge(label, kind="neutral"):
+        styles = {
+            "neutral": "background:#f3f3f3;border:1px solid #e2e2e2;color:#444;",
+            "warning": "background:#fff3cd;border:1px solid #f1d58a;color:#5f4b00;",
+            "danger": "background:#ffe3e3;border:1px solid #f0b2b2;color:#7a1f1f;",
+            "success": "background:#e7f5ea;border:1px solid #b9e0c2;color:#1d5b2f;"
+        }
+        style = styles.get(kind, styles["neutral"])
+        return f'<span style="display:inline-block;padding:6px 10px;border-radius:999px;{style}">{label}</span>'
 
     def build_simple_list(items, empty_text, render_item):
         if not items:
             return f'<div style="color:#666;">{empty_text}</div>'
         return "".join(render_item(item) for item in items)
+
+    guest_name = "-"
+    guest_group = "-"
+    guest_profile = "-"
+    guest_updated_at = "-"
+    preferencias_html = '<span style="color:#666;">nenhuma</span>'
+    guest_html = '<div style="color:#666;">Nenhum guest atual encontrado.</div>'
+
+    if current_guest:
+        guest_name = current_guest.get("nome") or "-"
+        guest_group = current_guest.get("grupo") or "-"
+        guest_profile = current_guest.get("perfil_hospede") or "-"
+        guest_updated_at = fmt_dt(current_guest.get("updated_at"))
+
+        preferencias = current_guest.get("preferencias_json") or {}
+        if isinstance(preferencias, dict) and preferencias:
+            preferencias_html = "<br>".join(f"• {k}: {v}" for k, v in preferencias.items())
+
+        guest_html = f"""
+        <div style="line-height:1.7;">
+            <div><strong>Nome:</strong> {guest_name}</div>
+            <div><strong>Grupo:</strong> {guest_group}</div>
+            <div><strong>Perfil:</strong> {guest_profile}</div>
+            <div><strong>Idioma:</strong> {current_guest.get("idioma") or "-"}</div>
+            <div><strong>Check-in:</strong> {fmt_date(current_guest.get("checkin_date"))}</div>
+            <div><strong>Check-out:</strong> {fmt_date(current_guest.get("checkout_date"))}</div>
+            <div><strong>Horário de saída:</strong> {fmt_time(current_guest.get("checkout_time"))}</div>
+            <div><strong>Atualizado em:</strong> {guest_updated_at}</div>
+            <div style="margin-top:10px;"><strong>Observações:</strong><br>{(current_guest.get("observacoes") or "-")}</div>
+            <div style="margin-top:10px;"><strong>Preferências:</strong><br>{preferencias_html}</div>
+        </div>
+        """
+
+    last_topic = "-"
+    last_intent = "-"
+    last_recommendation_name = "-"
+    last_recommendation_type = "-"
+    last_entity_name = "-"
+    pending_bruno = False
+    pending_incident = False
+    current_active_name = "-"
+    session_updated_at = "-"
+    session_html = '<div style="color:#666;">Nenhuma session atual encontrada.</div>'
+
+    if current_session:
+        active_options = current_session.get("active_recommendation_options_json")
+        if not isinstance(active_options, list):
+            active_options = []
+
+        idx = current_session.get("active_recommendation_index", 0)
+        if active_options and isinstance(idx, int) and 0 <= idx < len(active_options):
+            current_active_name = str(active_options[idx])
+
+        last_topic = current_session.get("last_topic") or "-"
+        last_intent = current_session.get("last_intent") or "-"
+        last_recommendation_name = current_session.get("last_recommendation_name") or "-"
+        last_recommendation_type = current_session.get("last_recommendation_type") or "-"
+        last_entity_name = current_session.get("last_entity_name") or "-"
+        pending_bruno = bool(current_session.get("pending_bruno_contact"))
+        pending_incident = bool(current_session.get("pending_incident_context"))
+        session_updated_at = fmt_dt(current_session.get("updated_at"))
+
+        session_html = f"""
+        <div style="line-height:1.7;">
+            <div><strong>Último tópico:</strong> {last_topic}</div>
+            <div><strong>Última intent:</strong> {last_intent}</div>
+            <div><strong>Última recomendação:</strong> {last_recommendation_name}</div>
+            <div><strong>Tipo de recomendação:</strong> {last_recommendation_type}</div>
+            <div><strong>Entidade atual:</strong> {last_entity_name}</div>
+            <div><strong>Categoria da entidade:</strong> {current_session.get("last_entity_category") or "-"}</div>
+            <div><strong>Bruno pendente:</strong> {"sim" if pending_bruno else "não"}</div>
+            <div><strong>Incidente pendente:</strong> {"sim" if pending_incident else "não"}</div>
+            <div><strong>Current active name:</strong> {current_active_name}</div>
+            <div><strong>Atualizado em:</strong> {session_updated_at}</div>
+        </div>
+        """
 
     messages_html = build_simple_list(
         recent_messages,
@@ -7363,7 +7399,7 @@ def admin_dashboard_current():
         <div style="padding:10px 0;border-top:1px solid #efefef;">
             <div><strong>{item.get("tipo") or "-"}</strong> • gravidade: {item.get("gravidade") or "-"}</div>
             <div style="margin-top:4px;color:#444;">{item.get("mensagem") or "-"}</div>
-            <div style="margin-top:4px;font-size:13px;color:#666;">{fmt_dt(item.get("timestamp"))}</div>
+            <div style="margin-top:4px;font-size:13px;color:#666;">status: {item.get("status") or "-"} • {fmt_dt(item.get("timestamp"))}</div>
         </div>
         """
     )
@@ -7406,6 +7442,14 @@ def admin_dashboard_current():
 
     db_status = "conectado" if has_database() and not db_error else ("erro" if db_error else "não configurado")
 
+    badges = []
+    badges.append(build_badge(f"Guest: {guest_name}", "neutral"))
+    badges.append(build_badge(f"Tópico: {last_topic}", "neutral"))
+    badges.append(build_badge(f"Intent: {last_intent}", "neutral"))
+    badges.append(build_badge("Bruno pendente", "warning") if pending_bruno else build_badge("Bruno ok", "success"))
+    badges.append(build_badge("Incidente pendente", "danger") if pending_incident else build_badge("Incidente ok", "success"))
+    badges_html = "".join(badges)
+
     html = f"""
     <!DOCTYPE html>
     <html lang="pt-BR">
@@ -7422,6 +7466,9 @@ def admin_dashboard_current():
                         Gepetto • Dashboard Current
                     </div>
                     <h1 style="margin:8px 0 0 0;font-size:32px;line-height:1.1;">Hospedagem atual em foco</h1>
+                    <p style="margin:10px 0 0 0;color:#555;">
+                        Recorte operacional do guest atual persistido no sistema.
+                    </p>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                     <a href="/admin/dashboard?token={token}" style="text-decoration:none;color:#111;background:#fff;border:1px solid #ddd;padding:10px 14px;border-radius:10px;">← Dashboard geral</a>
@@ -7434,8 +7481,26 @@ def admin_dashboard_current():
                     <div><strong>Horário local:</strong> {now_iso()}</div>
                     <div><strong>Banco:</strong> {db_status}</div>
                     <div><strong>Escopo:</strong> guest atual</div>
+                    <div><strong>Última atualização:</strong> {session_updated_at if session_updated_at != "-" else guest_updated_at}</div>
                 </div>
                 {f'<div style="margin-top:12px;color:#a33;"><strong>Erro DB:</strong> {db_error}</div>' if db_error else ''}
+            </div>
+
+            <div style="background:white;border-radius:16px;padding:18px 20px;border:1px solid #e6e6e6;margin-bottom:18px;">
+                <div style="font-size:12px;letter-spacing:0.06em;color:#666;text-transform:uppercase;margin-bottom:10px;">Resumo atual</div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    {badges_html}
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:18px;">
+                <a href="/admin/guests?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver guests</a>
+                <a href="/admin/sessions?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver sessions</a>
+                <a href="/admin/conversations?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver conversations</a>
+                <a href="/admin/incidents?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver incidents</a>
+                <a href="/admin/intents?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver intents</a>
+                <a href="/admin/insights?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver insights</a>
+                <a href="/admin/usage?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver usage</a>
             </div>
 
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;">
