@@ -3466,6 +3466,16 @@ def infer_contextual_followup(text_raw, last_topic):
             "24h", "vinte e quatro", "entrega", "delivery"
         ]):
             return "saude"
+        
+    if last_topic == "farmacia":
+        if has_any(text_n, [
+            "entrega", "delivery",
+            "24h", "vinte e quatro",
+            "todos", "todas",
+            "outras", "outras farmacias", "outras farmácias",
+            "farmacia", "farmácia", "farmacias", "farmácias"
+        ]):
+            return "farmacia"    
 
     if last_topic == "roteiro":
         if has_any(text_n, ["casal", "familia", "família", "grupo", "amigos", "galera", "pessoal"]):
