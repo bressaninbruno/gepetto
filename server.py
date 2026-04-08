@@ -7165,9 +7165,13 @@ def admin_conversations():
                 with conn.cursor() as cur:
                     cur.execute("""
                         SELECT role, text, topic, meta_json, timestamp
-                        FROM conversation_messages
-                        ORDER BY timestamp DESC
-                        LIMIT 60
+                        FROM (
+                            SELECT role, text, topic, meta_json, timestamp
+                            FROM conversation_messages
+                            ORDER BY timestamp DESC
+                            LIMIT 60
+                        ) recent_messages
+                        ORDER BY timestamp ASC
                     """)
                     messages = cur.fetchall() or []
         except Exception as e:
