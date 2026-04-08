@@ -7585,6 +7585,32 @@ def admin_incidents():
         except Exception:
             return str(value)
 
+    def severity_badge(value):
+        v = (value or "").lower().strip()
+
+        if v == "alta":
+            return '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#ffe3e3;border:1px solid #f0b2b2;font-weight:600;">Alta</span>'
+        if v == "media":
+            return '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#fff3cd;border:1px solid #f1d58a;font-weight:600;">Média</span>'
+        if v == "baixa":
+            return '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#e7f5ea;border:1px solid #b9e0c2;font-weight:600;">Baixa</span>'
+        if v == "info":
+            return '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#f1f3f5;border:1px solid #d9dde2;font-weight:600;">Info</span>'
+
+        return f'<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f3f3;border:1px solid #e2e2e2;font-weight:600;">{value or "-"}</span>'
+
+    def status_badge(value):
+        v = (value or "").lower().strip()
+
+        if v == "aberto":
+            return '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#fff3cd;border:1px solid #f1d58a;">Aberto</span>'
+        if v == "complemento":
+            return '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#eef5ff;border:1px solid #c8dcff;">Complemento</span>'
+        if v == "fechado":
+            return '<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#e7f5ea;border:1px solid #b9e0c2;">Fechado</span>'
+
+        return f'<span style="display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f3f3;border:1px solid #e2e2e2;">{value or "-"}</span>'
+
     if incidents:
         incident_blocks = []
 
@@ -7599,28 +7625,49 @@ def admin_incidents():
             timestamp = fmt_dt(item.get("timestamp"))
 
             incident_blocks.append(f"""
-            <div style="background:white;border:1px solid #e6e6e6;border-radius:16px;padding:18px;margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
-                    <div style="font-size:16px;font-weight:bold;">{tipo}</div>
-                    <div style="font-size:13px;color:#666;">{timestamp}</div>
+            <div style="background:white;border:1px solid #dddddd;border-radius:18px;padding:20px;margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #ececec;">
+                    <div>
+                        <div style="font-size:12px;letter-spacing:0.06em;color:#666;text-transform:uppercase;margin-bottom:6px;">
+                            Incidente
+                        </div>
+                        <div style="font-size:24px;font-weight:700;line-height:1.2;">
+                            {tipo}
+                        </div>
+                        <div style="margin-top:8px;font-size:13px;color:#666;">
+                            Registrado em: {timestamp}
+                        </div>
+                    </div>
+
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        {severity_badge(gravidade)}
+                        {status_badge(status)}
+                    </div>
                 </div>
 
-                <div style="font-size:13px;color:#666;margin-bottom:12px;">
-                    <strong>gravidade:</strong> {gravidade}
-                    &nbsp;•&nbsp;
-                    <strong>status:</strong> {status}
-                    &nbsp;•&nbsp;
-                    <strong>grupo:</strong> {grupo}
-                    &nbsp;•&nbsp;
-                    <strong>checkout:</strong> {checkout_label}
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;">
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Classificação</div>
+                        <div><strong>Tipo:</strong> {tipo}</div>
+                        <div><strong>Gravidade:</strong> {gravidade}</div>
+                        <div><strong>Status:</strong> {status}</div>
+                    </div>
+
+                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
+                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Contexto da hospedagem</div>
+                        <div><strong>Grupo:</strong> {grupo}</div>
+                        <div><strong>Checkout:</strong> {checkout_label}</div>
+                        <div><strong>Horário:</strong> {timestamp}</div>
+                    </div>
                 </div>
 
-                <div style="font-size:15px;line-height:1.6;white-space:pre-wrap;">
-                    <strong>Mensagem:</strong><br>{mensagem}
+                <div style="margin-top:14px;padding:12px;background:#fcfcfc;border:1px solid #ececec;border-radius:12px;">
+                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>Mensagem</strong></div>
+                    <div style="font-size:15px;line-height:1.6;white-space:pre-wrap;">{mensagem}</div>
                 </div>
 
-                <div style="margin-top:12px;padding:12px;background:#fafafa;border:1px solid #ececec;border-radius:10px;">
-                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>Detalhe</strong></div>
+                <div style="margin-top:12px;padding:12px;background:#fcfcfc;border:1px solid #ececec;border-radius:12px;">
+                    <div style="font-size:13px;color:#666;margin-bottom:6px;"><strong>Detalhe adicional</strong></div>
                     <div style="font-size:14px;line-height:1.6;white-space:pre-wrap;">{detalhe or '<span style="color:#666;">sem detalhe adicional</span>'}</div>
                 </div>
             </div>
