@@ -6393,38 +6393,46 @@ def compose_dashboard_text():
 def handle_admin_command(message):
     global ADMIN_UNLOCKED
 
-    parts = message.strip().split(" ", 2)
+    raw = (message or "").strip()
+    if not raw:
+        return None
+
+    parts = raw.split(" ", 2)
     cmd = parts[0].lower()
 
-    if cmd == "!admin":
+    if cmd == "loginadmin":
         if len(parts) < 2:
-            return "Use: !admin SEU_PIN"
+            return "Use: loginadmin SEU_PIN"
+
         pin = parts[1].strip()
         if pin == ADMIN_PIN:
             ADMIN_UNLOCKED = True
             return (
                 "Modo admin ativado ✅\n\n"
                 "Agora você pode usar:\n"
-                "!set nome Fernanda\n"
-                "!set grupo familia\n"
-                "!set perfil_hospede casal\n"
-                "!set checkin_date 26/03/2026\n"
-                "!set checkout_date 29/03/2026\n"
-                "!set checkout_time 11h\n"
-                "!set idioma pt\n"
-                "!set observacoes aniversário hoje\n"
-                "!show\n"
-                "!dashboard\n"
-                "!reset\n"
-                "!lock"
+                "adminset nome Fernanda\n"
+                "adminset grupo familia\n"
+                "adminset perfil_hospede casal\n"
+                "adminset checkin_date 26/03/2026\n"
+                "adminset checkout_date 29/03/2026\n"
+                "adminset checkout_time 11h\n"
+                "adminset idioma pt\n"
+                "adminset observacoes aniversário hoje\n"
+                "adminshow\n"
+                "admindashboard\n"
+                "adminreset\n"
+                "adminlock"
             )
         return "PIN incorreto ❌"
 
-    if cmd == "!lock":
+    if cmd == "adminlock":
         ADMIN_UNLOCKED = False
         return "Modo admin desativado 🔒"
 
-    if cmd == "!show":
+    if cmd == "adminshow":
+        if not ADMIN_UNLOCKED:
+            return "Ative primeiro com loginadmin SEU_PIN 🔒"
+
         guest = load_guest()
         return (
             "Hóspede atual 👇\n\n"
@@ -6438,9 +6446,9 @@ def handle_admin_command(message):
             f"observacoes: {guest.get('observacoes','')}"
         )
 
-    if cmd == "!dashboard":
+    if cmd == "admindashboard":
         if not ADMIN_UNLOCKED:
-            return "Ative primeiro com !admin SEU_PIN 🔒"
+            return "Ative primeiro com loginadmin SEU_PIN 🔒"
 
         text = compose_dashboard_text()
         ok, msg = send_telegram_message(text)
@@ -6448,18 +6456,21 @@ def handle_admin_command(message):
             return f"{text}\n\n📨 Dashboard enviado ao Telegram ✅"
         return f"{text}\n\n⚠️ Não consegui enviar ao Telegram agora: {msg}"
 
-    if cmd == "!reset":
+    if cmd == "adminreset":
+        if not ADMIN_UNLOCKED:
+            return "Ative primeiro com loginadmin SEU_PIN 🔒"
+
         save_guest(default_guest())
         reset_memory()
         reset_session()
         return "Dados do hóspede e sessão resetados ♻️"
 
-    if cmd == "!set":
+    if cmd == "adminset":
         if not ADMIN_UNLOCKED:
-            return "Ative primeiro com !admin SEU_PIN 🔒"
+            return "Ative primeiro com loginadmin SEU_PIN 🔒"
 
         if len(parts) < 3:
-            return "Use: !set campo valor"
+            return "Use: adminset campo valor"
 
         field = parts[1].strip().lower()
         value = parts[2].strip()
@@ -6552,18 +6563,7 @@ def gepetto_responde(msg):
 
     guest_after, remembered = remember_guest_details(text_raw)
     guest = guest_after if remembered else guest_before
-
-    if text_raw.startswith("!"):
-        if not is_admin_authorized(request):
-            reply = "Este comando administrativo não está disponível neste canal."
-            return finalize_and_log(
-                guest,
-                text_raw,
-                "admin_bloqueado",
-                reply,
-                remembered,
-                intent_for_session="admin_bloqueado"
-            )
+    
 
     admin_reply = handle_admin_command(text_raw)
     if admin_reply is not None:
