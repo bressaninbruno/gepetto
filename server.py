@@ -6563,7 +6563,7 @@ def gepetto_responde(msg):
 
     guest_after, remembered = remember_guest_details(text_raw)
     guest = guest_after if remembered else guest_before
-    
+
 
     admin_reply = handle_admin_command(text_raw)
     if admin_reply is not None:
@@ -6854,6 +6854,8 @@ def gepetto_responde(msg):
             reply = get_guided_reply("restaurantes")
         else:
             reply = get_restaurantes_reply(text_raw)
+
+        reply = maybe_append_proactive_hint(reply, guest, current_topic="restaurantes")
         return finalize_and_log(guest, text_raw, "restaurantes", reply, remembered, intent_for_session="restaurantes")
 
     if intent == "mercado":
