@@ -4077,6 +4077,14 @@ def score_intents(text_raw, last_topic=""):
         add("tempo", 10)
 
     if has_any(text_n, [
+        "que horas sao", "que horas são",
+        "que horas e", "que horas é",
+        "qual o horario agora", "qual o horário agora",
+        "me diga as horas", "hora agora", "horario agora", "horário agora"
+    ]):
+        add("hora_atual", 12)    
+
+    if has_any(text_n, [
         "passeio", "passeios", "o que fazer", "o que fazer hoje",
         "o que fazer agora", "algum passeio", "alguma ideia de passeio",
         "lugar para ir", "lugares para ir", "algo para fazer",
@@ -4115,7 +4123,7 @@ def infer_primary_intent(text_raw, last_topic=""):
 
     priority = [
         "incidente", "saude", "localizacao", "wifi", "regras", "praia_local",
-        "praia", "chaves", "restaurantes", "mercado", "tempo", "padaria", "farmacia",
+        "praia", "chaves", "restaurantes", "mercado", "tempo", "hora_atual", "padaria", "farmacia",
         "apoio_predio", "garagem", "checkout", "roteiro", "passeio", "surf", "bares",
         "shopping", "feira", "eventos", "bruno", "identidade"
     ]
@@ -5503,6 +5511,11 @@ def get_feira_reply():
 
 def get_tempo_reply():
     return get_weather_reply()
+
+
+def get_current_time_reply():
+    hora = now_local().strftime("%H:%M")
+    return f"Agora são **{hora}** 😊"    
 
 
 def get_roteiro_reply(guest, style_override=""):
@@ -6913,6 +6926,17 @@ def gepetto_responde(msg):
     if intent == "feira":
         reply = get_feira_reply()
         return finalize_and_log(guest, text_raw, "feira", reply, remembered, intent_for_session="feira")
+    
+    if intent == "hora_atual":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "hora_atual",
+            get_current_time_reply(),
+            remembered,
+            intent_for_session="hora_atual"
+        )
 
     if intent == "tempo":
         clear_active_recommendations()
