@@ -1020,7 +1020,85 @@ def should_block_proactivity():
     if has_recent_proactive_message(minutes=180):
         return True
 
-    return False    
+    return False
+
+
+def get_proactive_praia_message(guest):
+    context = get_stay_context(guest)
+    status = get_praia_service_status(context)
+    hour = context.get("hour", current_local_hour())
+
+    guest_praia_interest = (guest.get("preferencias", {}) or {}).get("praia", 0) > 0
+
+    if not guest_praia_interest:
+        return ""
+
+    if status not in ["opening_soon", "active"]:
+        return ""
+
+    if hour < 8 or hour > 12:
+        return ""
+
+    return "Se a ideia for praia hoje, este costuma ser um bom momento para aproveitar o serviço com mais tranquilidade 😊"
+
+
+def get_proactive_food_message(guest):
+    context = get_stay_context(guest)
+    phase = context.get("stay_phase", "unknown")
+    hour = context.get("hour", current_local_hour())
+
+    if hour < 18 or hour > 21:
+        return ""
+
+    if phase == "primeira_noite":
+        return "Como vocês estão começando a estadia agora, se quiserem eu posso sugerir algo gostoso e fácil de encaixar para a primeira noite 😊"
+
+    if phase == "vespera_saida":
+        return "Como vocês já estão entrando na reta final da estadia, se quiserem eu posso sugerir algo gostoso e leve para fechar o dia bem 😊"
+
+    return ""
+
+
+def get_proactive_checkout_message(guest):
+    context = get_stay_context(guest)
+    if not context.get("is_checkout_day"):
+        return ""
+
+    window = get_checkout_day_window(context, guest)
+    hour = context.get("hour", current_local_hour())
+
+    if hour < 8 or hour > 10:
+        return ""
+
+    if window == "corrido":
+        return "Como o check-out de vocês está previsto para mais cedo hoje, vale só manter o restante do dia mais leve. Se quiserem, eu posso sugerir algo que encaixe bem nesse ritmo 😊"
+
+    if window == "folgado":
+        return "Como o check-out de vocês está previsto mais tarde, ainda dá para pensar o dia com mais folga. Se quiserem, eu posso sugerir algo leve para encaixar bem 😊"
+
+    if window == "intermediario":
+        return "Como o check-out de vocês ainda permite alguma folga hoje, se quiserem eu posso sugerir algo leve e fácil de encaixar no ritmo do dia 😊"
+
+    return ""
+
+
+def get_proactive_contextual_message(guest):
+    if should_block_proactivity():
+        return ("", "")
+
+    checkout_msg = get_proactive_checkout_message(guest)
+    if checkout_msg:
+        return ("checkout", checkout_msg)
+
+    praia_msg = get_proactive_praia_message(guest)
+    if praia_msg:
+        return ("praia", praia_msg)
+
+    food_msg = get_proactive_food_message(guest)
+    if food_msg:
+        return ("alimentacao", food_msg)
+
+    return ("", "")        
 
 
 def get_active_recommendations():
