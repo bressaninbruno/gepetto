@@ -1101,17 +1101,63 @@ def get_proactive_contextual_message(guest):
     return ("", "")
 
 
-def maybe_append_proactive_hint(reply, guest, current_topic=""):
+def maybe_append_proactive_hint(reply, guest, text_raw="", current_topic=""):
     topic, proactive_msg = get_proactive_contextual_message(guest)
 
     if not proactive_msg:
         return reply
 
-    if current_topic in ["incidente", "saude", "bruno", "fallback", "admin", "admin_bloqueado"]:
+    if should_skip_proactive_hint(reply, text_raw, current_topic=current_topic):
         return reply
 
     register_proactive_message(topic, proactive_msg)
-    return reply + "\n\n" + proactive_msg            
+    return reply + "\n\n" + proactive_msg
+
+
+def response_is_too_long_for_proactive_hint(reply: str, max_chars=520):
+    text = (reply or "").strip()
+    return len(text) > max_chars
+
+
+def looks_like_objective_question(text_raw: str):
+    text_n = normalize_text(text_raw)
+
+    objective_patterns = [
+        "onde fica",
+        "qual o endereco", "qual o endereço",
+        "que horas", "qual o horario", "qual o horário",
+        "como funciona",
+        "telefone",
+        "whatsapp",
+        "instagram",
+        "delivery",
+        "entrega",
+        "24h",
+        "horario", "horário",
+        "endereco", "endereço"
+    ]
+
+    if has_any(text_n, objective_patterns):
+        return True
+
+    short_text = len((text_raw or "").strip()) <= 28
+    if short_text and get_requested_detail_field(text_raw):
+        return True
+
+    return False
+
+
+def should_skip_proactive_hint(reply: str, text_raw: str, current_topic=""):
+    if current_topic in ["incidente", "saude", "bruno", "fallback", "admin", "admin_bloqueado"]:
+        return True
+
+    if response_is_too_long_for_proactive_hint(reply, max_chars=520):
+        return True
+
+    if looks_like_objective_question(text_raw):
+        return True
+
+    return False
 
 
 def get_active_recommendations():
@@ -6835,7 +6881,7 @@ def gepetto_responde(msg):
             if len(text.split()) <= 2 and has_any(text, ["praia", "praias"])
             else get_praia_reply(guest, text_raw)
         )
-        reply = maybe_append_proactive_hint(reply, guest, current_topic="praia")
+        reply = maybe_append_proactive_hint(reply, guest, text_raw=text_raw, current_topic="praia")
         return finalize_and_log(
             guest,
             text_raw,
@@ -6855,7 +6901,7 @@ def gepetto_responde(msg):
         else:
             reply = get_restaurantes_reply(text_raw)
 
-        reply = maybe_append_proactive_hint(reply, guest, current_topic="restaurantes")
+        reply = maybe_append_proactive_hint(reply, guest, text_raw=text_raw, current_topic="restaurantes")
         return finalize_and_log(guest, text_raw, "restaurantes", reply, remembered, intent_for_session="restaurantes")
 
     if intent == "mercado":
@@ -6900,7 +6946,7 @@ def gepetto_responde(msg):
         else:
             reply = get_checkout_reply(guest)
 
-        reply = maybe_append_proactive_hint(reply, guest, current_topic="checkout")
+        reply = maybe_append_proactive_hint(reply, guest, text_raw=text_raw, current_topic="checkout")
         return finalize_and_log(guest, text_raw, "checkout", reply, remembered, intent_for_session="checkout")
 
     if intent == "bruno":
