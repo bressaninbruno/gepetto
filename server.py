@@ -1098,7 +1098,20 @@ def get_proactive_contextual_message(guest):
     if food_msg:
         return ("alimentacao", food_msg)
 
-    return ("", "")        
+    return ("", "")
+
+
+def maybe_append_proactive_hint(reply, guest, current_topic=""):
+    topic, proactive_msg = get_proactive_contextual_message(guest)
+
+    if not proactive_msg:
+        return reply
+
+    if current_topic in ["incidente", "saude", "bruno", "fallback", "admin", "admin_bloqueado"]:
+        return reply
+
+    register_proactive_message(topic, proactive_msg)
+    return reply + "\n\n" + proactive_msg            
 
 
 def get_active_recommendations():
@@ -6815,6 +6828,7 @@ def gepetto_responde(msg):
             if len(text.split()) <= 2 and has_any(text, ["praia", "praias"])
             else get_praia_reply(guest, text_raw)
         )
+        reply = maybe_append_proactive_hint(reply, guest, current_topic="praia")
         return finalize_and_log(
             guest,
             text_raw,
@@ -6876,6 +6890,8 @@ def gepetto_responde(msg):
             reply = get_checkout_aviso_reply(guest)
         else:
             reply = get_checkout_reply(guest)
+
+        reply = maybe_append_proactive_hint(reply, guest, current_topic="checkout")
         return finalize_and_log(guest, text_raw, "checkout", reply, remembered, intent_for_session="checkout")
 
     if intent == "bruno":
