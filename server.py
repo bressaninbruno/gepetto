@@ -6396,54 +6396,51 @@ def handle_admin_command(message):
     parts = message.strip().split(" ", 2)
     cmd = parts[0].lower()
 
-    if cmd == "/admin":
+    if cmd == "!admin":
         if len(parts) < 2:
-            return "Use: /admin SEU_PIN"
+            return "Use: !admin SEU_PIN"
         pin = parts[1].strip()
         if pin == ADMIN_PIN:
             ADMIN_UNLOCKED = True
             return (
                 "Modo admin ativado ✅\n\n"
                 "Agora você pode usar:\n"
-                "/set nome Fernanda\n"
-                "/set grupo familia\n"
-                "/set perfil_hospede casal\n"
-                "/set checkin_date 26/03/2026\n"
-                "/set checkout_date 29/03/2026\n"
-                "/set checkout_time 11h\n"
-                "/set idioma pt\n"
-                "/set observacoes aniversário hoje\n"
-                "/show\n"
-                "/dashboard\n"
-                "/reset\n"
-                "/lock"
+                "!set nome Fernanda\n"
+                "!set grupo familia\n"
+                "!set perfil_hospede casal\n"
+                "!set checkin_date 26/03/2026\n"
+                "!set checkout_date 29/03/2026\n"
+                "!set checkout_time 11h\n"
+                "!set idioma pt\n"
+                "!set observacoes aniversário hoje\n"
+                "!show\n"
+                "!dashboard\n"
+                "!reset\n"
+                "!lock"
             )
         return "PIN incorreto ❌"
 
-    if cmd == "/lock":
+    if cmd == "!lock":
         ADMIN_UNLOCKED = False
         return "Modo admin desativado 🔒"
 
-    if cmd == "/show":
-        if not ADMIN_UNLOCKED:
-            return "Ative primeiro com /admin SEU_PIN 🔒"
-
+    if cmd == "!show":
         guest = load_guest()
         return (
-        "Hóspede atual 👇\n\n"
-        f"nome: {guest.get('nome','')}\n"
-        f"grupo: {guest.get('grupo','')}\n"
-        f"perfil_hospede: {guest.get('perfil_hospede','neutro')}\n"
-        f"checkin_date: {guest.get('checkin_date','')}\n"
-        f"checkout_date: {guest.get('checkout_date','')}\n"
-        f"checkout_time: {guest.get('checkout_time','')}\n"
-        f"idioma: {guest.get('idioma','')}\n"
-        f"observacoes: {guest.get('observacoes','')}"
-    )
+            "Hóspede atual 👇\n\n"
+            f"nome: {guest.get('nome','')}\n"
+            f"grupo: {guest.get('grupo','')}\n"
+            f"perfil_hospede: {guest.get('perfil_hospede','neutro')}\n"
+            f"checkin_date: {guest.get('checkin_date','')}\n"
+            f"checkout_date: {guest.get('checkout_date','')}\n"
+            f"checkout_time: {guest.get('checkout_time','')}\n"
+            f"idioma: {guest.get('idioma','')}\n"
+            f"observacoes: {guest.get('observacoes','')}"
+        )
 
-    if cmd == "/dashboard":
+    if cmd == "!dashboard":
         if not ADMIN_UNLOCKED:
-            return "Ative primeiro com /admin SEU_PIN 🔒"
+            return "Ative primeiro com !admin SEU_PIN 🔒"
 
         text = compose_dashboard_text()
         ok, msg = send_telegram_message(text)
@@ -6451,21 +6448,18 @@ def handle_admin_command(message):
             return f"{text}\n\n📨 Dashboard enviado ao Telegram ✅"
         return f"{text}\n\n⚠️ Não consegui enviar ao Telegram agora: {msg}"
 
-    if cmd == "/reset":
-        if not ADMIN_UNLOCKED:
-            return "Ative primeiro com /admin SEU_PIN 🔒"
-
+    if cmd == "!reset":
         save_guest(default_guest())
         reset_memory()
         reset_session()
         return "Dados do hóspede e sessão resetados ♻️"
 
-    if cmd == "/set":
+    if cmd == "!set":
         if not ADMIN_UNLOCKED:
-            return "Ative primeiro com /admin SEU_PIN 🔒"
+            return "Ative primeiro com !admin SEU_PIN 🔒"
 
         if len(parts) < 3:
-            return "Use: /set campo valor"
+            return "Use: !set campo valor"
 
         field = parts[1].strip().lower()
         value = parts[2].strip()
@@ -6489,8 +6483,8 @@ def handle_admin_command(message):
             value = normalize_group_value(value)
 
         if field == "perfil_hospede":
-             value = normalize_profile_value(value)
-        
+            value = normalize_profile_value(value)
+
         if field == "idioma":
             value = normalize_text(value)
             if value not in ["pt", "en"]:
@@ -6559,7 +6553,7 @@ def gepetto_responde(msg):
     guest_after, remembered = remember_guest_details(text_raw)
     guest = guest_after if remembered else guest_before
 
-    if text_raw.startswith("/"):
+    if text_raw.startswith("!"):
         if not is_admin_authorized(request):
             reply = "Este comando administrativo não está disponível neste canal."
             return finalize_and_log(
