@@ -3686,7 +3686,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "o outro", "a outra", "outro", "outra",
         "esse lugar", "essa opcao", "essa opção",
         "esse local", "esse ai", "esse aí", "essa ai", "essa aí",
-        "qual deles", "qual delas", "tem outro", "tem outra",
+        "qual deles", "qual delas", "qual desses", "qual dessas" "tem outro", "tem outra",
         "supermercados", "mercados", "outro mercado", "outros mercados",
         "restaurantes", "outro restaurante", "outros restaurantes",
         "farmacia", "farmácia", "farmacias", "farmácias",
@@ -3705,7 +3705,7 @@ def infer_contextual_followup(text_raw, last_topic):
         "qual", "melhor", "barato", "perto", "especial",
         "completo", "tranquilo", "animado", "leve",
         "rapido", "rápido", "em conta",
-        "esse", "essa", "entao", "então", "vc indica", "casal", "familia", "família", "grupo",
+        "esse", "essa", "entao", "então", "vc indica", "qual desses", "qual dessas", "casal", "familia", "família", "grupo",
         "envie o anuncio", "envie anuncio", "anuncio", "anúncio", "falar com bruno",
         "localizacao", "localização", "horario", "horário", "horarios", "horários",
         "servico", "serviço", "envie", "manda", "pode mandar",
@@ -3791,8 +3791,8 @@ def is_ambiguous_reference_message(text_raw):
     exacts = {
         "esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí",
         "o outro", "a outra", "outro", "outra",
-        "qual", "qual deles", "qual delas",
-        "qual?", "qual deles?", "qual delas?",
+        "qual", "qual deles", "qual delas", "qual desses", "qual dessas",
+        "qual?", "qual deles?", "qual delas?", "qual desses?", "qual dessas?",
         "endereco", "endereço",
         "endereco?", "endereço?",
         "horario", "horário", "horarios", "horários",
@@ -3919,15 +3919,13 @@ def should_ask_for_followup_reference(text_raw, last_topic, inferred_intent):
     if normalize_text(text_raw) in [
         "esse", "essa", "esse ai", "esse aí", "essa ai", "essa aí",
         "o outro", "a outra", "outro", "outra",
-        "qual", "qual deles", "qual delas",
-        "qual?", "qual deles?", "qual delas?",
+        "qual", "qual deles", "qual delas", "qual desses", "qual dessas",
+        "qual?", "qual deles?", "qual delas?", "qual desses?", "qual dessas?",
         "compensa", "vale a pena",
         "compensa?", "vale a pena?"
     ]:
         if not has_reference_anchor_for_topic(last_topic):
             return True
-
-    return False
 
 
 def get_followup_reference_clarifier(text_raw, last_topic):
@@ -3949,8 +3947,8 @@ def get_followup_reference_clarifier(text_raw, last_topic):
         return "Posso te mostrar outra opção sim 😊\n\nSó me diga de qual tema você está falando."
 
     if text_n in [
-        "qual", "qual deles", "qual delas",
-        "qual?", "qual deles?", "qual delas?",
+        "qual", "qual deles", "qual delas", "qual desses", "qual dessas",
+        "qual?", "qual deles?", "qual delas?", "qual desses?", "qual dessas?",
         "compensa", "vale a pena",
         "compensa?", "vale a pena?"
     ]:
@@ -3982,11 +3980,19 @@ def score_intents(text_raw, last_topic=""):
         add("identidade", 12)
 
     if has_any(text_n, [
-        "onde estamos", "qual o endereco", "qual o endereço", "me passa o endereco",
-        "me passa o endereço", "endereco daqui", "endereço daqui", "onde fica aqui",
-        "endereco para delivery", "endereço para delivery",
-        "endereco para entrega", "endereço para entrega",
-        "para entrega", "pro delivery", "para o delivery"
+        "onde estamos",
+        "qual o endereco", "qual o endereço",
+        "me passa o endereco", "me passa o endereço",
+        "endereco daqui", "endereço daqui",
+        "onde fica aqui",
+        "endereco do apartamento", "endereço do apartamento",
+        "endereco do apto", "endereço do apto",
+        "endereco do apt", "endereço do apt",
+        "endereco da hospedagem", "endereço da hospedagem",
+        "qual o endereco do apartamento", "qual o endereço do apartamento",
+        "qual o endereco do apto", "qual o endereço do apto",
+        "qual o endereco do apt", "qual o endereço do apt",
+        "qual o endereco da hospedagem", "qual o endereço da hospedagem"
     ]):
         add("localizacao", 11)
 
@@ -4118,7 +4124,12 @@ def score_intents(text_raw, last_topic=""):
 
     if has_any(text_n, [
         "tempo", "clima", "previsao", "previsão", "meteorologia",
-        "vai chover", "vai fazer sol", "como esta o tempo", "como está o tempo"
+        "vai chover", "vai fazer sol", "como esta o tempo", "como está o tempo",
+        "temperatura", "temperatura agora",
+        "quantos graus", "graus",
+        "calor", "frio",
+        "sensacao termica", "sensação térmica",
+        "abafado", "clima hoje", "tempo hoje"
     ]):
         add("tempo", 10)
 
@@ -4595,21 +4606,6 @@ def get_localizacao_reply(text):
     upa = saude.get("upa", {})
     hospital = saude.get("hospital", {})
 
-    if has_any(text_n, [
-        "endereco para delivery", "endereço para delivery",
-        "endereco para entrega", "endereço para entrega",
-        "para entrega", "pro delivery", "para o delivery"
-    ]):
-        return (
-            "Claro 😊\n\n"
-            f"📍 **{apt.get('nome', 'Residencial Volare – Apto 14B')}**\n"
-            f"{endereco.get('rua', 'Avenida da Saudade, 335')}\n"
-            f"{endereco.get('bairro', 'Jardim São Miguel')}\n"
-            f"{endereco.get('cidade', 'Praia da Enseada, Guarujá')}\n"
-            f"CEP: {endereco.get('cep', '11440-180')}\n\n"
-            "Se quiser, também posso te passar um texto pronto para copiar no app de delivery 👍"
-        )
-
     if has_any(text_n, ["upa", "upa enseada"]):
         perfil = upa.get("perfil", "")
         horario = upa.get("horario", "")
@@ -4639,7 +4635,20 @@ def get_localizacao_reply(text):
             "Se quiser, eu também posso te orientar para UPA ou farmácia."
         )
 
-    if has_any(text_n, ["qual o endereco", "qual o endereço", "me passa o endereco", "me passa o endereço", "endereco daqui", "endereço daqui", "onde fica aqui"]):
+    if has_any(text_n, [
+        "qual o endereco", "qual o endereço",
+        "me passa o endereco", "me passa o endereço",
+        "endereco daqui", "endereço daqui",
+        "onde fica aqui",
+        "endereco do apartamento", "endereço do apartamento",
+        "endereco do apto", "endereço do apto",
+        "endereco do apt", "endereço do apt",
+        "endereco da hospedagem", "endereço da hospedagem",
+        "qual o endereco do apartamento", "qual o endereço do apartamento",
+        "qual o endereco do apto", "qual o endereço do apto",
+        "qual o endereco do apt", "qual o endereço do apt",
+        "qual o endereco da hospedagem", "qual o endereço da hospedagem"
+    ]):
         return (
             "Claro 😊\n\n"
             f"📍 **{apt.get('nome', 'Residencial Volare – Apto 14B')}**\n"
@@ -4652,7 +4661,7 @@ def get_localizacao_reply(text):
     return (
         "Estamos na deliciosa **praia da Enseada, no Guarujá** 😊\n\n"
         f"No **{apt.get('nome', 'Residencial Volare – Apto 14B')}**, o apartamento do Bruno.\n\n"
-        "Se quiser, posso te passar o endereço completo para pedidos, Uber ou compras."
+        "Se quiser, posso te passar o endereço completo para Uber ou localização."
     )
 
 
@@ -5841,7 +5850,12 @@ def get_followup_reply(text, last_topic, guest):
                     reply += f"\n\n{alt.get('observacao')}"
                 return reply
 
-        if has_any(text_n, ["qual deles", "qual delas", "entre eles", "entre elas"]):
+        if has_any(text_n, [
+            "qual deles", "qual delas",
+            "qual desses", "qual dessas",
+            "entre eles", "entre elas",
+            "entre esses", "entre essas"
+        ]):
             active = get_active_recommendations()
             if normalize_text(active.get("type", "")) == "restaurantes" and active.get("options"):
                 nomes = active["options"][:3]
@@ -5991,7 +6005,12 @@ def get_followup_reply(text, last_topic, guest):
                     reply += f"\n\n{alt.get('observacao')}"
                 return reply
 
-        if has_any(text_n, ["qual deles", "qual delas", "entre eles", "entre elas"]):
+        if has_any(text_n, [
+            "qual deles", "qual delas",
+            "qual desses", "qual dessas",
+            "entre eles", "entre elas",
+            "entre esses", "entre essas"
+        ]):
             active = get_active_recommendations()
             if normalize_text(active.get("type", "")) == "mercado" and active.get("options"):
                 nomes = active["options"][:3]
@@ -6131,7 +6150,12 @@ def get_followup_reply(text, last_topic, guest):
                     f"{alt.get('perfil', alt.get('observacao', 'Pode ser uma boa alternativa por aqui.'))}"
                 )
 
-        if has_any(text_n, ["qual deles", "qual delas", "entre eles", "entre elas"]):
+        if has_any(text_n, [
+            "qual deles", "qual delas",
+            "qual desses", "qual dessas",
+            "entre eles", "entre elas",
+            "entre esses", "entre essas"
+        ]):
             active = get_active_recommendations()
             if normalize_text(active.get("type", "")) == "passeio" and active.get("options"):
                 nomes = active["options"][:3]
@@ -6730,6 +6754,17 @@ def gepetto_responde(msg):
                 used_followup=True,
                 intent_for_session="comparacao_restaurantes"
             )
+        
+    if inferred_intent_preview == "localizacao":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "localizacao",
+            get_localizacao_reply(text_raw),
+            remembered,
+            intent_for_session="localizacao"
+        )    
 
     if should_use_entity_detail_mode(text_raw, inferred_intent_preview, last_topic):
         entity = resolve_entity_from_text(
