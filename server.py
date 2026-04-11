@@ -831,6 +831,9 @@ def default_session():
         "active_recommendation_options": [],
         "active_recommendation_index": 0,
         "active_recommendation_updated_at": "",
+        "last_proactive_topic": "",
+        "last_proactive_message": "",
+        "last_proactive_sent_at": "",
         "updated_at": ""
     }
 
@@ -951,6 +954,73 @@ def clear_active_recommendations():
     sess["active_recommendation_updated_at"] = ""
     sess["updated_at"] = now_iso()
     save_session(sess)
+
+
+def register_proactive_message(topic: str, message: str):
+    sess = load_session()
+    sess["last_proactive_topic"] = topic or ""
+    sess["last_proactive_message"] = message or ""
+    sess["last_proactive_sent_at"] = now_iso()
+    sess["updated_at"] = now_iso()
+    save_session(sess)
+
+
+def has_recent_proactive_message(minutes=180):
+    sess = load_session()
+    sent_at = (sess.get("last_proactive_sent_at") or "").strip()
+
+    if not sent_at:
+        return False
+
+    try:
+        sent_dt = datetime.fromisoformat(sent_at)
+    except Exception:
+        return False
+
+    delta_seconds = (now_local() - sent_dt).total_seconds()
+    return delta_seconds < (minutes * 60)
+
+
+def has_recent_conversation_activity(minutes=20):
+    recent = get_recent_messages(6)
+    if not recent:
+        return False
+
+    cutoff_seconds = minutes * 60
+    now_dt = now_local()
+
+    for item in reversed(recent):
+        ts = (item.get("timestamp") or "").strip()
+        if not ts:
+            continue
+
+        try:
+            item_dt = datetime.fromisoformat(ts)
+        except Exception:
+            continue
+
+        if (now_dt - item_dt).total_seconds() < cutoff_seconds:
+            return True
+
+    return False
+
+
+def should_block_proactivity():
+    sess = load_session()
+
+    if sess.get("pending_incident_context"):
+        return True
+
+    if sess.get("pending_bruno_contact"):
+        return True
+
+    if has_recent_conversation_activity(minutes=20):
+        return True
+
+    if has_recent_proactive_message(minutes=180):
+        return True
+
+    return False    
 
 
 def get_active_recommendations():
