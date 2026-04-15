@@ -106,6 +106,9 @@
         "jantar_rapido",
         "noite"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "11h às 15h",
+      "estilo_almoco": "rapido",
       "faixa_preco": "baixo",
       "observacao": "boa escolha quando a ideia é resolver rápido"
     },
@@ -133,6 +136,9 @@
         "noite",
         "madrugada"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "11h às 15h",
+      "estilo_almoco": "rapido",
       "faixa_preco": "baixo",
       "observacao": "boa alternativa quando a ideia é comer algo rápido mais tarde"
     },
@@ -153,6 +159,9 @@
         "hambúrguer",
         "algo rápido com mais capricho"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "11:30h às 15h",
+      "estilo_almoco": "rapido",
       "faixa_preco": "medio",
       "observacao": "boa opção para quem quer hambúrguer com um passo acima do fast-food tradicional"
     },
@@ -186,6 +195,9 @@
         "almoco",
         "jantar"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "11:30h às 15h",
+      "estilo_almoco": "tradicional",
       "faixa_preco": "medio",
       "assinatura_curatorial": "Desde 1979, o Alcide’s conta sua história em cada prato.",
       "alertas_alimentares": [
@@ -219,6 +231,7 @@
         "jantar",
         "noite"
       ],
+      "serve_almoco": false,
       "faixa_preco": "medio",
       "observacao": "faz sentido quando a ideia é algo fácil de compartilhar"
     },
@@ -248,6 +261,7 @@
         "jantar",
         "noite"
       ],
+      "serve_almoco": false,
       "faixa_preco": "medio-alto",
       "alertas_alimentares": [
         "confirmar cardápio em caso de restrições específicas"
@@ -279,6 +293,9 @@
         "almoco_especial",
         "jantar"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "12h às 16h",
+      "estilo_almoco": "especial",
       "faixa_preco": "alto",
       "alertas_alimentares": [
         "atenção para alergia a camarão e frutos do mar, embora haja outras opções"
@@ -315,6 +332,9 @@
         "jantar",
         "noite"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "11h às 16h",
+      "estilo_almoco": "orla",
       "faixa_preco": "medio",
       "observacao": "fica na beira da praia e possui espaço kids"
     },
@@ -344,6 +364,9 @@
         "almoco",
         "jantar"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "12h às 15h",
+      "estilo_almoco": "casual",
       "faixa_preco": "medio",
       "alertas_alimentares": [
         "confirmar opções específicas em caso de alergias e restrições"
@@ -378,6 +401,9 @@
         "fim_de_tarde",
         "jantar"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "12h às 15h",
+      "estilo_almoco": "tradicional",
       "faixa_preco": "medio",
       "alertas_alimentares": [
         "atenção para frutos do mar e camarão"
@@ -414,6 +440,9 @@
         "tarde",
         "noite"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "11:30h às 16h",
+      "estilo_almoco": "rapido",
       "faixa_preco": "medio",
       "observacao": "padaria, confeitaria, restaurante e pizzaria"
     },
@@ -442,6 +471,7 @@
         "tarde",
         "pos_jantar"
       ],
+      "serve_almoco": false,
       "faixa_preco": "medio",
       "observacao": "boa pedida para um mimo ou algo gostoso depois do jantar"
     },
@@ -469,6 +499,7 @@
         "tarde",
         "pos_jantar"
       ],
+      "serve_almoco": false,
       "faixa_preco": "baixo-medio",
       "observacao": "boa alternativa para algo rápido e gostoso"
     },
@@ -500,6 +531,9 @@
         "fim_de_tarde",
         "por_do_sol"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "12h às 15h",
+      "estilo_almoco": "vista",
       "faixa_preco": "medio",
       "alertas_alimentares": [
         "atenção para frutos do mar e camarão"
@@ -534,6 +568,7 @@
         "fim_de_tarde",
         "noite"
       ],
+      "serve_almoco": false,
       "faixa_preco": "medio",
       "happy_hour": {
         "ativo": true,
@@ -578,6 +613,9 @@
         "jantar",
         "noite"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "11:30h às 15h",
+      "estilo_almoco": "orla",
       "faixa_preco": "medio",
       "happy_hour": {
         "ativo": true,
@@ -613,6 +651,9 @@
         "jantar",
         "noite"
       ],
+      "serve_almoco": true,
+      "janela_almoco": "11:30h às 15h",
+      "estilo_almoco": "casual",
       "faixa_preco": "medio",
       "happy_hour": {
         "ativo": true,
@@ -647,6 +688,7 @@
         "fim_de_tarde",
         "noite"
       ],
+      "serve_almoco": false,
       "faixa_preco": "medio",
       "happy_hour": {
         "ativo": true,
