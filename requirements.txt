@@ -2,3 +2,4 @@ flask
 gunicorn
 requests
 psycopg[binary]
+beautifulsoup4>=4.12
