@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 import psycopg
 from psycopg.rows import dict_row
 from functools import wraps
+from bs4 import BeautifulSoup
 
 try:
     import requests
@@ -4611,6 +4612,30 @@ def score_intents(text_raw, last_topic=""):
         add("pet", 9)
 
     if has_any(text_n, [
+        "balsa", "travessia", "travessia santos guaruja", "travessia santos guarujá",
+        "ferry boat", "ferryboat",
+        "ir para santos", "ir pra santos", "ir pro santos",
+        "como chegar em santos", "como vou para santos", "como vou pra santos",
+        "quero ir para santos", "quero ir pra santos",
+        "como faz para ir a santos", "como faço para ir a santos"
+    ]):
+        add("deslocamento_santos", 10)
+
+    if phrase_in_text(text_n, "santos") and has_any(text_n, [
+        "ir", "chegar", "vou", "quero", "como", "travessia", "balsa"
+    ]):
+        add("deslocamento_santos", 8)
+
+    if has_any(text_n, [
+        "rodoviaria", "rodoviária", "terminal rodoviario", "terminal rodoviário",
+        "onibus", "ônibus", "chegar de onibus", "chegar de ônibus",
+        "vou de onibus", "vou de ônibus",
+        "quero ir para a rodoviaria", "quero ir para a rodoviária",
+        "como chegar na rodoviaria", "como chegar na rodoviária"
+    ]):
+        add("rodoviaria", 9)       
+
+    if has_any(text_n, [
         "distribuidora", "bebida", "gelo", "carvao", "carvão"
     ]):
         add("distribuidora", 8)
@@ -4726,7 +4751,7 @@ def infer_primary_intent(text_raw, last_topic=""):
     priority = [
         "incidente", "saude", "localizacao", "wifi", "regras", "praia_local",
         "praia", "praias_guaruja", "chaves", "restaurantes", "mercado", "tempo",
-        "hora_atual", "padaria", "farmacia", "pet", "distribuidora",
+        "hora_atual", "padaria", "farmacia", "pet", "deslocamento_santos", "rodoviaria", "distribuidora",
         "apoio_predio", "garagem", "checkout", "roteiro", "passeio", "surf",
         "bares", "shopping", "feira", "eventos", "bruno", "identidade"
     ]
@@ -4989,6 +5014,86 @@ def build_weather_recommendation(temp=None, apparent=None, weather_code=None, we
         return "\n\n**Um guarda-chuva é recomendado** se você for sair. ☔"
 
     return ""
+
+
+def get_balsa_live_status():
+    if not requests:
+        return {
+            "ok": False,
+            "wait_guaruja": "",
+            "wait_santos": "",
+            "alert_text": "",
+            "site_unstable": False,
+            "source_url": "https://semil.sp.gov.br/travessias/travessias-automoveis/santos-guaruja/"
+        }
+
+    url = "https://semil.sp.gov.br/travessias/travessias-automoveis/santos-guaruja/"
+
+    try:
+        resp = requests.get(url, timeout=8)
+        html = resp.text or ""
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        for tag in soup(["script", "style", "meta", "link", "head", "noscript"]):
+            tag.decompose()
+
+        page_text = soup.get_text(separator=" ", strip=True)
+        text_n = normalize_text(page_text)
+
+        site_unstable = (
+            "informacoes do site estao desatualizadas" in text_n
+            or "informacao do site esta desatualizada" in text_n
+            or "instabilidade" in text_n
+        )
+
+        wait_santos = ""
+        wait_guaruja = ""
+
+        santos_match = re.search(
+            r"santos[\s\S]{0,120}?tempo de espera[\s\S]{0,40}?([0-9]{1,3})\s*minutos",
+            text_n,
+            flags=re.IGNORECASE
+        )
+        if santos_match:
+            wait_santos = santos_match.group(1)
+
+        guaruja_match = re.search(
+            r"guaruja[\s\S]{0,120}?tempo de espera[\s\S]{0,40}?([0-9]{1,3})\s*minutos",
+            text_n,
+            flags=re.IGNORECASE
+        )
+        if guaruja_match:
+            wait_guaruja = guaruja_match.group(1)
+
+        alert_text = ""
+        alert_match = re.search(
+            r"travessia com lentid[aã]o por motivo de[^.]+",
+            text_n,
+            flags=re.IGNORECASE
+        )
+        if alert_match:
+            alert_text = alert_match.group(0).strip()
+
+        return {
+            "ok": bool(wait_santos or wait_guaruja or alert_text),
+            "wait_guaruja": wait_guaruja,
+            "wait_santos": wait_santos,
+            "alert_text": alert_text,
+            "site_unstable": site_unstable,
+            "source_url": url
+        }
+
+    except Exception as e:
+        print("BALSA LIVE STATUS ERROR:", e)
+        return {
+            "ok": False,
+            "wait_guaruja": "",
+            "wait_santos": "",
+            "alert_text": "",
+            "site_unstable": False,
+            "source_url": url
+        }    
 
 
 def get_weather_reply():
@@ -6310,6 +6415,102 @@ def get_distribuidora_reply(text=""):
     reply += "\n\nSe quiser, eu também posso te ajudar com **mercado** caso a ideia seja uma compra mais ampla."
 
     return reply
+
+
+def get_deslocamento_santos_reply(text=""):
+    balsa = knowledge().get("balsa", {})
+
+    nome = balsa.get("nome", "Travessia Santos–Guarujá")
+    localizacao = balsa.get("localizacao_guaruja", "")
+    perfil = balsa.get("perfil", "")
+    obs = balsa.get("observacao", "")
+
+    reply = (
+        "Se a ideia for ir para **Santos**, a referência mais prática por aqui costuma ser a "
+        f"**{nome}** 😊"
+    )
+
+    if perfil:
+        reply += f"\n\n{perfil}."
+
+    if localizacao:
+        reply += f"\n• Lado Guarujá: {localizacao}"
+
+    if wants_balsa_live_status(text):
+        live = get_balsa_live_status()
+
+        if live.get("ok"):
+            live_lines = []
+
+            if live.get("wait_guaruja"):
+                live_lines.append(f"• Espera lado Guarujá: **{live['wait_guaruja']} min**")
+            if live.get("wait_santos"):
+                live_lines.append(f"• Espera lado Santos: **{live['wait_santos']} min**")
+
+            if live_lines:
+                reply += "\n\n**Status agora:**\n" + "\n".join(live_lines)
+
+            if live.get("alert_text"):
+                alert = live.get("alert_text", "").strip().capitalize()
+                reply += f"\n\n**Aviso operacional:** {alert}."
+
+            if live.get("site_unstable"):
+                reply += (
+                    "\n\n**Observação:** o sistema oficial pode apresentar instabilidade ou defasagem pontual nas informações."
+                )
+
+            reply += (
+                "\n\nComo isso pode mudar ao longo do dia, vale checar de novo antes de sair."
+            )
+            return reply
+
+    if obs:
+        reply += f"\n\n{obs}"
+
+    return reply
+
+
+def get_rodoviaria_reply(text=""):
+    rod = knowledge().get("rodoviaria", {})
+
+    nome = rod.get("nome", "Rodoviária Municipal do Guarujá")
+    endereco = rod.get("endereco", "")
+    telefone = rod.get("telefone", "")
+    perfil = rod.get("perfil", "")
+    obs = rod.get("observacao", "")
+
+    reply = (
+        "Se a ideia for **rodoviária / ônibus**, a referência principal por aqui é a "
+        f"**{nome}** 😊"
+    )
+
+    if perfil:
+        reply += f"\n\n{perfil}."
+
+    if endereco:
+        reply += f"\n• Endereço: {endereco}"
+
+    if telefone:
+        reply += f"\n• Telefone: {telefone}"
+
+    if obs:
+        reply += f"\n\n{obs}"
+
+    return reply    
+
+
+def wants_balsa_live_status(text=""):
+    text_n = normalize_text(text)
+
+    return has_any(text_n, [
+        "como esta a balsa", "como está a balsa",
+        "como esta a travessia", "como está a travessia",
+        "tem fila na balsa", "fila da balsa", "tempo de fila",
+        "tempo de espera", "espera da balsa",
+        "vale a pena ir para santos agora", "vale a pena ir pra santos agora",
+        "compensa ir para santos agora", "compensa ir pra santos agora",
+        "agora", "nesse momento", "neste momento"
+    ])
 
 
 def get_bares_reply():
@@ -7792,6 +7993,28 @@ def gepetto_responde(msg):
             get_pet_reply(text_raw),
             remembered,
             intent_for_session="pet"
+        )
+    
+    if intent == "deslocamento_santos":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "deslocamento_santos",
+            get_deslocamento_santos_reply(text_raw),
+            remembered,
+            intent_for_session="deslocamento_santos"
+        )
+    
+    if intent == "rodoviaria":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "rodoviaria",
+            get_rodoviaria_reply(text_raw),
+            remembered,
+            intent_for_session="rodoviaria"
         )
 
     if intent == "distribuidora":
