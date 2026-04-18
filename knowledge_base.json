@@ -78,6 +78,497 @@
       }
     }
   },
+  "praias_curadoria": [
+    {
+      "nome": "Enseada",
+      "tipo": "praia",
+      "perfil": "praia-base da hospedagem, grande, prática e versátil",
+      "ideal_para": [
+        "hospedagem",
+        "praticidade",
+        "familia",
+        "grupo",
+        "caminhada",
+        "esportes",
+        "vida_de_praia_com_estrutura"
+      ],
+      "nao_ideal_para": [
+        "exclusividade",
+        "praia_escondida"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "fim_de_tarde",
+        "dia_inteiro"
+      ],
+      "nivel_logistica": "baixa",
+      "nivel_exclusividade": "baixo",
+      "clima_ideal": [
+        "sol",
+        "nublado_sem_chuva",
+        "qualquer_tempo_com_foco_em_estrutura"
+      ],
+      "pontos_fortes": [
+        "maior praia da cidade",
+        "muita estrutura ao redor",
+        "boa base para hospedagem",
+        "vida útil de praia, restaurantes e apoio"
+      ],
+      "ressalvas": [
+        "menos exclusiva",
+        "mais urbana",
+        "pede atenção normal de praia urbana"
+      ],
+      "destaque_publico": "praticidade, estrutura e conveniência",
+      "ressalva_publica": "movimento e cautela urbana em alguns contextos",
+      "assinatura_curatorial": "A Enseada talvez não seja a praia mais secreta do Guarujá, mas é uma das melhores para estar hospedado, porque entrega praia, estrutura e margem de escolha com pouca fricção."
+    },
+    {
+      "nome": "Tombo",
+      "tipo": "praia",
+      "perfil": "praia forte, bonita e muito associada ao surf",
+      "ideal_para": [
+        "surf",
+        "visual",
+        "praia_com_personalidade",
+        "dia_de_praia_mais_forte"
+      ],
+      "nao_ideal_para": [
+        "criancas_pequenas",
+        "banho_muito_calmo"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "dia_inteiro"
+      ],
+      "nivel_logistica": "media",
+      "nivel_exclusividade": "medio",
+      "clima_ideal": [
+        "sol",
+        "tempo_firme"
+      ],
+      "pontos_fortes": [
+        "Bandeira Azul",
+        "forte identidade de surf",
+        "praia bonita e marcante"
+      ],
+      "ressalvas": [
+        "mar mais forte",
+        "menos dócil para famílias com crianças"
+      ],
+      "destaque_publico": "beleza, ondas e identidade forte",
+      "ressalva_publica": "mar agitado e menos amigável para banho tranquilo",
+      "assinatura_curatorial": "Boa escolha para quem quer uma praia mais forte e com personalidade, especialmente se a ideia envolver surf ou um visual mais marcante."
+    },
+    {
+      "nome": "Astúrias",
+      "tipo": "praia",
+      "perfil": "praia urbana agradável, equilibrada e boa para variar sem complicar",
+      "ideal_para": [
+        "familia",
+        "passeio_leve",
+        "praia_urbana_com_clima_agradavel"
+      ],
+      "nao_ideal_para": [
+        "praia_muito_exclusiva",
+        "surf_forte"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "tarde"
+      ],
+      "nivel_logistica": "media",
+      "nivel_exclusividade": "baixo",
+      "clima_ideal": [
+        "sol",
+        "nublado_sem_chuva"
+      ],
+      "pontos_fortes": [
+        "praia agradável",
+        "boa para famílias",
+        "visual bonito"
+      ],
+      "ressalvas": [
+        "menos diferencial do que praias mais icônicas"
+      ],
+      "destaque_publico": "praia calma, agradável e familiar",
+      "ressalva_publica": "menos memorável para quem busca algo mais impactante",
+      "assinatura_curatorial": "Faz sentido quando a ideia é variar da Enseada sem entrar numa logística mais chata, mantendo um clima bom de praia urbana."
+    },
+    {
+      "nome": "Pitangueiras",
+      "tipo": "praia",
+      "perfil": "praia central com estrutura urbana forte",
+      "ideal_para": [
+        "centralidade",
+        "comercio",
+        "cidade_com_praia",
+        "passeio_urbano"
+      ],
+      "nao_ideal_para": [
+        "quietude",
+        "praia_escondida"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "tarde",
+        "fim_de_tarde"
+      ],
+      "nivel_logistica": "media",
+      "nivel_exclusividade": "baixo",
+      "clima_ideal": [
+        "sol",
+        "nublado_sem_chuva",
+        "qualquer_tempo_com_foco_em_estrutura"
+      ],
+      "pontos_fortes": [
+        "praia central",
+        "muito comércio por perto",
+        "boa para combinar praia e cidade"
+      ],
+      "ressalvas": [
+        "mais carregada de movimento",
+        "menos sensação de refúgio"
+      ],
+      "destaque_publico": "estrutura urbana e localização central",
+      "ressalva_publica": "movimento mais alto",
+      "assinatura_curatorial": "Boa para quem quer praia com cidade, comércio e vida prática por perto."
+    },
+    {
+      "nome": "Guaiúba",
+      "tipo": "praia",
+      "perfil": "praia familiar, cercada de verde e com banho mais manso",
+      "ideal_para": [
+        "familia",
+        "criancas",
+        "banho_mais_calmo",
+        "dia_de_praia_sem_complicacao"
+      ],
+      "nao_ideal_para": [
+        "surf_forte",
+        "praia_muito_urbana"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "tarde"
+      ],
+      "nivel_logistica": "media",
+      "nivel_exclusividade": "medio",
+      "clima_ideal": [
+        "sol",
+        "tempo_firme",
+        "nublado_sem_chuva"
+      ],
+      "pontos_fortes": [
+        "mar mais calmo",
+        "boa para família",
+        "visual com natureza"
+      ],
+      "ressalvas": [
+        "algumas percepções de custo mais alto na experiência local"
+      ],
+      "destaque_publico": "natureza, mar mais manso e clima familiar",
+      "ressalva_publica": "custos percebidos mais altos em alguns contextos",
+      "assinatura_curatorial": "Uma das melhores respostas quando alguém quer praia gostosa, bonita e mais amigável para família."
+    },
+    {
+      "nome": "Pernambuco",
+      "tipo": "praia",
+      "perfil": "praia bonita, mais espaçada e com clima mais nobre",
+      "ideal_para": [
+        "descanso",
+        "visual",
+        "passeio_mais_arrumado",
+        "casal",
+        "dia_de_praia_com_respiro"
+      ],
+      "nao_ideal_para": [
+        "logistica_minima",
+        "praia_mais_popular"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "dia_inteiro",
+        "fim_de_tarde"
+      ],
+      "nivel_logistica": "media",
+      "nivel_exclusividade": "medio",
+      "clima_ideal": [
+        "sol",
+        "tempo_firme"
+      ],
+      "pontos_fortes": [
+        "praia bonita e mais tranquila",
+        "clima mais nobre",
+        "boa para descanso"
+      ],
+      "ressalvas": [
+        "mais deslocada",
+        "pode parecer menos espontânea"
+      ],
+      "destaque_publico": "beleza, tranquilidade e clima mais nobre",
+      "ressalva_publica": "menos imediata para quem quer praticidade total",
+      "assinatura_curatorial": "Boa escolha para quem quer uma praia mais bonita e mais espaçada, sem entrar ainda na lógica de praia super controlada."
+    },
+    {
+      "nome": "Mar Casado",
+      "tipo": "praia",
+      "perfil": "praia-cena, muito boa para visual e passeio",
+      "ideal_para": [
+        "casal",
+        "fotos",
+        "passeio_cenico",
+        "visual"
+      ],
+      "nao_ideal_para": [
+        "dia_operacional_de_praia",
+        "estrutura_completa"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "fim_de_tarde"
+      ],
+      "nivel_logistica": "media",
+      "nivel_exclusividade": "medio",
+      "clima_ideal": [
+        "sol",
+        "tempo_firme"
+      ],
+      "pontos_fortes": [
+        "visual bonito",
+        "efeito de encontro das águas em certas condições"
+      ],
+      "ressalvas": [
+        "funciona melhor como visita e passeio do que como base"
+      ],
+      "destaque_publico": "visual e charme do local",
+      "ressalva_publica": "menos praia-base, mais ponto de visita",
+      "assinatura_curatorial": "Vale mais como passeio bonito e cenário do que como praia principal do dia."
+    },
+    {
+      "nome": "Éden",
+      "tipo": "praia",
+      "perfil": "praia escondida, pequena e muito bonita",
+      "ideal_para": [
+        "casal",
+        "visual",
+        "praia_escondida",
+        "natureza"
+      ],
+      "nao_ideal_para": [
+        "familia_com_logistica_fácil",
+        "quem_nao_quer_trilha_escadaria"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "início_da_tarde"
+      ],
+      "nivel_logistica": "alta",
+      "nivel_exclusividade": "alto",
+      "clima_ideal": [
+        "sol",
+        "tempo_firme"
+      ],
+      "pontos_fortes": [
+        "belezа natural forte",
+        "sensação de refúgio"
+      ],
+      "ressalvas": [
+        "acesso mais chato",
+        "não é a melhor indicação para quem quer conforto operacional"
+      ],
+      "destaque_publico": "beleza escondida e clima de refúgio",
+      "ressalva_publica": "acesso e controle podem incomodar",
+      "assinatura_curatorial": "Entra muito bem quando a ideia é uma praia mais escondida e bonita, desde que a pessoa aceite uma logística menos leve."
+    },
+    {
+      "nome": "São Pedro",
+      "tipo": "praia",
+      "perfil": "praia premium, bonita e mais controlada",
+      "ideal_para": [
+        "praia_paradisiaca",
+        "visual",
+        "passeio_especial",
+        "exclusividade"
+      ],
+      "nao_ideal_para": [
+        "improviso",
+        "logistica_zero"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "dia_inteiro"
+      ],
+      "nivel_logistica": "alta",
+      "nivel_exclusividade": "alto",
+      "clima_ideal": [
+        "sol",
+        "tempo_firme"
+      ],
+      "pontos_fortes": [
+        "água bonita",
+        "menos gente",
+        "forte percepção de praia especial"
+      ],
+      "ressalvas": [
+        "acesso limitado",
+        "pede planejamento"
+      ],
+      "destaque_publico": "água bonita, exclusividade e pouca lotação",
+      "ressalva_publica": "fila, limitação e logística de acesso",
+      "assinatura_curatorial": "Uma das respostas mais fortes para quem pergunta por praia mais bonita, mais exclusiva ou mais especial no Guarujá."
+    },
+    {
+      "nome": "Iporanga",
+      "tipo": "praia",
+      "perfil": "praia especial, reservada e com forte apelo cênico",
+      "ideal_para": [
+        "casal",
+        "familia",
+        "praia_especial",
+        "visual",
+        "cachoeira"
+      ],
+      "nao_ideal_para": [
+        "improviso",
+        "logistica_zero"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "dia_inteiro"
+      ],
+      "nivel_logistica": "alta",
+      "nivel_exclusividade": "alto",
+      "clima_ideal": [
+        "sol",
+        "tempo_firme"
+      ],
+      "pontos_fortes": [
+        "praia bonita",
+        "cachoeira como diferencial",
+        "clima mais reservado"
+      ],
+      "ressalvas": [
+        "acesso controlado",
+        "exige mais planejamento"
+      ],
+      "destaque_publico": "praia especial com cachoeira e visual forte",
+      "ressalva_publica": "restrição e logística de acesso",
+      "assinatura_curatorial": "Faz muito sentido quando alguém quer uma experiência de praia mais especial e está disposto a planejar melhor o dia."
+    },
+    {
+      "nome": "Prainha Branca",
+      "tipo": "praia",
+      "perfil": "praia roots, alternativa e mais aventureira",
+      "ideal_para": [
+        "natureza",
+        "trilha",
+        "experiencia_diferente",
+        "vibe_alternativa"
+      ],
+      "nao_ideal_para": [
+        "conforto_total",
+        "logistica_fácil"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "dia_inteiro"
+      ],
+      "nivel_logistica": "alta",
+      "nivel_exclusividade": "medio-alto",
+      "clima_ideal": [
+        "sol",
+        "tempo_firme"
+      ],
+      "pontos_fortes": [
+        "vibe diferenciada",
+        "natureza",
+        "sensação de descoberta"
+      ],
+      "ressalvas": [
+        "trilha",
+        "exige disposição",
+        "não é a melhor para quem quer facilidade"
+      ],
+      "destaque_publico": "vibe roots, trilha e sensação de passeio diferente",
+      "ressalva_publica": "acesso mais puxado",
+      "assinatura_curatorial": "Boa para quem quer sair do circuito mais óbvio e topa um programa com mais cara de descoberta."
+    },
+    {
+      "nome": "Góes",
+      "tipo": "praia",
+      "perfil": "praia-vila, calma e com sensação de refúgio local",
+      "ideal_para": [
+        "calma",
+        "barco_ou_trilha",
+        "clima_de_vila",
+        "passeio_diferente"
+      ],
+      "nao_ideal_para": [
+        "estrutura_forte",
+        "operacao_muito_previsivel"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "tarde"
+      ],
+      "nivel_logistica": "alta",
+      "nivel_exclusividade": "medio",
+      "clima_ideal": [
+        "sol",
+        "tempo_firme"
+      ],
+      "pontos_fortes": [
+        "calma",
+        "clima de vila",
+        "experiência diferente"
+      ],
+      "ressalvas": [
+        "estrutura menos previsível",
+        "não é a melhor recomendação universal"
+      ],
+      "destaque_publico": "calma e clima de vila",
+      "ressalva_publica": "estrutura e manutenção podem oscilar",
+      "assinatura_curatorial": "Funciona melhor como praia com clima de descoberta e menos como resposta padrão."
+    },
+    {
+      "nome": "Sangava",
+      "tipo": "praia",
+      "perfil": "praia de recompensa alta e acesso mais difícil",
+      "ideal_para": [
+        "natureza",
+        "visual",
+        "piscinas_naturais",
+        "programa_aventureiro"
+      ],
+      "nao_ideal_para": [
+        "logistica_fácil",
+        "improviso"
+      ],
+      "melhor_momento": [
+        "manhã",
+        "início_da_tarde"
+      ],
+      "nivel_logistica": "alta",
+      "nivel_exclusividade": "alto",
+      "clima_ideal": [
+        "sol",
+        "tempo_firme"
+      ],
+      "pontos_fortes": [
+        "muito bonita",
+        "sensação de descoberta",
+        "clima especial"
+      ],
+      "ressalvas": [
+        "acesso difícil",
+        "não é recomendação de uso amplo"
+      ],
+      "destaque_publico": "beleza recompensadora",
+      "ressalva_publica": "acesso chato e mais puxado",
+      "assinatura_curatorial": "Boa para quem realmente quer uma praia mais escondida e aceita pagar isso em logística."
+    }
+  ],
   "restaurantes": [
     {
       "nome": "McDonald's Enseada",
@@ -106,9 +597,6 @@
         "jantar_rapido",
         "noite"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "11h às 15h",
-      "estilo_almoco": "rapido",
       "faixa_preco": "baixo",
       "observacao": "boa escolha quando a ideia é resolver rápido"
     },
@@ -136,9 +624,6 @@
         "noite",
         "madrugada"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "11h às 15h",
-      "estilo_almoco": "rapido",
       "faixa_preco": "baixo",
       "observacao": "boa alternativa quando a ideia é comer algo rápido mais tarde"
     },
@@ -159,9 +644,6 @@
         "hambúrguer",
         "algo rápido com mais capricho"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "11:30h às 15h",
-      "estilo_almoco": "rapido",
       "faixa_preco": "medio",
       "observacao": "boa opção para quem quer hambúrguer com um passo acima do fast-food tradicional"
     },
@@ -195,9 +677,6 @@
         "almoco",
         "jantar"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "11:30h às 15h",
-      "estilo_almoco": "tradicional",
       "faixa_preco": "medio",
       "assinatura_curatorial": "Desde 1979, o Alcide’s conta sua história em cada prato.",
       "alertas_alimentares": [
@@ -231,7 +710,6 @@
         "jantar",
         "noite"
       ],
-      "serve_almoco": false,
       "faixa_preco": "medio",
       "observacao": "faz sentido quando a ideia é algo fácil de compartilhar"
     },
@@ -261,7 +739,6 @@
         "jantar",
         "noite"
       ],
-      "serve_almoco": false,
       "faixa_preco": "medio-alto",
       "alertas_alimentares": [
         "confirmar cardápio em caso de restrições específicas"
@@ -293,9 +770,6 @@
         "almoco_especial",
         "jantar"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "12h às 16h",
-      "estilo_almoco": "especial",
       "faixa_preco": "alto",
       "alertas_alimentares": [
         "atenção para alergia a camarão e frutos do mar, embora haja outras opções"
@@ -332,9 +806,6 @@
         "jantar",
         "noite"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "11h às 16h",
-      "estilo_almoco": "orla",
       "faixa_preco": "medio",
       "observacao": "fica na beira da praia e possui espaço kids"
     },
@@ -364,9 +835,6 @@
         "almoco",
         "jantar"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "12h às 15h",
-      "estilo_almoco": "casual",
       "faixa_preco": "medio",
       "alertas_alimentares": [
         "confirmar opções específicas em caso de alergias e restrições"
@@ -401,9 +869,6 @@
         "fim_de_tarde",
         "jantar"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "12h às 15h",
-      "estilo_almoco": "tradicional",
       "faixa_preco": "medio",
       "alertas_alimentares": [
         "atenção para frutos do mar e camarão"
@@ -440,9 +905,6 @@
         "tarde",
         "noite"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "11:30h às 16h",
-      "estilo_almoco": "rapido",
       "faixa_preco": "medio",
       "observacao": "padaria, confeitaria, restaurante e pizzaria"
     },
@@ -471,7 +933,6 @@
         "tarde",
         "pos_jantar"
       ],
-      "serve_almoco": false,
       "faixa_preco": "medio",
       "observacao": "boa pedida para um mimo ou algo gostoso depois do jantar"
     },
@@ -499,7 +960,6 @@
         "tarde",
         "pos_jantar"
       ],
-      "serve_almoco": false,
       "faixa_preco": "baixo-medio",
       "observacao": "boa alternativa para algo rápido e gostoso"
     },
@@ -531,9 +991,6 @@
         "fim_de_tarde",
         "por_do_sol"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "12h às 15h",
-      "estilo_almoco": "vista",
       "faixa_preco": "medio",
       "alertas_alimentares": [
         "atenção para frutos do mar e camarão"
@@ -568,7 +1025,6 @@
         "fim_de_tarde",
         "noite"
       ],
-      "serve_almoco": false,
       "faixa_preco": "medio",
       "happy_hour": {
         "ativo": true,
@@ -613,9 +1069,6 @@
         "jantar",
         "noite"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "11:30h às 15h",
-      "estilo_almoco": "orla",
       "faixa_preco": "medio",
       "happy_hour": {
         "ativo": true,
@@ -651,9 +1104,6 @@
         "jantar",
         "noite"
       ],
-      "serve_almoco": true,
-      "janela_almoco": "11:30h às 15h",
-      "estilo_almoco": "casual",
       "faixa_preco": "medio",
       "happy_hour": {
         "ativo": true,
@@ -688,7 +1138,6 @@
         "fim_de_tarde",
         "noite"
       ],
-      "serve_almoco": false,
       "faixa_preco": "medio",
       "happy_hour": {
         "ativo": true,
@@ -1054,29 +1503,92 @@
     "praias": [
       {
         "nome": "Praia do Tombo",
-        "perfil": "mais tradicional, com ondas mais fortes",
+        "perfil": "referência mais forte de surf no Guarujá, com mar mais ativo",
         "nivel": "intermediário a avançado",
+        "ideal_para": [
+          "surf",
+          "ondas_mais_fortes",
+          "quem_ja_tem_alguma_base",
+          "praia_com_identidade_de_surf"
+        ],
+        "nao_ideal_para": [
+          "iniciante_sem_aula",
+          "banho_muito_calmo",
+          "criancas_pequenas"
+        ],
+        "destaques": [
+          "Bandeira Azul",
+          "forte identidade de surf",
+          "praia bonita e marcante"
+        ],
         "observacao": "boa referência para quem já curte surf com mais intensidade"
       },
       {
         "nome": "Praia da Enseada",
-        "perfil": "mais acessível em alguns dias e prática para quem está hospedado por perto",
-        "nivel": "variável",
-        "observacao": "mais prática pela proximidade"
+        "perfil": "opção mais prática e acessível para começar, especialmente com aula",
+        "nivel": "iniciante a variável",
+        "ideal_para": [
+          "iniciante",
+          "aula_de_surf",
+          "entrada_pratica_no_surf",
+          "quem_quer_tentar_sem_logistica_chata"
+        ],
+        "nao_ideal_para": [
+          "quem_busca_o_pico_mais_forte"
+        ],
+        "destaques": [
+          "praticidade",
+          "facilidade para quem está hospedado por perto",
+          "boa porta de entrada"
+        ],
+        "observacao": "mais prática pela proximidade e melhor leitura para iniciação com apoio"
+      },
+      {
+        "nome": "Pernambuco",
+        "perfil": "praia que pode render surf mais forte em boas condições",
+        "nivel": "intermediário a avançado",
+        "ideal_para": [
+          "surf_mais_forte",
+          "quem_ja_sabe_o_que_procura",
+          "visual"
+        ],
+        "nao_ideal_para": [
+          "iniciante",
+          "quem_quer_facilidade_total"
+        ],
+        "destaques": [
+          "ondas mais fortes em boas condições",
+          "visual bonito",
+          "clima mais nobre"
+        ],
+        "observacao": "não é a melhor leitura para iniciante"
       },
       {
         "nome": "Pitangueiras",
-        "perfil": "opção urbana para quem quer algo mais central",
+        "perfil": "alternativa urbana e central",
         "nivel": "variável",
-        "observacao": "boa para quem quer conciliar surf e praticidade"
-      },
-      {
-        "nome": "Pernambuco / Mar Casado",
-        "perfil": "pode render bem dependendo do mar",
-        "nivel": "variável",
-        "observacao": "também agrada quem quer um visual bonito"
+        "ideal_para": [
+          "centralidade",
+          "praticidade",
+          "surf_urbano"
+        ],
+        "nao_ideal_para": [
+          "quem_busca_referencia_principal_de_surf"
+        ],
+        "destaques": [
+          "centralidade",
+          "vida urbana"
+        ],
+        "observacao": "boa para quem quer conciliar praticidade e cidade, mas não entra como principal recomendação de surf"
       }
-    ]
+    ],
+    "leituras_rapidas": {
+      "iniciante": "Enseada tende a funcionar melhor como porta de entrada prática, especialmente com aula.",
+      "intermediario": "Tombo costuma entrar mais forte como referência de surf no Guarujá.",
+      "avancado": "Tombo e Pernambuco fazem mais sentido quando a ideia é algo mais forte.",
+      "surf_com_visual": "Pernambuco pode agradar quando a pessoa quer combinar surf e visual bonito.",
+      "surf_sem_logistica": "Enseada tende a ser a resposta mais prática para quem está hospedado por perto."
+    }
   },
   "bares": [
     {
@@ -1124,7 +1636,357 @@
     "concierge_nome": "Gepetto",
     "descricao_curta": "Concierge do apartamento 14B para orientar hóspedes durante a estadia"
   },
+  "rodoviaria": {
+    "nome": "Rodoviária Municipal do Guarujá",
+    "endereco": "Av. Santos Dumont, 480 - Santo Antônio, Guarujá - SP",
+    "telefone": "(13) 3386-2325",
+    "perfil": "referência principal para ônibus e deslocamento rodoviário na cidade",
+    "ideal_para": [
+      "chegada",
+      "saída",
+      "deslocamento_rodoviario"
+    ],
+    "observacao": "boa referência quando o hóspede precisa se orientar sobre chegada, saída ou terminal rodoviário principal."
+  },
+  "balsa": {
+    "nome": "Travessia Santos–Guarujá",
+    "localizacao_guaruja": "Av. Dr. Adhemar de Barros, 3300, Guarujá - SP",
+    "perfil": "referência prática para travessia entre Guarujá e Santos",
+    "ideal_para": [
+      "deslocamento",
+      "acesso_a_santos",
+      "logistica"
+    ],
+    "observacao": "vale considerar fila, horário e condição operacional do momento. Em geral, faz sentido consultar a travessia antes de sair."
+  },
+  "seguranca": {
+    "policia_civil": [
+      {
+        "nome": "Delegacia Sede de Guarujá",
+        "perfil": "referência de polícia civil na cidade"
+      }
+    ],
+    "policia_militar": [
+      {
+        "nome": "Polícia Militar / apoio emergencial",
+        "telefone": "190",
+        "perfil": "referência imediata em situações de urgência"
+      }
+    ],
+    "observacao": "em caso de urgência ou situação delicada, a prioridade é buscar apoio oficial imediato."
+  },
+  "apoio_operacional": {
+    "correios": [
+      {
+        "nome": "Correios Enseada",
+        "endereco": "Av. Dom Pedro I, 1167 - Jardim Três Marias, Guarujá - SP, 11440-001",
+        "telefone": "0800 725 0100",
+        "horario": "horário comercial",
+        "perfil": "referência principal de Correios para a lógica da Enseada",
+        "ideal_para": [
+          "postagem",
+          "retirada",
+          "correios"
+        ]
+      },
+      {
+        "nome": "Correios Pitangueiras",
+        "endereco": "Av. Puglisi, 684 - Guarujá - SP, 11410-002",
+        "perfil": "alternativa secundária de Correios mais central",
+        "ideal_para": [
+          "postagem",
+          "retirada",
+          "correios"
+        ]
+      }
+    ],
+    "bancos": [
+      {
+        "nome": "Bradesco",
+        "endereco": "Av. Dom Pedro I, 1015 - Jardim Três Marias, Guarujá - SP, 11440-001",
+        "perfil": "referência bancária útil no eixo Enseada",
+        "ideal_para": [
+          "saque",
+          "agencia_bancaria",
+          "banco"
+        ]
+      },
+      {
+        "nome": "Itaú",
+        "endereco": "Av. Dom Pedro I, 1540 - Jardim Praiano, Guarujá - SP, 11440-001",
+        "perfil": "referência bancária útil no eixo Enseada",
+        "ideal_para": [
+          "saque",
+          "agencia_bancaria",
+          "banco"
+        ]
+      },
+      {
+        "nome": "Banco do Brasil Pitangueiras",
+        "endereco": "R. Washington, 585 - Vila Maia, Guarujá - SP, 11410-150",
+        "perfil": "referência Banco do Brasil em área mais central",
+        "ideal_para": [
+          "saque",
+          "agencia_bancaria",
+          "banco"
+        ]
+      },
+      {
+        "nome": "Banco do Brasil",
+        "endereco": "R. Mário Ribeiro, 1048 - Pitangueiras, Guarujá - SP, 11410-193",
+        "perfil": "segunda referência Banco do Brasil para apoio na cidade",
+        "ideal_para": [
+          "saque",
+          "agencia_bancaria",
+          "banco"
+        ]
+      }
+    ],
+    "postos_combustivel": [
+      {
+        "nome": "Posto Petrobras",
+        "endereco": "Av. Dom Pedro I, 941 - Jardim Três Marias, Guarujá - SP, 11440-001",
+        "horario": "07h às 22h",
+        "conveniencia": "BR Mania 00h às 22h",
+        "perfil": "posto com conveniência útil no eixo Enseada",
+        "ideal_para": [
+          "combustivel",
+          "conveniencia",
+          "parada_rapida"
+        ]
+      },
+      {
+        "nome": "Posto Extra",
+        "endereco": "Av. Dom Pedro I, 1711 - Jardim Praiano, Guarujá - SP, 11440-001",
+        "horario": "Segunda a sábado: 06h às 22h | Domingo: 07h às 20h",
+        "perfil": "posto com apoio do Supermercado Extra",
+        "ideal_para": [
+          "combustivel",
+          "compras",
+          "parada_util"
+        ],
+        "observacao": "localizado no Supermercado Extra"
+      },
+      {
+        "nome": "Carrefour Posto",
+        "endereco": "Av. Dom Pedro I, 2131 - Setor I, Jardim Belmar, Guarujá - SP, 11440-003",
+        "horario": "06h às 23h",
+        "perfil": "posto com apoio do Carrefour Hipermercado",
+        "ideal_para": [
+          "combustivel",
+          "compras",
+          "parada_util"
+        ],
+        "observacao": "localizado no Carrefour Hipermercado"
+      },
+      {
+        "nome": "Posto Ipiranga",
+        "endereco": "Av. Dom Pedro I, 1887 - Enseada, Guarujá - SP, 11440-002",
+        "perfil": "posto adicional útil no eixo Enseada",
+        "ideal_para": [
+          "combustivel",
+          "parada_rapida"
+        ]
+      }
+    ],
+    "mobilidade_leve": [
+      {
+        "nome": "GOO Elétricos",
+        "endereco": "Av. Dom Pedro I - Jardim Praiano, Guarujá - SP, 11440-001",
+        "telefone": "(13) 99608-4352",
+        "horario": "Segunda a sábado: 10h às 18h",
+        "perfil": "mobilidade leve mais premium e diferenciada",
+        "ideal_para": [
+          "bike_eletrica",
+          "scooter",
+          "patinete",
+          "passeio",
+          "experiencia_diferente"
+        ],
+        "observacao": "trabalha com scooter, bike elétrica e patinetes"
+      },
+      {
+        "nome": "Aluga Bike Guarujá",
+        "endereco": "Av. Miguel Estefno, 2055 - Guarujá - SP, 11440-530",
+        "telefone": "(13) 98151-7545",
+        "perfil": "aluguel de bicicleta para passeio leve e deslocamento recreativo",
+        "ideal_para": [
+          "bike",
+          "passeio",
+          "orla",
+          "mobilidade_leve"
+        ]
+      }
+    ],
+    "aquaticos": {
+      "localizacao": "Canto do Tortuga – faixa de areia da praia",
+      "tipos_de_servico": [
+        "aluguel de jet ski",
+        "aluguel de lancha",
+        "outros serviços aquáticos"
+      ],
+      "perfil": "bloco orientativo para lazer aquático e negociação no local",
+      "observacao": "as opções costumam ficar concentradas nesse trecho da praia, então geralmente vale mais a pena ver presencialmente, comparar e negociar no local."
+    }
+  },
+  "apoio_complementar": {
+    "beleza": [
+      {
+        "nome": "Rosanah Oliveira",
+        "endereco": "R. Argentina, 35 - Loja 5 - Enseada, Guarujá - SP, 11440-370",
+        "telefone": "(13) 99636-0453",
+        "instagram": "@rosanaholiveira_",
+        "horario": "Terça a sexta: 10h às 18h | Sábado: 09h às 20h | Domingo e segunda: fechado",
+        "perfil": "candidata mais forte em avaliação percebida",
+        "ideal_para": [
+          "cabelo",
+          "beleza",
+          "salão"
+        ]
+      },
+      {
+        "nome": "Studio Faby Magalhães",
+        "endereco": "Av. Venezuela, 270 - Enseada, Guarujá - SP, 11441-240",
+        "telefone": "(13) 99625-7576",
+        "instagram": "@studiofabymagalhaes",
+        "horario": "Terça a sábado: 10h às 20h | Domingo e segunda: fechado",
+        "perfil": "salão mais completo",
+        "ideal_para": [
+          "cabelo",
+          "maquiagem",
+          "unhas",
+          "beleza"
+        ]
+      },
+      {
+        "nome": "Las Morenas Beleza e Bem Estar",
+        "endereco": "Av. da Saudade, 60 - Jardim São Miguel, Guarujá - SP, 11440-180",
+        "telefone": "(13) 99157-3873",
+        "horario": "Terça a sábado: 09:30h às 18h | Domingo e segunda: fechados",
+        "perfil": "opção de proximidade do apartamento",
+        "ideal_para": [
+          "beleza",
+          "salão",
+          "praticidade"
+        ]
+      },
+      {
+        "nome": "Fast Escova Guarujá",
+        "endereco": "R. Mário Ribeiro, 740 - Lojas 6 e 7 - Centro, Guarujá - SP, 11410-190",
+        "telefone": "(13) 997404-6776",
+        "horario": "Terça a sábado: 09h às 19:30h | Domingo: 10h às 16h | Segunda: 09h às 18h",
+        "perfil": "franquia / beleza express",
+        "ideal_para": [
+          "escova",
+          "beleza_rapida",
+          "praticidade"
+        ]
+      }
+    ],
+    "acai_sorvete": [
+      {
+        "nome": "Oca do Açaí",
+        "endereco": "Estrada de Pernambuco, 263 - Lot. João Batista Julião, Guarujá - SP",
+        "horario": "Segunda, quarta e quinta: 14h às 22h | Sexta a domingo: 14h às 23h | Terça: fechado",
+        "perfil": "opção mais confortável para permanência e família",
+        "ideal_para": [
+          "açaí",
+          "familia",
+          "sobremesa"
+        ],
+        "observacao": "mesas externas e cardápio infantil"
+      },
+      {
+        "nome": "Ponto do Açaí",
+        "endereco": "Av. Miguel Estefno, 1531 - Loja 01 - Enseada, Guarujá - SP",
+        "horario": "Segunda, terça, quinta, sexta e sábado: 12h às 21h | Quarta: 12h às 20h | Domingo: 09h às 17h",
+        "perfil": "opção mais direta e prática",
+        "ideal_para": [
+          "açaí",
+          "sobremesa",
+          "praticidade"
+        ]
+      },
+      {
+        "nome": "Gelatte do Park",
+        "endereco": "Av. Almirante Tamandaré, 129 - Guarujá - SP",
+        "horario": "Quarta a domingo: 16h às 00h",
+        "perfil": "boa opção para sorvete e sobremesa",
+        "ideal_para": [
+          "sorvete",
+          "sobremesa",
+          "fim_de_tarde",
+          "noite"
+        ]
+      }
+    ],
+    "lan_house": [
+      {
+        "nome": "Enseada.com",
+        "endereco": "Av. Dom Pedro I, 1632 - Enseada, Guarujá - SP, 11440-001",
+        "horario": "08h às 19h | Sábado: 08h às 18h | Domingo: fechado",
+        "perfil": "referência mais prática na região da Enseada",
+        "ideal_para": [
+          "lan_house",
+          "impressao",
+          "apoio_digital"
+        ]
+      },
+      {
+        "nome": "Gametronic",
+        "subtipo": "lan_house_gamer",
+        "endereco": "R. Manoel Paulo dos Santos - Jardim Virginia, Guarujá - SP, 11440-003",
+        "horario": "10h às 19h | Domingo: fechado",
+        "perfil": "lan house gamer",
+        "ideal_para": [
+          "lan_house",
+          "gamer",
+          "apoio_digital"
+        ]
+      }
+    ]
+  },
+  "pet": {
+    "clinicas_e_apoio": [
+      {
+        "nome": "Golden Pet",
+        "subtipo": [
+          "clinica_veterinaria",
+          "pet_shop",
+          "farmacia_veterinaria",
+          "taxi_dog"
+        ],
+        "endereco": "Rua Áureo Guenaga de Castro, 705 - Parque Enseada, Guarujá - SP, 11443-000",
+        "horario": "09h às 18h | Sábado: 09h às 14h | Domingo: fechado",
+        "perfil": "apoio pet bem completo para situações simples e mais delicadas",
+        "ideal_para": [
+          "pet",
+          "clinica_veterinaria",
+          "farmacia_veterinaria",
+          "apoio_logistico"
+        ]
+      }
+    ]
+  },
   "utilidades": {
+    "distribuidoras": [
+      {
+        "nome": "Distribuidora Enseada",
+        "distancia": "4 min de carro | 24 min a pé",
+        "endereco": "Avenida do Parque, 26 - Enseada, Guarujá - SP",
+        "horario": "Segunda à sexta: 08h às 18h | Sábado: 08h às 19h | Domingo: 09h às 12h",
+        "telefone": "(13) 99174-5492",
+        "perfil": "opção operacional real para bebida, gelo, carvão e reposição rápida",
+        "ideal_para": [
+          "bebida",
+          "gelo",
+          "carvao",
+          "reposicao_rapida",
+          "conveniencia"
+        ],
+        "observacao": "boa referência quando a ideia é resolver itens de apoio de forma prática."
+      }
+    ],
     "tabacarias": [
       {
         "nome": "Tabacaria Galvão Guarujá - Enseada",

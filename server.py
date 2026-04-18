@@ -1847,6 +1847,104 @@ def get_praia_service_status(context=None):
     return "closed_night"
 
 
+def is_praia_recommendation_bridge_request(text_raw):
+    text_n = normalize_text(text_raw)
+
+    recommendation_patterns = [
+        "recomendacoes de praia", "recomendações de praia",
+        "recomendacao de praia", "recomendação de praia",
+        "recomendacoes de praias", "recomendações de praias",
+        "recomendacao de praias", "recomendação de praias",
+        "recomenda praia", "recomenda praias",
+        "qual praia voce recomenda", "qual praia você recomenda",
+        "que praia voce recomenda", "que praia você recomenda",
+        "qual praias voce recomenda", "qual praias você recomenda",
+        "que praias voce recomenda", "que praias você recomenda",
+        "qual praia voce indica", "qual praia você indica",
+        "que praia voce indica", "que praia você indica",
+        "sugestao de praia", "sugestão de praia",
+        "sugestoes de praia", "sugestões de praia",
+        "sugestao de praias", "sugestão de praias",
+        "sugestoes de praias", "sugestões de praias"
+    ]
+
+    if not has_any(text_n, recommendation_patterns):
+        return False
+
+    if has_any(text_n, [
+        "surf", "surfar", "ondas", "pico de surf",
+        "familia", "família", "crianca", "criança", "criancas", "crianças",
+        "paradisiaca", "paradisíaca", "mais bonita", "bonita",
+        "reservada", "exclusiva", "natureza", "trilha",
+        "esportes aquaticos", "esportes aquáticos", "jet ski", "jetski"
+    ]):
+        return False
+
+    return True
+
+
+def get_praia_recommendation_bridge_reply():
+    return (
+        "Se a ideia for praticidade, a **Enseada** tende a ser uma resposta muito forte para quem está **hospedado aqui no 14B** 😊\n\n"
+        "Além de ficar a apenas **280 metros daqui**, vocês contam com um diferencial real da própria experiência de se hospedar aqui: "
+        "a conveniência do **serviço de praia já montado na areia**, o que deixa tudo mais leve, confortável e à altura do cuidado que vocês merecem durante a estadia.\n\n"
+        "Agora, se a ideia for explorar outras praias do Guarujá, algumas que costumam entrar muito bem são:\n"
+        "• **Tombo** → para quem gosta de uma praia mais forte e com personalidade\n"
+        "• **Guaiúba** → quando a ideia é algo mais agradável e amigável para família\n"
+        "• **São Pedro / Iporanga** → quando a busca é por uma experiência mais especial, bonita e reservada\n\n"
+        "Se quiser, eu também posso te mostrar **outras praias** ou te passar uma visão mais completa de **todas**."
+    )
+
+
+def get_more_praias_curadoria_reply(show_all=False):
+    praias = unique_items_by_name(get_praias_curadoria_data())
+
+    if not praias:
+        return (
+            "Posso te ajudar com outras praias do Guarujá 😊\n\n"
+            "Mas essa curadoria ainda não está disponível na base neste momento."
+        )
+
+    featured_names = {
+        normalize_text("Enseada"),
+        normalize_text("Tombo"),
+        normalize_text("Guaiúba"),
+        normalize_text("São Pedro"),
+        normalize_text("Iporanga")
+    }
+
+    extras = []
+    for item in praias:
+        nome_n = normalize_text(item.get("nome", ""))
+        if nome_n in featured_names:
+            continue
+        extras.append(item)
+
+    if show_all:
+        selected = praias
+        intro = "Claro 😊\n\nAqui vai uma visão mais completa das praias que entram no radar do Guarujá:"
+    else:
+        selected = extras[:7]
+        intro = "Claro 😊\n\nAlém da Enseada e dessas primeiras mais fortes, outras praias que também podem entrar bem no radar são:"
+
+    linhas = []
+    for item in selected:
+        nome = item.get("nome", "")
+        perfil = item.get("perfil", "") or item.get("assinatura_curatorial", "") or item.get("destaque_publico", "")
+        linha = f"• **{nome}**"
+        if perfil:
+            linha += f" → {perfil}"
+        linhas.append(linha)
+
+    if not linhas:
+        return (
+            "Claro 😊\n\n"
+            "No momento, ainda não encontrei outras praias organizadas na base além das principais já citadas."
+        )
+
+    return intro + "\n\n" + "\n".join(linhas)
+
+
 def get_checkout_day_window(context=None, guest=None):
     if context is None:
         guest = guest or load_guest()
@@ -2707,6 +2805,393 @@ def get_farmacias_data():
 
 def get_passeios_data():
     return get_knowledge_list("passeios")
+
+
+def get_praias_curadoria_data():
+    k = knowledge()
+
+    candidates = [
+        k.get("praias_curadoria"),
+        k.get("praias_guaruja"),
+        k.get("praias_do_guaruja"),
+        k.get("curadoria_praias")
+    ]
+
+    for value in candidates:
+        if isinstance(value, list):
+            return value
+        if isinstance(value, dict):
+            if isinstance(value.get("praias"), list):
+                return value.get("praias", [])
+            if isinstance(value.get("itens"), list):
+                return value.get("itens", [])
+
+    return []
+
+
+def find_praia_curadoria_by_name(text_raw):
+    text_n = normalize_text(text_raw)
+    praias = get_praias_curadoria_data()
+
+    for item in praias:
+        if not isinstance(item, dict):
+            continue
+
+        nome = (item.get("nome") or "").strip()
+        if not nome:
+            continue
+
+        if phrase_in_text(text_n, nome):
+            return item
+
+    return None
+
+
+def get_praia_curadoria_soft_fallback_reply(item=None):
+    nome = ""
+    if isinstance(item, dict):
+        nome = (item.get("nome") or "").strip()
+
+    if nome:
+        return (
+            "Claro 😊\n\n"
+            f"A **{nome}** entra sim no radar, mas esse detalhe específico dela eu ainda não tenho estruturado da forma mais redonda por aqui.\n\n"
+            "Se quiser, eu posso seguir te ajudando com uma visão mais geral das praias do Guarujá ou te mostrar outras opções que costumam funcionar muito bem."
+        )
+
+    return (
+        "Claro 😊\n\n"
+        "Essa praia entra sim no radar, mas esse detalhe específico eu ainda não tenho estruturado da forma mais redonda por aqui.\n\n"
+        "Se quiser, eu posso seguir te ajudando com uma visão mais geral das praias do Guarujá ou te mostrar outras opções que costumam funcionar muito bem."
+    )    
+
+
+def get_pet_data():
+    k = knowledge()
+
+    candidates = [
+        k.get("pet"),
+        k.get("pets"),
+        k.get("pet_shop"),
+        k.get("petshop"),
+        k.get("petshops"),
+        k.get("veterinaria"),
+        k.get("veterinarias"),
+        k.get("clinica_veterinaria"),
+        k.get("clinicas_veterinarias"),
+        k.get("apoio_pet"),
+        k.get("utilidades", {}).get("pet"),
+        k.get("utilidades", {}).get("pets"),
+        k.get("apoio_operacional", {}).get("pet"),
+        k.get("apoio_operacional", {}).get("pets"),
+        k.get("apoio_operacional", {}).get("pet_shop"),
+        k.get("apoio_operacional", {}).get("petshop"),
+        k.get("apoio_operacional", {}).get("veterinaria"),
+        k.get("apoio_operacional", {}).get("veterinarias"),
+        k.get("apoio_operacional", {}).get("clinica_veterinaria"),
+        k.get("apoio_operacional", {}).get("clinicas_veterinarias")
+    ]
+
+    for value in candidates:
+        if isinstance(value, list):
+            return value
+
+        if isinstance(value, dict):
+            if isinstance(value.get("clinicas_e_apoio"), list):
+                return value.get("clinicas_e_apoio", [])
+            if isinstance(value.get("locais"), list):
+                return value.get("locais", [])
+            if isinstance(value.get("itens"), list):
+                return value.get("itens", [])
+            if isinstance(value.get("opcoes"), list):
+                return value.get("opcoes", [])
+            if value.get("nome"):
+                return [value]
+
+    return []
+
+
+def get_distribuidoras_data():
+    k = knowledge()
+
+    candidates = [
+        k.get("distribuidoras"),
+        k.get("utilidades", {}).get("distribuidoras"),
+        k.get("apoio_operacional", {}).get("distribuidoras")
+    ]
+
+    for value in candidates:
+        if isinstance(value, list):
+            return value
+        if isinstance(value, dict):
+            if isinstance(value.get("locais"), list):
+                return value.get("locais", [])
+            if value.get("nome"):
+                return [value]
+
+    return []
+
+
+def get_surf_data():
+    value = knowledge().get("surf", {})
+    return value if isinstance(value, dict) else {}
+
+
+def get_surf_spots():
+    surf = get_surf_data()
+    praias = surf.get("praias", [])
+    return praias if isinstance(praias, list) else []
+
+
+def get_surf_quick_reads():
+    surf = get_surf_data()
+    leituras = surf.get("leituras_rapidas", {})
+    return leituras if isinstance(leituras, dict) else {}
+
+
+def surf_search_blob(item):
+    parts = [
+        item.get("nome", ""),
+        item.get("perfil", ""),
+        item.get("nivel", ""),
+        item.get("observacao", "")
+    ]
+
+    for key in ["ideal_para", "nao_ideal_para", "destaques"]:
+        value = item.get(key, [])
+        if isinstance(value, list):
+            parts.extend([str(v) for v in value if str(v).strip()])
+
+    return normalize_text(" | ".join(parts))
+
+
+def detect_surf_style(text_raw):
+    text_n = normalize_text(text_raw)
+
+    if has_any(text_n, [
+        "iniciante", "primeira vez", "primeira experiencia", "primeira experiência",
+        "quero aprender", "aprender surf", "aula", "aula de surf",
+        "com aula", "comecar", "começar", "entrada mais facil", "entrada mais fácil"
+    ]):
+        return "iniciante"
+
+    if has_any(text_n, [
+        "intermediario", "intermediário", "ja tenho base", "já tenho base",
+        "ja surfo", "já surfo", "tenho alguma base", "surf intermediario", "surf intermediário"
+    ]):
+        return "intermediario"
+
+    if has_any(text_n, [
+        "avancado", "avançado", "mais forte", "ondas mais fortes",
+        "onda forte", "mar mais forte", "pico mais forte", "mais pesado",
+        "surf forte"
+    ]):
+        return "avancado"
+
+    if has_any(text_n, [
+        "visual", "bonita", "mais bonita", "surf com visual",
+        "bonito", "praia bonita", "visual bonito"
+    ]):
+        return "surf_com_visual"
+
+    if has_any(text_n, [
+        "praticidade", "pratico", "prática", "pratico", "prático",
+        "sem logistica", "sem logística", "perto", "mais perto",
+        "sem complicacao", "sem complicação", "facil", "fácil",
+        "sem muita logistica", "sem muita logística"
+    ]):
+        return "surf_sem_logistica"
+
+    return ""
+
+
+def is_broad_surf_question(text_raw):
+    text_n = normalize_text(text_raw)
+
+    broad_patterns = [
+        "surf", "surfar", "quero surfar", "onde surfar",
+        "qual praia para surf", "praia para surf",
+        "tem surf", "tem praia para surf", "pico de surf"
+    ]
+
+    if has_any(text_n, broad_patterns):
+        if not detect_surf_style(text_raw):
+            return True
+
+    return False
+
+
+def find_surf_spot_by_style(style_key):
+    spots = get_surf_spots()
+    if not spots:
+        return None
+
+    def by_name(name):
+        target = normalize_text(name)
+        for item in spots:
+            if normalize_text(item.get("nome", "")) == target:
+                return item
+        return None
+
+    if style_key == "iniciante":
+        return by_name("Praia da Enseada")
+
+    if style_key == "intermediario":
+        return by_name("Praia do Tombo") or by_name("Tombo")
+
+    if style_key == "avancado":
+        return by_name("Praia do Tombo") or by_name("Tombo") or by_name("Pernambuco")
+
+    if style_key == "surf_com_visual":
+        return by_name("Pernambuco")
+
+    if style_key == "surf_sem_logistica":
+        return by_name("Praia da Enseada")
+
+    return None
+
+
+def build_surf_refinement_prompt():
+    return (
+        "Se a ideia for surf, eu consigo te direcionar melhor por perfil 😊\n\n"
+        "Você procura algo mais para:\n"
+        "• **iniciante / aula**\n"
+        "• **intermediário**\n"
+        "• **ondas mais fortes**\n"
+        "• **mais praticidade**\n"
+        "• **surf com visual bonito**"
+    )
+
+
+def build_surf_style_reply(style_key):
+    quick_reads = get_surf_quick_reads()
+    item = find_surf_spot_by_style(style_key)
+
+    if not item:
+        return (
+            "Posso te ajudar com surf 😊\n\n"
+            + build_surf_refinement_prompt()
+        )
+
+    nome = item.get("nome", "Praia")
+    perfil = item.get("perfil", "")
+    nivel = item.get("nivel", "")
+    observacao = item.get("observacao", "")
+    destaques = item.get("destaques", []) if isinstance(item.get("destaques", []), list) else []
+
+    set_last_entity(nome, "surf")
+    update_session(last_recommendation_type="surf", last_recommendation_name=nome)
+    set_active_recommendations(
+        "surf",
+        names_from_items(get_surf_spots()),
+        current_name=nome
+    )
+
+    if style_key == "iniciante":
+        intro = f"Se a ideia for começar no surf com mais praticidade, eu tenderia a olhar primeiro para a **{nome}** 😊"
+    elif style_key == "intermediario":
+        intro = f"Se você já tem alguma base e quer uma referência mais marcada de surf, eu tenderia a começar pela **{nome}** 😊"
+    elif style_key == "avancado":
+        intro = f"Se a ideia for algo mais forte, a **{nome}** tende a entrar antes 😊"
+    elif style_key == "surf_com_visual":
+        intro = f"Se você quer combinar surf e visual bonito, **{nome}** pode fazer bastante sentido 😊"
+    elif style_key == "surf_sem_logistica":
+        intro = f"Se a prioridade for praticidade e pouca fricção logística, eu tenderia a começar pela **{nome}** 😊"
+    else:
+        intro = f"Uma boa leitura para esse perfil seria a **{nome}** 😊"
+
+    reply = intro
+
+    leitura_rapida = quick_reads.get(style_key, "")
+    if leitura_rapida:
+        reply += f"\n\n{leitura_rapida}"
+
+    if perfil:
+        reply += f"\n\n{perfil}."
+
+    if nivel:
+        reply += f"\n\n• Nível: **{nivel}**"
+
+    if destaques:
+        top_destaques = "\n".join([f"• {d}" for d in destaques[:3]])
+        reply += f"\n\nDestaques:\n{top_destaques}"
+
+    if observacao:
+        reply += f"\n\n{observacao}"
+
+    if style_key == "avancado":
+        pernambuco = find_surf_spot_by_style("surf_com_visual")
+        if pernambuco and normalize_text(pernambuco.get("nome", "")) != normalize_text(nome):
+            reply += f"\n\nSe você quiser, eu também posso te comparar isso com **{pernambuco.get('nome', 'Pernambuco')}**, que entra melhor quando a ideia mistura surf e visual."
+
+    reply += "\n\nSe quiser, eu também posso te orientar por outro perfil de surf."
+
+    return reply
+
+
+def generic_item_search_blob(item):
+    parts = []
+
+    for key in [
+        "nome", "perfil", "observacao", "descricao", "descricao_curta",
+        "resumo", "categoria", "tipo", "subtipo", "endereco",
+        "horario", "instagram", "telefone", "site", "whatsapp"
+    ]:
+        value = item.get(key, "")
+        if isinstance(value, str) and value.strip():
+            parts.append(value)
+
+    for key in [
+        "ideal_para", "destaques", "tags", "pontos_fortes",
+        "pontos_altos", "esportes", "esportes_aquaticos",
+        "surf", "caracteristicas", "melhor_para"
+    ]:
+        value = item.get(key, [])
+        if isinstance(value, list):
+            parts.extend([str(v) for v in value if str(v).strip()])
+
+    return normalize_text(" | ".join(parts))
+
+
+def unique_items_by_name(items):
+    result = []
+    seen = set()
+
+    for item in items or []:
+        if not isinstance(item, dict):
+            continue
+
+        nome = (item.get("nome") or "").strip()
+        if not nome:
+            continue
+
+        key = normalize_text(nome)
+        if key in seen:
+            continue
+
+        seen.add(key)
+        result.append(item)
+
+    return result
+
+
+def build_generic_place_line(item):
+    nome = item.get("nome", "")
+    perfil = item.get("perfil", "")
+    dist = item.get("distancia", "")
+
+    line = f"• **{nome}**"
+    extras = []
+
+    if perfil:
+        extras.append(perfil)
+    if dist:
+        extras.append(format_distance(dist))
+
+    if extras:
+        line += " → " + " | ".join(extras)
+
+    return line    
 
 
 def filter_passeios_by_tipo_or_categoria(items, value):
@@ -3672,6 +4157,25 @@ def infer_contextual_followup(text_raw, last_topic):
     if last_topic == "airbnb_info":
         if has_any(text_n, ["envie o anuncio", "envie anuncio", "anuncio", "anúncio", "falar com bruno"]):
             return "airbnb_info"
+        
+    if last_topic == "surf":
+        if has_any(text_n, [
+            "iniciante", "primeira vez", "quero aprender", "aula", "aula de surf",
+            "intermediario", "intermediário", "ja tenho base", "já tenho base", "ja surfo", "já surfo",
+            "avancado", "avançado", "mais forte", "ondas mais fortes", "onda forte", "mar mais forte",
+            "visual", "bonita", "mais bonita", "surf com visual", "visual bonito",
+            "praticidade", "pratico", "prático", "sem logistica", "sem logística",
+            "perto", "sem complicacao", "sem complicação", "facil", "fácil"
+        ]):
+            return "surf"
+
+    if last_topic == "praias_guaruja":
+        if has_any(text_n, [
+            "outras", "outras praias", "mais praias",
+            "mais opcoes", "mais opções", "quais mais",
+            "me mostra mais", "todas", "todas as praias"
+        ]):
+            return "praias_guaruja"    
 
     if has_any(text_n, [
         "mais perto", "perto", "mais barato", "barato",
@@ -3748,8 +4252,10 @@ def is_followup_candidate(text_raw, last_topic, inferred_intent):
     strong_new_intents = [
         "wifi", "regras", "localizacao", "tempo", "identidade",
         "saude", "incidente", "chaves", "garagem", "checkout",
-        "restaurantes", "mercado", "farmacia", "praia", "apoio_predio",
-        "bares", "shopping", "feira", "passeio", "eventos", "surf", "bruno"
+        "restaurantes", "mercado", "farmacia", "praia", "praias_guaruja",
+        "apoio_predio", "bares", "shopping", "feira", "passeio", "eventos",
+        "surf", "bruno", "pet", "distribuidora", "mobilidade",
+        "aquaticos", "rodoviaria", "balsa", "seguranca"
     ]
     if inferred_intent in strong_new_intents and inferred_intent != last_topic:
         return False
@@ -3859,8 +4365,6 @@ def should_prefer_new_intent_over_context(text_raw, last_topic, inferred_intent)
         "regras": ["regra", "regras", "silencio", "silêncio", "barulho", "lixo", "fumar", "festa"],
         "localizacao": [
             "qual o endereco", "qual o endereço", "endereco daqui", "endereço daqui",
-            "endereco para entrega", "endereço para entrega",
-            "endereco para delivery", "endereço para delivery",
             "onde estamos", "onde fica aqui"
         ],
         "saude": ["estou doente", "doente", "passando mal", "mal estar", "mal-estar", "dor", "febre", "vomito", "vômito", "enjoo"],
@@ -3870,17 +4374,25 @@ def should_prefer_new_intent_over_context(text_raw, last_topic, inferred_intent)
         "garagem": ["garagem", "vaga", "estacionar", "estacionamento"],
         "bruno": ["bruno", "anfitriao", "anfitrião", "host"],
         "praia": ["praia", "servico de praia", "serviço de praia", "guarda-sol", "cadeira de praia"],
+        "praias_guaruja": [
+            "praias do guaruja", "praias do guarujá", "outra praia", "outras praias",
+            "alem da enseada", "além da enseada", "qual praia", "melhor praia",
+            "praia mais bonita", "praia paradisíaca", "praia paradisiaca",
+            "praia escondida", "praia reservada", "praia para surf"
+        ],
         "farmacia": ["farmacia", "farmácia", "farmacias", "farmácias", "remedio", "remédio"],
         "mercado": ["mercado", "mercados", "supermercado", "supermercados", "compras"],
         "restaurantes": [
             "restaurante", "restaurantes", "jantar", "comer", "pizza", "japones", "japonês", "sushi",
             "hamburguer", "hambúrguer", "happy hour", "kids", "chocolate"
         ],
-        "tempo": ["tempo", "clima", "vai chover", "previsao", "previsão"],
+        "tempo": ["tempo", "clima", "vai chover", "previsao", "previsão", "temperatura"],
         "passeio": ["o que fazer", "passeio", "passeios", "cinema", "mirante", "shopping", "feira", "chuva"],
         "shopping": ["shopping", "la plage"],
         "feira": ["feira", "feirinha"],
-        "bares": ["bar", "bares", "drink", "drinks", "noite", "cerveja"]
+        "bares": ["bar", "bares", "drink", "drinks", "noite", "cerveja"],
+        "pet": ["pet", "pet shop", "veterinario", "veterinário", "veterinaria", "veterinária", "farmacia veterinaria", "farmácia veterinária", "taxi dog", "cachorro", "gato"],
+        "distribuidora": ["distribuidora", "bebida", "gelo", "carvao", "carvão"]
     }
 
     markers = explicit_markers.get(inferred_intent, [])
@@ -3980,19 +4492,9 @@ def score_intents(text_raw, last_topic=""):
         add("identidade", 12)
 
     if has_any(text_n, [
-        "onde estamos",
-        "qual o endereco", "qual o endereço",
-        "me passa o endereco", "me passa o endereço",
-        "endereco daqui", "endereço daqui",
-        "onde fica aqui",
-        "endereco do apartamento", "endereço do apartamento",
-        "endereco do apto", "endereço do apto",
-        "endereco do apt", "endereço do apt",
-        "endereco da hospedagem", "endereço da hospedagem",
-        "qual o endereco do apartamento", "qual o endereço do apartamento",
-        "qual o endereco do apto", "qual o endereço do apto",
-        "qual o endereco do apt", "qual o endereço do apt",
-        "qual o endereco da hospedagem", "qual o endereço da hospedagem"
+        "onde estamos", "qual o endereco", "qual o endereço", "me passa o endereco",
+        "me passa o endereço", "endereco daqui", "endereço daqui", "onde fica aqui",
+        "apt", "apto", "apartamento", "hospedagem"
     ]):
         add("localizacao", 11)
 
@@ -4038,6 +4540,23 @@ def score_intents(text_raw, last_topic=""):
     if phrase_in_text(text_n, "onde fica a praia") or (phrase_in_text(text_n, "onde fica") and phrase_in_text(text_n, "servico de praia")):
         add("praia_local", 12)
 
+    if has_any(text_n, [
+        "praias do guaruja", "praias do guarujá", "outra praia", "outras praias",
+        "alem da enseada", "além da enseada", "qual praia", "melhor praia",
+        "praia mais bonita", "praia paradisíaca", "praia paradisiaca",
+        "praia escondida", "praia reservada",
+        "praia para familia", "praia para família", "praia mais calma"
+    ]):
+        add("praias_guaruja", 11)
+
+    if has_any(text_n, [
+        "praia para surf", "qual praia para surf", "praia boa para surf",
+        "praia para surfar", "qual praia para surfar",
+        "praia mais forte para surfar", "praia forte para surfar",
+        "praia para ondas", "pico de surf"
+    ]):
+        add("surf", 14)
+
     if has_any(text_n, ["praia", "praias", "servico de praia", "serviço de praia", "guarda-sol", "guarda sol", "cadeira de praia"]):
         add("praia", 9)
 
@@ -4046,7 +4565,10 @@ def score_intents(text_raw, last_topic=""):
 
     if has_any(text_n, [
         "restaurante", "restaurantes", "outro restaurante", "outros restaurantes",
-        "almoco", "almoço", "jantar", "comer", "comida", "fome",
+        "almoco", "almoço", "almocar", "almoçar", "serve almoco", "serve almoço",
+        "aberto agora", "abertos agora", "restaurantes abertos agora",
+        "restaurantes para almocar", "restaurantes para almoçar",
+        "jantar", "comer", "comida", "fome",
         "pizza", "japones", "japonês", "sushi",
         "doce", "sobremesa", "chocolate", "chocolateria",
         "hamburguer", "hambúrguer", "burger", "lanche",
@@ -4080,6 +4602,18 @@ def score_intents(text_raw, last_topic=""):
         "droga raia", "drogasil", "drogaria sao paulo", "drogaria são paulo", "poupafarma"
     ]):
         add("farmacia", 8)
+
+    if has_any(text_n, [
+        "pet", "pet shop", "veterinario", "veterinário", "veterinaria",
+        "veterinária", "farmacia veterinaria", "farmácia veterinária",
+        "taxi dog", "cachorro", "gato"
+    ]):
+        add("pet", 9)
+
+    if has_any(text_n, [
+        "distribuidora", "bebida", "gelo", "carvao", "carvão"
+    ]):
+        add("distribuidora", 8)
 
     if has_any(text_n, [
         "quem contactar no predio", "quem contactar no prédio",
@@ -4123,15 +4657,15 @@ def score_intents(text_raw, last_topic=""):
         add("feira", 7)
 
     if has_any(text_n, [
-        "tempo", "clima", "previsao", "previsão", "meteorologia",
-        "vai chover", "vai fazer sol", "como esta o tempo", "como está o tempo",
-        "temperatura", "temperatura agora",
-        "quantos graus", "graus",
-        "calor", "frio",
-        "sensacao termica", "sensação térmica",
-        "abafado", "clima hoje", "tempo hoje"
+        "tempo", "clima", "temperatura", "previsao", "previsão", "meteorologia",
+        "vai chover", "vai fazer sol", "como esta o tempo", "como está o tempo"
     ]):
-        add("tempo", 10)
+        if not has_any(text_n, [
+            "ja surfo faz tempo", "já surfo faz tempo",
+            "surfo faz tempo", "ja surfo", "já surfo",
+            "tenho tempo de surf", "tenho experiencia no surf", "tenho experiência no surf"
+        ]):
+            add("tempo", 10)
 
     if has_any(text_n, [
         "que horas sao", "que horas são",
@@ -4139,7 +4673,7 @@ def score_intents(text_raw, last_topic=""):
         "qual o horario agora", "qual o horário agora",
         "me diga as horas", "hora agora", "horario agora", "horário agora"
     ]):
-        add("hora_atual", 12)    
+        add("hora_atual", 12)
 
     if has_any(text_n, [
         "passeio", "passeios", "o que fazer", "o que fazer hoje",
@@ -4155,8 +4689,19 @@ def score_intents(text_raw, last_topic=""):
     if has_any(text_n, ["evento", "eventos", "show", "shows", "festa na cidade"]):
         add("eventos", 7)
 
-    if has_any(text_n, ["surf", "ondas", "mar", "pico de surf", "surfar"]):
+    if has_any(text_n, [
+        "surf", "ondas", "mar", "pico de surf", "surfar",
+        "ja surfo", "já surfo", "surfo faz tempo", "ja surfo faz tempo", "já surfo faz tempo",
+        "tenho alguma base", "ja tenho base", "já tenho base",
+        "surf intermediario", "surf intermediário",
+        "onda forte", "ondas mais fortes"
+    ]):
         add("surf", 8)
+
+    if has_any(text_n, [
+        "ja surfo", "já surfo", "surfo faz tempo", "ja surfo faz tempo", "já surfo faz tempo"
+    ]):
+        add("surf", 6)
 
     if has_any(text_n, [
         "zelador", "paulo", "claudio", "cláudio", "edson",
@@ -4180,9 +4725,10 @@ def infer_primary_intent(text_raw, last_topic=""):
 
     priority = [
         "incidente", "saude", "localizacao", "wifi", "regras", "praia_local",
-        "praia", "chaves", "restaurantes", "mercado", "tempo", "hora_atual", "padaria", "farmacia",
-        "apoio_predio", "garagem", "checkout", "roteiro", "passeio", "surf", "bares",
-        "shopping", "feira", "eventos", "bruno", "identidade"
+        "praia", "praias_guaruja", "chaves", "restaurantes", "mercado", "tempo",
+        "hora_atual", "padaria", "farmacia", "pet", "distribuidora",
+        "apoio_predio", "garagem", "checkout", "roteiro", "passeio", "surf",
+        "bares", "shopping", "feira", "eventos", "bruno", "identidade"
     ]
 
     best_score = max(scores.values())
@@ -4667,6 +5213,11 @@ def get_localizacao_reply(text):
 
 def get_praia_reply(guest=None, text_raw=""):
     guest = guest or load_guest()
+
+    if is_praia_recommendation_bridge_request(text_raw):
+        clear_active_recommendations()
+        return get_praia_recommendation_bridge_reply()
+
     context = get_stay_context(guest, text_raw)
     praia_status = get_praia_service_status(context)
 
@@ -5509,30 +6060,256 @@ def get_eventos_reply():
     )
 
 
-def get_surf_reply():
-    surf = knowledge().get("surf", {})
-    praias = surf.get("praias", [])
+def get_surf_reply(text_raw=""):
+    style_key = detect_surf_style(text_raw)
+    spots = get_surf_spots()
 
-    if praias:
-        linhas = []
-        for p in praias:
-            extra = []
-            if p.get("nivel"):
-                extra.append(f"nível: {p.get('nivel')}")
-            if p.get("observacao"):
-                extra.append(p.get("observacao"))
-            extra_text = f" ({'; '.join(extra)})" if extra else ""
-            linhas.append(f"• **{p.get('nome', '')}** → {p.get('perfil', '')}{extra_text}")
-
+    if not spots:
         return (
-            "Se você curte surf, posso te ajudar com uma orientação geral sobre os picos mais lembrados por aqui 🌊\n\n"
-            + "\n".join(linhas)
-            + "\n\nSe quiser, eu também posso te dizer qual combina mais com o seu nível."
+            "Posso te ajudar com surf 😊\n\n"
+            "Mas ainda não encontrei uma curadoria cadastrada na base neste momento."
         )
 
-    return (
-        "Se você curte surf, posso te ajudar com uma orientação geral sobre os picos mais lembrados por aqui 🌊"
+    if style_key:
+        return build_surf_style_reply(style_key)
+
+    if is_broad_surf_question(text_raw):
+        clear_active_recommendations()
+        return build_surf_refinement_prompt()
+
+    linhas = []
+    for item in spots[:4]:
+        nome = item.get("nome", "")
+        perfil = item.get("perfil", "")
+        nivel = item.get("nivel", "")
+
+        linha = f"• **{nome}**"
+        extras = []
+
+        if perfil:
+            extras.append(perfil)
+        if nivel:
+            extras.append(f"nível: {nivel}")
+
+        if extras:
+            linha += " → " + " | ".join(extras)
+
+        linhas.append(linha)
+
+    set_active_recommendations(
+        "surf",
+        names_from_items(spots),
+        current_name=spots[0].get("nome", "") if spots else ""
     )
+
+    return (
+        "Se a ideia for surf, eu costumo ler assim 🌊\n\n"
+        + "\n".join(linhas)
+        + "\n\n"
+        + build_surf_refinement_prompt()
+    )
+
+
+def get_praias_guaruja_reply(text="", guest=None):
+    guest = guest or load_guest()
+    text_n = normalize_text(text)
+    praias = unique_items_by_name(get_praias_curadoria_data())
+
+    if not praias:
+        return (
+            "Posso te ajudar com praias do Guarujá 😊\n\n"
+            "Mas essa curadoria ainda não está disponível na base neste momento."
+        )
+
+    def by_terms(terms):
+        result = []
+        for item in praias:
+            blob = generic_item_search_blob(item)
+            if any(phrase_in_text(blob, term) for term in terms):
+                result.append(item)
+        return result
+
+    tema = "geral"
+    chosen = []
+
+    if has_any(text_n, ["surf", "surfar", "ondas", "pico de surf"]):
+        tema = "surf"
+        chosen = by_terms([
+            "surf", "ondas", "intermediario", "intermediário",
+            "avancado", "avançado", "esportes aquaticos", "esportes aquáticos"
+        ])
+
+    elif has_any(text_n, ["crianca", "criança", "criancas", "crianças", "familia", "família"]):
+        tema = "familia"
+        chosen = by_terms([
+            "familia", "família", "crianca", "criança",
+            "calma", "tranquila", "estrutura", "faixa de areia"
+        ])
+
+    elif has_any(text_n, ["paradisiaca", "paradisíaca", "mais bonita", "bonita", "visual", "vista"]):
+        tema = "bonita"
+        chosen = by_terms([
+            "paradisiaca", "paradisíaca", "bonita", "visual",
+            "paisagem", "mirante", "natureza"
+        ])
+
+    elif has_any(text_n, ["escondida", "privativa", "privada", "reservada", "exclusiva"]):
+        tema = "reservada"
+        chosen = by_terms([
+            "escondida", "privativa", "reservada",
+            "exclusiva", "condominio", "condomínio"
+        ])
+
+    elif has_any(text_n, ["natureza", "trilha", "mata", "mais natural"]):
+        tema = "natureza"
+        chosen = by_terms([
+            "natureza", "trilha", "mata", "mais natural",
+            "preservada", "visual"
+        ])
+
+    elif has_any(text_n, ["esportes aquaticos", "esportes aquáticos", "jet ski", "jetski", "lancha", "caiaque", "banana boat"]):
+        tema = "aquaticos"
+        chosen = by_terms([
+            "esportes aquaticos", "esportes aquáticos",
+            "jet ski", "jetski", "lancha", "caiaque", "banana boat"
+        ])
+
+    elif has_any(text_n, ["calma", "tranquila", "sem muvuca", "mais vazia"]):
+        tema = "calma"
+        chosen = by_terms([
+            "calma", "tranquila", "mais vazia", "reservada", "leve"
+        ])
+
+    if not chosen:
+        chosen = praias[:]
+
+    chosen = unique_items_by_name(chosen)
+    top = chosen[:3]
+
+    if not top:
+        return (
+            "Posso te ajudar com praias do Guarujá 😊\n\n"
+            "Mas não encontrei uma seleção pronta para esse perfil neste momento."
+        )
+
+    intro_map = {
+        "surf": "Se a ideia for praia com foco em **surf**, eu separaria assim 🌊",
+        "familia": "Se a ideia for praia que funcione bem para **família**, eu começaria por aqui 😊",
+        "bonita": "Se vocês quiserem uma praia mais bonita / mais marcante visualmente ✨",
+        "reservada": "Se a ideia for algo mais reservado, escondido ou com sensação mais exclusiva 😊",
+        "natureza": "Se a ideia for uma praia com mais cara de natureza 🌿",
+        "aquaticos": "Se a ideia for praia com mais apelo para **esportes aquáticos** 🚤",
+        "calma": "Se vocês quiserem uma praia mais calma e menos carregada 😊",
+        "geral": (
+            "Se você quiser conhecer outras praias além da Enseada 😊\n\n"
+            "Eu resumiria assim: a **Enseada** costuma ser a melhor base de hospedagem pela praticidade, estrutura, comércio por perto e acesso fácil.\n"
+            "Mas, para passeio e experiência, estas entram muito bem:"
+        )
+    }
+
+    linhas = [build_generic_place_line(item) for item in top]
+
+    reply = "Claro 😊\n\n" + intro_map.get(tema, intro_map["geral"]) + "\n\n" + "\n".join(linhas)
+
+    top_1 = top[0]
+    if top_1.get("observacao"):
+        reply += f"\n\n**Leitura rápida:** {top_1.get('observacao')}"
+
+        reply += (
+        "\n\nSe quiser, eu também posso te mostrar **outras praias** ou te passar uma visão mais completa de **todas**."
+    )
+
+    return reply
+
+
+def get_pet_reply(text=""):
+    text_n = normalize_text(text)
+    items = unique_items_by_name(get_pet_data())
+
+    if not items:
+        return (
+            "Posso te ajudar com apoio pet 😊\n\n"
+            "Mas ainda não encontrei uma referência cadastrada na base neste momento."
+        )
+
+    principal = items[0]
+
+    nome = principal.get("nome", "Golden Pet")
+    endereco = principal.get("endereco", "")
+    horario = principal.get("horario", "")
+    telefone = principal.get("telefone", "")
+    instagram = principal.get("instagram", "")
+    perfil = principal.get("perfil", "")
+    obs = principal.get("observacao", "")
+
+    reply = (
+        "Claro 😊\n\n"
+        f"Uma boa referência pet na região é a **{nome}**."
+    )
+
+    if perfil:
+        reply += f"\n\n{perfil}."
+    if endereco:
+        reply += f"\n• Endereço: {endereco}"
+    if horario:
+        reply += f"\n• Horário: {horario}"
+    if telefone:
+        reply += f"\n• Telefone: {telefone}"
+    if instagram:
+        reply += f"\n• Instagram: {instagram}"
+    if obs:
+        reply += f"\n\n{obs}"
+
+    if has_any(text_n, ["veterinario", "veterinário", "clinica", "clínica"]):
+        reply += "\n\nSe a ideia for atendimento veterinário, essa é a referência principal que eu usaria por aqui."
+    elif has_any(text_n, ["farmacia veterinaria", "farmácia veterinária"]):
+        reply += "\n\nEla também entra bem quando a necessidade envolve apoio veterinário / itens pet."
+    elif has_any(text_n, ["taxi dog", "transporte pet"]):
+        reply += "\n\nEla também é uma boa referência quando a necessidade envolve apoio pet mais completo."
+
+    return reply
+
+
+def get_distribuidora_reply(text=""):
+    items = unique_items_by_name(get_distribuidoras_data())
+
+    if not items:
+        return (
+            "Posso te ajudar com distribuidora 😊\n\n"
+            "Mas ainda não encontrei uma referência cadastrada na base neste momento."
+        )
+
+    principal = items[0]
+
+    nome = principal.get("nome", "Distribuidora Enseada")
+    endereco = principal.get("endereco", "")
+    horario = principal.get("horario", "")
+    telefone = principal.get("telefone", "")
+    dist = principal.get("distancia", "")
+    perfil = principal.get("perfil", "")
+    obs = principal.get("observacao", "")
+
+    reply = (
+        "Claro 😊\n\n"
+        f"Se a ideia for **bebida / gelo / conveniência desse tipo**, uma boa referência é a **{nome}**."
+    )
+
+    if perfil:
+        reply += f"\n\n{perfil}."
+    if dist:
+        reply += f"\n• Distância: {format_distance(dist)}"
+    if endereco:
+        reply += f"\n• Endereço: {endereco}"
+    if horario:
+        reply += f"\n• Horário: {horario}"
+    if telefone:
+        reply += f"\n• Telefone: {telefone}"
+    if obs:
+        reply += f"\n\n{obs}"
+
+    reply += "\n\nSe quiser, eu também posso te ajudar com **mercado** caso a ideia seja uma compra mais ampla."
+
+    return reply
 
 
 def get_bares_reply():
@@ -5781,6 +6558,18 @@ def get_followup_reply(text, last_topic, guest):
             if ok:
                 return "Perfeito 😊 Já avisei o Bruno para entrar em contato com vocês o quanto antes."
             return "Entendi 😊 Tentei avisar o Bruno agora, mas não consegui enviar a solicitação de acompanhamento neste momento."
+        
+    if last_topic == "praias_guaruja" or topic == "praias_guaruja":
+        if has_any(text_n, [
+            "outras", "outras praias", "mais praias",
+            "mais opcoes", "mais opções", "quais mais", "me mostra mais"
+        ]):
+            return get_more_praias_curadoria_reply(show_all=False)
+
+        if text_n in ["todas", "todas as praias"] or has_any(text_n, [
+            "todas as praias", "me mostra todas", "quero ver todas"
+        ]):
+            return get_more_praias_curadoria_reply(show_all=True)    
 
     if last_topic == "praia" or topic == "praia":
         if has_any(text_n, [
@@ -6178,6 +6967,31 @@ def get_followup_reply(text, last_topic, guest):
                     + "\n".join(linhas)
                     + f"\n\n{pick_followup_soft_close('passeio')}"
                 )
+            
+    if topic == "surf":
+        style_key = detect_surf_style(text)
+
+        if style_key:
+            return build_surf_style_reply(style_key)
+
+        if has_any(text_n, [
+            "qual voce recomenda", "qual você recomenda", "qual vc recomenda",
+            "qual voce indica", "qual você indica", "qual vc indica",
+            "qual melhor", "compensa", "vale a pena"
+        ]):
+            current = get_current_active_recommendation("surf")
+            if current:
+                return (
+                    f"{pick_recommendation_intro('generic')}\n\n"
+                    f"Eu começaria por **{current}**."
+                )
+
+            return build_surf_refinement_prompt()
+
+        if has_any(text_n, ["todos", "todas", "geral"]):
+            return get_surf_reply("surf")
+
+        return build_surf_refinement_prompt()        
 
     if topic == "tempo":
         if has_any(text_n, ["e pra praia", "compensa", "vale a pena", "e hoje"]):
@@ -6925,6 +7739,17 @@ def gepetto_responde(msg):
             remembered,
             intent_for_session="praia"
         )
+    
+    if intent == "praias_guaruja":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "praias_guaruja",
+            get_praias_guaruja_reply(text_raw, guest),
+            remembered,
+            intent_for_session="praias_guaruja"
+        )
 
     if intent == "roteiro":
         clear_active_recommendations()
@@ -6957,6 +7782,28 @@ def gepetto_responde(msg):
         else:
             reply = get_farmacia_reply(text_raw)
         return finalize_and_log(guest, text_raw, "farmacia", reply, remembered, intent_for_session="farmacia")
+
+    if intent == "pet":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "pet",
+            get_pet_reply(text_raw),
+            remembered,
+            intent_for_session="pet"
+        )
+
+    if intent == "distribuidora":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "distribuidora",
+            get_distribuidora_reply(text_raw),
+            remembered,
+            intent_for_session="distribuidora"
+        )    
 
     if intent == "apoio_predio":
         clear_active_recommendations()
@@ -7030,6 +7877,19 @@ def gepetto_responde(msg):
     if intent == "surf":
         clear_active_recommendations()
         return finalize_and_log(guest, text_raw, "surf", get_surf_reply(), remembered, intent_for_session="surf")
+
+    praia_curadoria_item = find_praia_curadoria_by_name(text_raw)
+    if praia_curadoria_item:
+        clear_active_recommendations()
+        reply = get_praia_curadoria_soft_fallback_reply(praia_curadoria_item)
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "praias_guaruja",
+            reply,
+            remembered,
+            intent_for_session="praia_curadoria_soft_fallback"
+        )
 
     clear_active_recommendations()
     reply = get_fallback_reply(guest)
