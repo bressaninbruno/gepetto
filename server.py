@@ -4506,7 +4506,9 @@ def score_intents(text_raw, last_topic=""):
         "desmaiou", "desmaio", "nao consegue respirar", "não consegue respirar",
         "falta de ar", "dor no peito", "muita dor", "dor forte", "sangrando",
         "dor", "doente", "febre", "passando mal", "mal estar", "mal-estar",
-        "vomito", "vômito", "enjoo", "to mal", "tô mal", "estou doente"
+        "vomito", "vômito", "enjoo", "to mal", "tô mal", "estou doente",
+        "samu", "ambulancia", "ambulância", "socorro medico", "socorro médico",
+        "emergencia medica", "emergência médica", "192"
     ]):
         add("saude", 10)
 
@@ -4633,7 +4635,28 @@ def score_intents(text_raw, last_topic=""):
         "quero ir para a rodoviaria", "quero ir para a rodoviária",
         "como chegar na rodoviaria", "como chegar na rodoviária"
     ]):
-        add("rodoviaria", 9)       
+        add("rodoviaria", 9)
+
+    if has_any(text_n, [
+        "seguranca", "segurança",
+        "policia", "polícia",
+        "delegacia",
+        "policia civil", "polícia civil",
+        "policia militar", "polícia militar",
+        "bombeiro", "bombeiros", "corpo de bombeiros", "193",
+        "190",
+        "boletim de ocorrencia", "boletim de ocorrência",
+        "registrar ocorrencia", "registrar ocorrência",
+        "assalto", "roubo", "furto",
+        "incendio", "incêndio",
+        "pegando fogo",
+        "em chamas",
+        "explosao", "explosão",
+        "fumaca forte", "fumaça forte",
+        "cheiro forte de queimado",
+        "curto circuito", "curto-circuito"
+    ]):
+        add("seguranca", 9)           
 
     if has_any(text_n, [
         "distribuidora", "bebida", "gelo", "carvao", "carvão"
@@ -4751,7 +4774,7 @@ def infer_primary_intent(text_raw, last_topic=""):
     priority = [
         "incidente", "saude", "localizacao", "wifi", "regras", "praia_local",
         "praia", "praias_guaruja", "chaves", "restaurantes", "mercado", "tempo",
-        "hora_atual", "padaria", "farmacia", "pet", "deslocamento_santos", "rodoviaria", "distribuidora",
+        "hora_atual", "padaria", "farmacia", "pet", "deslocamento_santos", "rodoviaria", "seguranca", "distribuidora",
         "apoio_predio", "garagem", "checkout", "roteiro", "passeio", "surf",
         "bares", "shopping", "feira", "eventos", "bruno", "identidade"
     ]
@@ -6099,6 +6122,17 @@ def get_health_reply(text):
     upa = saude.get("upa", {})
     hospital = saude.get("hospital", {})
 
+    if has_any(text_n, [
+        "samu", "ambulancia", "ambulância",
+        "socorro medico", "socorro médico",
+        "emergencia medica", "emergência médica", "192"
+    ]):
+        return (
+            "Se a necessidade for **atendimento médico de urgência**, a referência é:\n\n"
+            "• **SAMU: 192**\n\n"
+            "Se for uma situação grave, a prioridade é buscar apoio imediato."
+        )
+
     if sev == "alta":
         return (
             "Isso parece importante ⚠️\n\n"
@@ -6496,7 +6530,95 @@ def get_rodoviaria_reply(text=""):
     if obs:
         reply += f"\n\n{obs}"
 
-    return reply    
+    return reply
+
+
+def get_seguranca_reply(text=""):
+    text_n = normalize_text(text)
+    seguranca = knowledge().get("seguranca", {})
+
+    policia_civil = seguranca.get("policia_civil", []) or []
+    policia_militar = seguranca.get("policia_militar", []) or []
+    observacao = seguranca.get("observacao", "")
+
+    termos_bombeiros = [
+        "incendio", "incêndio",
+        "pegando fogo",
+        "em chamas",
+        "explosao", "explosão",
+        "fumaca forte", "fumaça forte",
+        "cheiro forte de queimado",
+        "curto circuito", "curto-circuito"
+    ]
+
+    if has_any(text_n, termos_bombeiros):
+        return (
+            "Se houver risco real de **incêndio / explosão**, a prioridade é buscar apoio oficial imediato 🚨\n\n"
+            "• **Bombeiros: 193**\n"
+            "• **Polícia Militar: 190**\n\n"
+            "Se estiver seguro fazer isso, saia da área e procure apoio imediato."
+        )
+
+    if has_any(text_n, [
+        "bombeiro", "bombeiros", "corpo de bombeiros", "193"
+    ]):
+        return (
+            "Se a necessidade for **bombeiros**, a referência principal é:\n\n"
+            "• **Bombeiros: 193**\n\n"
+            "Em caso de incêndio, explosão ou risco real, a prioridade é buscar apoio oficial imediato."
+        )    
+
+    if has_any(text_n, [
+        "policia militar", "polícia militar", "190",
+        "emergencia policial", "emergência policial"
+    ]):
+        pm = policia_militar[0] if policia_militar else {}
+        reply = "Se a necessidade for **apoio policial imediato**, a referência principal é:\n\n"
+        reply += f"• **{pm.get('nome', 'Polícia Militar / apoio emergencial')}**"
+        if pm.get("telefone"):
+            reply += f" → **{pm.get('telefone')}**"
+        if pm.get("perfil"):
+            reply += f"\n\n{pm.get('perfil')}."
+        return reply
+
+    if has_any(text_n, [
+        "delegacia", "policia civil", "polícia civil",
+        "boletim de ocorrencia", "boletim de ocorrência",
+        "registrar ocorrencia", "registrar ocorrência"
+    ]):
+        pc = policia_civil[0] if policia_civil else {}
+        reply = "Se a ideia for **delegacia / apoio de polícia civil**, a referência é:\n\n"
+        reply += f"• **{pc.get('nome', 'Delegacia Sede de Guarujá')}**"
+        if pc.get("perfil"):
+            reply += f"\n\n{pc.get('perfil')}."
+        if observacao:
+            reply += f"\n\n{observacao}"
+        return reply
+
+    reply = "Se a necessidade for algo ligado a **segurança**, eu posso te orientar assim:\n\n"
+
+    if policia_militar:
+        pm = policia_militar[0]
+        reply += f"• **{pm.get('nome', 'Polícia Militar')}**"
+        if pm.get("telefone"):
+            reply += f" → **{pm.get('telefone')}**"
+        if pm.get("perfil"):
+            reply += f" | {pm.get('perfil')}"
+        reply += "\n"
+
+    if policia_civil:
+        pc = policia_civil[0]
+        reply += f"• **{pc.get('nome', 'Delegacia Sede de Guarujá')}**"
+        if pc.get("perfil"):
+            reply += f" → {pc.get('perfil')}"
+        reply += "\n"
+
+    reply += "• **Bombeiros: 193** → em caso de incêndio / explosão\n"
+
+    if observacao:
+        reply += f"\n{observacao}"
+
+    return reply        
 
 
 def wants_balsa_live_status(text=""):
@@ -8015,6 +8137,17 @@ def gepetto_responde(msg):
             get_rodoviaria_reply(text_raw),
             remembered,
             intent_for_session="rodoviaria"
+        )
+    
+    if intent == "seguranca":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "seguranca",
+            get_seguranca_reply(text_raw),
+            remembered,
+            intent_for_session="seguranca"
         )
 
     if intent == "distribuidora":
