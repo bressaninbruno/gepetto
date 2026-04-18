@@ -4664,6 +4664,68 @@ def score_intents(text_raw, last_topic=""):
         add("distribuidora", 8)
 
     if has_any(text_n, [
+        "correios", "sedex", "postagem", "encomenda", "enviar encomenda"
+    ]):
+        add("correios", 8)
+
+    if has_any(text_n, [
+        "banco", "bancos", "agencia bancaria", "agência bancária",
+        "agencia", "agência", "saque", "caixa eletronico", "caixa eletrônico",
+        "bradesco", "itau", "itaú", "banco do brasil"
+    ]):
+        add("bancos", 8)
+
+    if has_any(text_n, [
+        "posto de gasolina", "posto de combustivel", "posto de combustível",
+        "gasolina", "etanol", "diesel", "abastecer", "posto ipiranga",
+        "posto petrobras", "carrefour posto", "posto extra"
+    ]):
+        add("postos", 8)
+
+    if has_any(text_n, [
+        "bike", "bicicleta", "bicicleta eletrica", "bicicleta elétrica",
+        "scooter", "patinete", "alugar bike", "aluguel de bike",
+        "mobilidade leve"
+    ]):
+        add("mobilidade_leve", 8)
+
+    if has_any(text_n, [
+        "jet ski", "jetski", "lancha", "banana boat",
+        "servicos aquaticos", "serviços aquáticos", "aquaticos", "aquáticos"
+    ]):
+        add("aquaticos", 8)
+
+    if has_any(text_n, [
+        "tabacaria", "tabaco", "essencia", "essência"
+    ]):
+        add("tabacaria", 8)
+
+    if has_any(text_n, [
+        "lavanderia", "lavar roupa", "lavar roupas", "roupa suja",
+        "self service lavanderia", "bubble box", "lavo"
+    ]):
+        add("lavanderia", 8)
+
+    if has_any(text_n, [
+        "salao", "salão", "beleza", "cabelo", "escova",
+        "maquiagem", "unha", "unhas"
+    ]):
+        add("beleza", 8)
+
+    if has_any(text_n, [
+        "acai", "açaí", "sorvete", "gelato", "sobremesa gelada"
+    ]):
+        add("acai", 8)
+
+    if has_any(text_n, [
+        "lan house", "lanhouse",
+        "impressao", "impressão", "imprimir", "impressora", "imprimir algo",
+        "xerox", "copiar documento", "segunda via", "digitalizar",
+        "apoio digital", "computador para usar", "gamer"
+    ]):
+        add("lan_house", 8)    
+
+    if has_any(text_n, [
         "quem contactar no predio", "quem contactar no prédio",
         "quem pode ajudar no predio", "quem pode ajudar no prédio",
         "com quem falar no predio", "com quem falar no prédio",
@@ -4774,7 +4836,10 @@ def infer_primary_intent(text_raw, last_topic=""):
     priority = [
         "incidente", "saude", "localizacao", "wifi", "regras", "praia_local",
         "praia", "praias_guaruja", "chaves", "restaurantes", "mercado", "tempo",
-        "hora_atual", "padaria", "farmacia", "pet", "deslocamento_santos", "rodoviaria", "seguranca", "distribuidora",
+        "hora_atual", "padaria", "farmacia", "pet", "deslocamento_santos",
+        "rodoviaria", "seguranca", "distribuidora",
+        "correios", "bancos", "postos", "mobilidade_leve", "aquaticos",
+        "tabacaria", "lavanderia", "beleza", "acai", "lan_house",
         "apoio_predio", "garagem", "checkout", "roteiro", "passeio", "surf",
         "bares", "shopping", "feira", "eventos", "bruno", "identidade"
     ]
@@ -6618,7 +6683,167 @@ def get_seguranca_reply(text=""):
     if observacao:
         reply += f"\n{observacao}"
 
-    return reply        
+    return reply
+
+
+def build_support_line(item):
+    nome = item.get("nome", "").strip()
+    if not nome:
+        return ""
+
+    parts = []
+
+    perfil = item.get("perfil", "")
+    endereco = item.get("endereco", "")
+    horario = item.get("horario", "")
+    telefone = item.get("telefone", "")
+    whatsapp = item.get("whatsapp", "")
+    instagram = item.get("instagram", "")
+    observacao = item.get("observacao", "")
+
+    if perfil:
+        parts.append(perfil)
+    if endereco:
+        parts.append(endereco)
+    if horario:
+        parts.append(f"horário: {horario}")
+    if telefone:
+        parts.append(f"tel: {telefone}")
+    if whatsapp:
+        parts.append(f"WhatsApp: {whatsapp}")
+    if instagram:
+        parts.append(f"Instagram: {instagram}")
+    if observacao:
+        parts.append(observacao)
+
+    return f"• **{nome}**" + (f" → {' | '.join(parts)}" if parts else "")
+
+
+def build_support_list_reply(items, intro, empty_text):
+    items = unique_items_by_name(items)
+
+    if not items:
+        return empty_text
+
+    linhas = [build_support_line(item) for item in items if build_support_line(item)]
+    linhas = [linha for linha in linhas if linha]
+
+    if not linhas:
+        return empty_text
+
+    return f"{intro}\n\n" + "\n".join(linhas)
+
+
+def get_correios_reply(text=""):
+    items = knowledge().get("apoio_operacional", {}).get("correios", []) or []
+    return build_support_list_reply(
+        items,
+        "Se a ideia for **Correios**, aqui vão algumas referências 😊",
+        "Posso te ajudar com Correios 😊\n\nMas ainda não encontrei referências cadastradas na base neste momento."
+    )
+
+
+def get_bancos_reply(text=""):
+    items = knowledge().get("apoio_operacional", {}).get("bancos", []) or []
+    return build_support_list_reply(
+        items,
+        "Se a ideia for **banco / agência / saque**, aqui vão algumas referências 😊",
+        "Posso te ajudar com bancos 😊\n\nMas ainda não encontrei referências cadastradas na base neste momento."
+    )
+
+
+def get_postos_reply(text=""):
+    items = knowledge().get("apoio_operacional", {}).get("postos_combustivel", []) or []
+    return build_support_list_reply(
+        items,
+        "Se a ideia for **posto / combustível / abastecer**, aqui vão algumas referências 😊",
+        "Posso te ajudar com postos 😊\n\nMas ainda não encontrei referências cadastradas na base neste momento."
+    )
+
+
+def get_mobilidade_leve_reply(text=""):
+    items = knowledge().get("apoio_operacional", {}).get("mobilidade_leve", []) or []
+    return build_support_list_reply(
+        items,
+        "Se a ideia for **bike / scooter / patinete / mobilidade leve**, aqui vão algumas referências 😊",
+        "Posso te ajudar com mobilidade leve 😊\n\nMas ainda não encontrei referências cadastradas na base neste momento."
+    )
+
+
+def get_aquaticos_reply(text=""):
+    bloco = knowledge().get("apoio_operacional", {}).get("aquaticos", {}) or {}
+
+    localizacao = bloco.get("localizacao", "")
+    tipos = bloco.get("tipos_de_servico", []) or []
+    perfil = bloco.get("perfil", "")
+    observacao = bloco.get("observacao", "")
+
+    if not bloco:
+        return (
+            "Posso te ajudar com opções aquáticas 😊\n\n"
+            "Mas ainda não encontrei referências cadastradas na base neste momento."
+        )
+
+    reply = "Se a ideia for **jet ski / lancha / serviços aquáticos**, a orientação é esta 😊"
+
+    if perfil:
+        reply += f"\n\n{perfil}."
+
+    if localizacao:
+        reply += f"\n• Localização: {localizacao}"
+
+    if tipos:
+        reply += "\n• Tipos: " + ", ".join(tipos)
+
+    if observacao:
+        reply += f"\n\n{observacao}"
+
+    return reply
+
+
+def get_tabacaria_reply(text=""):
+    items = knowledge().get("utilidades", {}).get("tabacarias", []) or []
+    return build_support_list_reply(
+        items,
+        "Se a ideia for **tabacaria**, aqui vai uma referência 😊",
+        "Posso te ajudar com tabacaria 😊\n\nMas ainda não encontrei referências cadastradas na base neste momento."
+    )
+
+
+def get_lavanderia_reply(text=""):
+    items = knowledge().get("utilidades", {}).get("lavanderias", []) or []
+    return build_support_list_reply(
+        items,
+        "Se a ideia for **lavanderia**, aqui vão algumas referências 😊",
+        "Posso te ajudar com lavanderia 😊\n\nMas ainda não encontrei referências cadastradas na base neste momento."
+    )
+
+
+def get_beleza_reply(text=""):
+    items = knowledge().get("apoio_complementar", {}).get("beleza", []) or []
+    return build_support_list_reply(
+        items,
+        "Se a ideia for **salão / beleza**, aqui vão algumas referências 😊",
+        "Posso te ajudar com beleza 😊\n\nMas ainda não encontrei referências cadastradas na base neste momento."
+    )
+
+
+def get_acai_reply(text=""):
+    items = knowledge().get("apoio_complementar", {}).get("acai_sorvete", []) or []
+    return build_support_list_reply(
+        items,
+        "Se a ideia for **açaí / sorvete / sobremesa leve**, aqui vão algumas referências 😊",
+        "Posso te ajudar com açaí e sorvete 😊\n\nMas ainda não encontrei referências cadastradas na base neste momento."
+    )
+
+
+def get_lan_house_reply(text=""):
+    items = knowledge().get("apoio_complementar", {}).get("lan_house", []) or []
+    return build_support_list_reply(
+        items,
+        "Se a ideia for **lan house / impressão / apoio digital**, aqui vão algumas referências 😊",
+        "Posso te ajudar com lan house 😊\n\nMas ainda não encontrei referências cadastradas na base neste momento."
+    )
 
 
 def wants_balsa_live_status(text=""):
@@ -8159,6 +8384,116 @@ def gepetto_responde(msg):
             get_distribuidora_reply(text_raw),
             remembered,
             intent_for_session="distribuidora"
+        )
+
+    if intent == "correios":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "correios",
+            get_correios_reply(text_raw),
+            remembered,
+            intent_for_session="correios"
+        )
+
+    if intent == "bancos":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "bancos",
+            get_bancos_reply(text_raw),
+            remembered,
+            intent_for_session="bancos"
+        )
+
+    if intent == "postos":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "postos",
+            get_postos_reply(text_raw),
+            remembered,
+            intent_for_session="postos"
+        )
+
+    if intent == "mobilidade_leve":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "mobilidade_leve",
+            get_mobilidade_leve_reply(text_raw),
+            remembered,
+            intent_for_session="mobilidade_leve"
+        )
+
+    if intent == "aquaticos":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "aquaticos",
+            get_aquaticos_reply(text_raw),
+            remembered,
+            intent_for_session="aquaticos"
+        )
+
+    if intent == "tabacaria":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "tabacaria",
+            get_tabacaria_reply(text_raw),
+            remembered,
+            intent_for_session="tabacaria"
+        )
+
+    if intent == "lavanderia":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "lavanderia",
+            get_lavanderia_reply(text_raw),
+            remembered,
+            intent_for_session="lavanderia"
+        )
+
+    if intent == "beleza":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "beleza",
+            get_beleza_reply(text_raw),
+            remembered,
+            intent_for_session="beleza"
+        )
+
+    if intent == "acai":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "acai",
+            get_acai_reply(text_raw),
+            remembered,
+            intent_for_session="acai"
+        )
+
+    if intent == "lan_house":
+        clear_active_recommendations()
+        return finalize_and_log(
+            guest,
+            text_raw,
+            "lan_house",
+            get_lan_house_reply(text_raw),
+            remembered,
+            intent_for_session="lan_house"
         )    
 
     if intent == "apoio_predio":
