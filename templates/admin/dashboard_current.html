@@ -34,8 +34,8 @@
 {% include "admin/partials/current_summary_cards.html" %}
 
 <div class="current-main-grid">
-  <div class="stack">
-    <div class="panel panel-pad-lg">
+  <div class="stack stack-left">
+    <div class="panel panel-pad-lg panel-primary-block">
       <div class="panel-title-row">
         <h2 class="panel-title">Hospedagem ativa</h2>
       </div>
@@ -43,22 +43,22 @@
       <div class="info-list">
         <div class="info-item">
           <div class="info-label">Nome</div>
-          <div class="info-value">{{ guest_name }}</div>
+          <div class="info-value">{{ guest_name or "-" }}</div>
         </div>
 
         <div class="info-item">
           <div class="info-label">Grupo / perfil / idioma</div>
-          <div class="info-value">{{ guest_group }} • {{ guest_profile }} • {{ guest_idioma }}</div>
+          <div class="info-value">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</div>
         </div>
 
         <div class="info-item">
           <div class="info-label">Estadia</div>
-          <div class="info-value">check-in {{ guest_checkin }} • check-out {{ guest_checkout }} • saída {{ guest_checkout_time }}</div>
+          <div class="info-value">check-in {{ guest_checkin or "-" }} • check-out {{ guest_checkout or "-" }} • saída {{ guest_checkout_time or "-" }}</div>
         </div>
 
         <div class="info-item">
           <div class="info-label">Observações</div>
-          <div class="info-value">{{ guest_observacoes }}</div>
+          <div class="info-value">{{ guest_observacoes or "-" }}</div>
         </div>
 
         <div class="info-item">
@@ -68,7 +68,7 @@
       </div>
     </div>
 
-    <div class="panel panel-pad-lg">
+    <div class="panel panel-pad-lg panel-primary-block">
       <div class="panel-title-row">
         <h2 class="panel-title">Estado da conversa</h2>
       </div>
@@ -76,49 +76,57 @@
       <div class="info-list">
         <div class="info-item">
           <div class="info-label">Último tópico</div>
-          <div class="info-value">{{ last_topic }}</div>
+          <div class="info-value">{{ last_topic or "-" }}</div>
         </div>
 
         <div class="info-item">
           <div class="info-label">Última intent</div>
-          <div class="info-value">{{ last_intent }}</div>
+          <div class="info-value">{{ last_intent or "-" }}</div>
         </div>
 
         <div class="info-item">
           <div class="info-label">Última recomendação</div>
-          <div class="info-value">{{ last_recommendation_name }} • {{ last_recommendation_type }}</div>
+          <div class="info-value">{{ last_recommendation_name or "-" }}{% if last_recommendation_type %} • {{ last_recommendation_type }}{% endif %}</div>
         </div>
 
         <div class="info-item">
           <div class="info-label">Entidade atual</div>
-          <div class="info-value">{{ last_entity_name }}</div>
+          <div class="info-value">{{ last_entity_name or "-" }}</div>
         </div>
 
         <div class="info-item">
           <div class="info-label">Âncora ativa</div>
-          <div class="info-value">{{ current_active_name }}</div>
+          <div class="info-value">{{ current_active_name or "-" }}</div>
         </div>
       </div>
     </div>
-
-    {% include "admin/partials/incident_list.html" %}
   </div>
 
-  <div class="stack">
+  <div class="stack stack-right">
     {% include "admin/partials/conversation_feed.html" %}
-    {% include "admin/partials/intent_list.html" %}
-    {% include "admin/partials/insight_list.html" %}
-    {% include "admin/partials/usage_list.html" %}
-  </div>
-</div>
 
-<div class="quick-links-grid quick-links-grid-bottom">
-  <a class="quick-link-card" href="/admin/guests?token={{ token }}">Guests</a>
-  <a class="quick-link-card" href="/admin/sessions?token={{ token }}">Sessions</a>
-  <a class="quick-link-card" href="/admin/conversations?token={{ token }}">Conversations</a>
-  <a class="quick-link-card" href="/admin/incidents?token={{ token }}">Incidents</a>
-  <a class="quick-link-card" href="/admin/intents?token={{ token }}">Intents</a>
-  <a class="quick-link-card" href="/admin/insights?token={{ token }}">Insights</a>
-  <a class="quick-link-card" href="/admin/usage?token={{ token }}">Usage</a>
+    <div class="current-secondary-grid">
+      {% include "admin/partials/incident_list.html" %}
+      {% include "admin/partials/intent_list.html" %}
+      {% include "admin/partials/insight_list.html" %}
+      {% include "admin/partials/usage_list.html" %}
+
+      <div class="panel panel-pad-md panel-compact panel-quick-links">
+        <div class="panel-title-row">
+          <h2 class="panel-title panel-title-sm">Atalhos</h2>
+        </div>
+
+        <div class="quick-links-mini-grid">
+          <a class="quick-link-mini" href="/admin/guests?token={{ token }}">Guests</a>
+          <a class="quick-link-mini" href="/admin/sessions?token={{ token }}">Sessions</a>
+          <a class="quick-link-mini" href="/admin/conversations?token={{ token }}">Conversations</a>
+          <a class="quick-link-mini" href="/admin/incidents?token={{ token }}">Incidents</a>
+          <a class="quick-link-mini" href="/admin/intents?token={{ token }}">Intents</a>
+          <a class="quick-link-mini" href="/admin/insights?token={{ token }}">Insights</a>
+          <a class="quick-link-mini" href="/admin/usage?token={{ token }}">Usage</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
