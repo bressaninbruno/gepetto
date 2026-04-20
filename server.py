@@ -9094,8 +9094,20 @@ def admin_dashboard_current():
     def fmt_dt(value):
         if not value:
             return "-"
+
         try:
-            return value.strftime("%d/%m/%Y %H:%M:%S")
+            if isinstance(value, str):
+                value = datetime.fromisoformat(value)
+
+            if isinstance(value, datetime):
+                if value.tzinfo is None:
+                    value = value.replace(tzinfo=APP_TIMEZONE)
+                else:
+                    value = value.astimezone(APP_TIMEZONE)
+
+                return value.strftime("%d/%m/%Y %H:%M:%S")
+
+            return str(value)
         except Exception:
             return str(value)
 
