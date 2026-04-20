@@ -100,16 +100,17 @@
         </div>
       </div>
     </div>
+
+    {% include "admin/partials/incident_list.html" %}
+    {% include "admin/partials/usage_list.html" %}
   </div>
 
   <div class="stack stack-right">
     {% include "admin/partials/conversation_feed.html" %}
 
     <div class="current-secondary-grid">
-      {% include "admin/partials/incident_list.html" %}
       {% include "admin/partials/intent_list.html" %}
       {% include "admin/partials/insight_list.html" %}
-      {% include "admin/partials/usage_list.html" %}
 
       <div class="panel panel-pad-md panel-compact panel-quick-links">
         <div class="panel-title-row">
