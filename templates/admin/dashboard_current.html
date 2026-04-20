@@ -3,131 +3,220 @@
 {% block title %}Gepetto • Dashboard Current{% endblock %}
 
 {% block content %}
-<div class="page-header page-header-compact">
-  <div>
-    <div class="eyebrow">Gepetto • Admin Current</div>
-    <p class="page-subtitle page-subtitle-compact">
-        Dashboard da Hospedagem atual
-    </p>
-  </div>
-
-  <div class="header-actions">
-    <a class="btn-link" href="/admin/dashboard?token={{ token }}">← Dashboard geral</a>
-    <a class="btn-link" href="/admin?token={{ token }}">Admin</a>
-  </div>
-</div>
-
-<div class="panel panel-pad-md panel-meta-strip">
-  <div class="top-meta-grid">
-    <div class="meta-pill"><strong>Horário local:</strong> {{ now_local }}</div>
-    <div class="meta-pill"><strong>Banco:</strong> {{ db_status }}</div>
-    <div class="meta-pill"><strong>Escopo:</strong> hospedagem ativa</div>
-    <div class="meta-pill"><strong>Última atualização:</strong> {{ last_updated }}</div>
-  </div>
-
-  {% if db_error %}
-    <div class="error-box"><strong>Erro DB:</strong> {{ db_error }}</div>
-  {% endif %}
-</div>
-
-{% include "admin/partials/current_header.html" %}
-{% include "admin/partials/current_summary_cards.html" %}
-
-<div class="current-main-grid">
-  <div class="stack stack-left">
-    <div class="panel panel-pad-lg panel-primary-block">
-      <div class="panel-title-row">
-        <h2 class="panel-title">Hospedagem ativa</h2>
-      </div>
-
-      <div class="info-list">
-        <div class="info-item">
-          <div class="info-label">Nome</div>
-          <div class="info-value">{{ guest_name or "-" }}</div>
-        </div>
-
-        <div class="info-item">
-          <div class="info-label">Grupo / perfil / idioma</div>
-          <div class="info-value">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</div>
-        </div>
-
-        <div class="info-item">
-          <div class="info-label">Estadia</div>
-          <div class="info-value">check-in {{ guest_checkin or "-" }} • check-out {{ guest_checkout or "-" }} • saída {{ guest_checkout_time or "-" }}</div>
-        </div>
-
-        <div class="info-item">
-          <div class="info-label">Observações</div>
-          <div class="info-value">{{ guest_observacoes or "-" }}</div>
-        </div>
-
-        <div class="info-item">
-          <div class="info-label">Preferências</div>
-          <div class="preference-box">{{ preferencias_html|safe }}</div>
-        </div>
+<div class="current-layout">
+  <aside class="current-sidebar">
+    <div class="current-sidebar-brand">
+      <div class="current-sidebar-mark">G</div>
+      <div class="current-sidebar-brand-text">
+        <div class="current-sidebar-brand-title">Gepetto</div>
+        <div class="current-sidebar-brand-subtitle">Admin</div>
       </div>
     </div>
 
-    <div class="panel panel-pad-lg panel-primary-block">
-      <div class="panel-title-row">
-        <h2 class="panel-title">Estado da conversa</h2>
-      </div>
+    <nav class="current-sidebar-nav">
+      <a class="current-sidebar-link is-active" href="/admin/dashboard/current?token={{ token }}">Current</a>
+      <a class="current-sidebar-link" href="/admin/dashboard?token={{ token }}">Dashboard</a>
+      <a class="current-sidebar-link" href="/admin/guests?token={{ token }}">Guests</a>
+      <a class="current-sidebar-link" href="/admin/sessions?token={{ token }}">Sessions</a>
+      <a class="current-sidebar-link" href="/admin/conversations?token={{ token }}">Conversations</a>
+      <a class="current-sidebar-link" href="/admin/incidents?token={{ token }}">Incidents</a>
+      <a class="current-sidebar-link" href="/admin/intents?token={{ token }}">Intents</a>
+      <a class="current-sidebar-link" href="/admin/insights?token={{ token }}">Insights</a>
+      <a class="current-sidebar-link" href="/admin/usage?token={{ token }}">Usage</a>
+    </nav>
+  </aside>
 
-      <div class="info-list">
-        <div class="info-item">
-          <div class="info-label">Último tópico</div>
-          <div class="info-value">{{ last_topic or "-" }}</div>
-        </div>
-
-        <div class="info-item">
-          <div class="info-label">Última intent</div>
-          <div class="info-value">{{ last_intent or "-" }}</div>
-        </div>
-
-        <div class="info-item">
-          <div class="info-label">Última recomendação</div>
-          <div class="info-value">{{ last_recommendation_name or "-" }}{% if last_recommendation_type %} • {{ last_recommendation_type }}{% endif %}</div>
-        </div>
-
-        <div class="info-item">
-          <div class="info-label">Entidade atual</div>
-          <div class="info-value">{{ last_entity_name or "-" }}</div>
-        </div>
-
-        <div class="info-item">
-          <div class="info-label">Âncora ativa</div>
-          <div class="info-value">{{ current_active_name or "-" }}</div>
+  <main class="current-content">
+    <section class="current-topbar">
+      <div class="current-topbar-main">
+        <div class="current-topbar-eyebrow">Dashboard da Hospedagem atual</div>
+        <h1 class="current-topbar-title">{{ guest_name or "Hospedagem ativa" }}</h1>
+        <div class="current-topbar-meta">
+          {{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}
         </div>
       </div>
-    </div>
 
-    {% include "admin/partials/incident_list.html" %}
-    {% include "admin/partials/usage_list.html" %}
-  </div>
+      <div class="current-topbar-side">
+        <div class="current-topbar-status-row">
+          <span class="badge current-badge-emphasis">Check-in: {{ guest_checkin or "-" }}</span>
+          <span class="badge current-badge-emphasis">Check-out: {{ guest_checkout or "-" }}</span>
+          <span class="badge">Saída: {{ guest_checkout_time or "-" }}</span>
 
-  <div class="stack stack-right">
-    {% include "admin/partials/conversation_feed.html" %}
+          {% if pending_bruno %}
+            <span class="badge badge-warning">Bruno pendente</span>
+          {% else %}
+            <span class="badge badge-success">Bruno ok</span>
+          {% endif %}
 
-    <div class="current-secondary-grid">
-      {% include "admin/partials/intent_list.html" %}
-      {% include "admin/partials/insight_list.html" %}
-
-      <div class="panel panel-pad-md panel-compact panel-quick-links">
-        <div class="panel-title-row">
-          <h2 class="panel-title panel-title-sm">Atalhos</h2>
+          {% if pending_incident %}
+            <span class="badge badge-danger">Incidente pendente</span>
+          {% else %}
+            <span class="badge badge-success">Incidente ok</span>
+          {% endif %}
         </div>
 
-        <div class="quick-links-mini-grid">
-          <a class="quick-link-mini" href="/admin/guests?token={{ token }}">Guests</a>
-          <a class="quick-link-mini" href="/admin/sessions?token={{ token }}">Sessions</a>
-          <a class="quick-link-mini" href="/admin/conversations?token={{ token }}">Conversations</a>
-          <a class="quick-link-mini" href="/admin/incidents?token={{ token }}">Incidents</a>
-          <a class="quick-link-mini" href="/admin/intents?token={{ token }}">Intents</a>
-          <a class="quick-link-mini" href="/admin/insights?token={{ token }}">Insights</a>
-          <a class="quick-link-mini" href="/admin/usage?token={{ token }}">Usage</a>
+        <div class="current-topbar-info-row">
+          <div class="current-inline-info">
+            <span class="current-inline-label">Última atualização</span>
+            <span class="current-inline-value">{{ last_updated or "-" }}</span>
+          </div>
+          <div class="current-inline-info">
+            <span class="current-inline-label">Âncora ativa</span>
+            <span class="current-inline-value">{{ current_active_name or "-" }}</span>
+          </div>
+          <div class="current-inline-info">
+            <span class="current-inline-label">Banco</span>
+            <span class="current-inline-value">{{ db_status }}</span>
+          </div>
+          <div class="current-inline-info">
+            <span class="current-inline-label">Horário local</span>
+            <span class="current-inline-value">{{ now_local }}</span>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
+
+    {% if db_error %}
+      <div class="error-box"><strong>Erro DB:</strong> {{ db_error }}</div>
+    {% endif %}
+
+    <section class="current-summary-strip">
+      <div class="current-summary-card">
+        <div class="current-summary-label">Estado operacional</div>
+        <div class="current-summary-value">
+          {% if pending_incident %}
+            Incidente pendente
+          {% elif pending_bruno %}
+            Bruno pendente
+          {% else %}
+            Estável
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="current-summary-card">
+        <div class="current-summary-label">Último tópico</div>
+        <div class="current-summary-value">{{ last_topic or "-" }}</div>
+      </div>
+
+      <div class="current-summary-card">
+        <div class="current-summary-label">Última intent</div>
+        <div class="current-summary-value">{{ last_intent or "-" }}</div>
+      </div>
+
+      <div class="current-summary-card">
+        <div class="current-summary-label">Contexto ativo</div>
+        <div class="current-summary-value">{{ last_recommendation_name or current_active_name or "-" }}</div>
+      </div>
+
+      <div class="current-summary-card">
+        <div class="current-summary-label">Incidents recentes</div>
+        <div class="current-summary-value">{{ recent_incidents|length }}</div>
+      </div>
+
+      <div class="current-summary-card">
+        <div class="current-summary-label">Mensagens recentes</div>
+        <div class="current-summary-value">{{ recent_messages|length }}</div>
+      </div>
+    </section>
+
+    <section class="current-body-grid">
+      <div class="current-column current-column-left">
+        <div class="panel panel-pad-lg panel-primary-block">
+          <div class="panel-title-row">
+            <h2 class="panel-title">Hospedagem ativa</h2>
+          </div>
+
+          <div class="info-list">
+            <div class="info-item">
+              <div class="info-label">Nome</div>
+              <div class="info-value">{{ guest_name or "-" }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">Grupo / perfil / idioma</div>
+              <div class="info-value">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">Estadia</div>
+              <div class="info-value">check-in {{ guest_checkin or "-" }} • check-out {{ guest_checkout or "-" }} • saída {{ guest_checkout_time or "-" }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">Observações</div>
+              <div class="info-value">{{ guest_observacoes or "-" }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">Preferências</div>
+              <div class="preference-box">{{ preferencias_html|safe }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-pad-lg panel-primary-block">
+          <div class="panel-title-row">
+            <h2 class="panel-title">Estado da conversa</h2>
+          </div>
+
+          <div class="info-list">
+            <div class="info-item">
+              <div class="info-label">Último tópico</div>
+              <div class="info-value">{{ last_topic or "-" }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">Última intent</div>
+              <div class="info-value">{{ last_intent or "-" }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">Última recomendação</div>
+              <div class="info-value">{{ last_recommendation_name or "-" }}{% if last_recommendation_type %} • {{ last_recommendation_type }}{% endif %}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">Entidade atual</div>
+              <div class="info-value">{{ last_entity_name or "-" }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">Âncora ativa</div>
+              <div class="info-value">{{ current_active_name or "-" }}</div>
+            </div>
+          </div>
+        </div>
+
+        {% include "admin/partials/incident_list.html" %}
+        {% include "admin/partials/usage_list.html" %}
+      </div>
+
+      <div class="current-column current-column-right">
+        {% include "admin/partials/conversation_feed.html" %}
+
+        <div class="current-right-secondary-grid">
+          {% include "admin/partials/intent_list.html" %}
+          {% include "admin/partials/insight_list.html" %}
+
+          <div class="panel panel-pad-md panel-compact panel-quick-links">
+            <div class="panel-title-row">
+              <h2 class="panel-title panel-title-sm">Atalhos</h2>
+            </div>
+
+            <div class="quick-links-mini-grid">
+              <a class="quick-link-mini" href="/admin/guests?token={{ token }}">Guests</a>
+              <a class="quick-link-mini" href="/admin/sessions?token={{ token }}">Sessions</a>
+              <a class="quick-link-mini" href="/admin/conversations?token={{ token }}">Conversations</a>
+              <a class="quick-link-mini" href="/admin/incidents?token={{ token }}">Incidents</a>
+              <a class="quick-link-mini" href="/admin/intents?token={{ token }}">Intents</a>
+              <a class="quick-link-mini" href="/admin/insights?token={{ token }}">Insights</a>
+              <a class="quick-link-mini" href="/admin/usage?token={{ token }}">Usage</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>
 {% endblock %}
