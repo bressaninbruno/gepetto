@@ -1,0 +1,124 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Gepetto • Dashboard Current{% endblock %}
+
+{% block content %}
+<div class="page-header page-header-compact">
+  <div>
+    <div class="eyebrow">Gepetto • Admin Current</div>
+    <p class="page-subtitle page-subtitle-compact">
+      Centro de comando da hospedagem ativa, com leitura operacional da conversa, sinais, incidentes e uso recente do Gepetto.
+    </p>
+  </div>
+
+  <div class="header-actions">
+    <a class="btn-link" href="/admin/dashboard?token={{ token }}">← Dashboard geral</a>
+    <a class="btn-link" href="/admin?token={{ token }}">Admin</a>
+  </div>
+</div>
+
+<div class="panel panel-pad-md panel-meta-strip">
+  <div class="top-meta-grid">
+    <div class="meta-pill"><strong>Horário local:</strong> {{ now_local }}</div>
+    <div class="meta-pill"><strong>Banco:</strong> {{ db_status }}</div>
+    <div class="meta-pill"><strong>Escopo:</strong> hospedagem ativa</div>
+    <div class="meta-pill"><strong>Última atualização:</strong> {{ last_updated }}</div>
+  </div>
+
+  {% if db_error %}
+    <div class="error-box"><strong>Erro DB:</strong> {{ db_error }}</div>
+  {% endif %}
+</div>
+
+{% include "admin/partials/current_header.html" %}
+{% include "admin/partials/current_summary_cards.html" %}
+
+<div class="current-main-grid">
+  <div class="stack">
+    <div class="panel panel-pad-lg">
+      <div class="panel-title-row">
+        <h2 class="panel-title">Hospedagem ativa</h2>
+      </div>
+
+      <div class="info-list">
+        <div class="info-item">
+          <div class="info-label">Nome</div>
+          <div class="info-value">{{ guest_name }}</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Grupo / perfil / idioma</div>
+          <div class="info-value">{{ guest_group }} • {{ guest_profile }} • {{ guest_idioma }}</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Estadia</div>
+          <div class="info-value">check-in {{ guest_checkin }} • check-out {{ guest_checkout }} • saída {{ guest_checkout_time }}</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Observações</div>
+          <div class="info-value">{{ guest_observacoes }}</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Preferências</div>
+          <div class="preference-box">{{ preferencias_html|safe }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-pad-lg">
+      <div class="panel-title-row">
+        <h2 class="panel-title">Estado da conversa</h2>
+      </div>
+
+      <div class="info-list">
+        <div class="info-item">
+          <div class="info-label">Último tópico</div>
+          <div class="info-value">{{ last_topic }}</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Última intent</div>
+          <div class="info-value">{{ last_intent }}</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Última recomendação</div>
+          <div class="info-value">{{ last_recommendation_name }} • {{ last_recommendation_type }}</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Entidade atual</div>
+          <div class="info-value">{{ last_entity_name }}</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Âncora ativa</div>
+          <div class="info-value">{{ current_active_name }}</div>
+        </div>
+      </div>
+    </div>
+
+    {% include "admin/partials/incident_list.html" %}
+  </div>
+
+  <div class="stack">
+    {% include "admin/partials/conversation_feed.html" %}
+    {% include "admin/partials/intent_list.html" %}
+    {% include "admin/partials/insight_list.html" %}
+    {% include "admin/partials/usage_list.html" %}
+  </div>
+</div>
+
+<div class="quick-links-grid quick-links-grid-bottom">
+  <a class="quick-link-card" href="/admin/guests?token={{ token }}">Guests</a>
+  <a class="quick-link-card" href="/admin/sessions?token={{ token }}">Sessions</a>
+  <a class="quick-link-card" href="/admin/conversations?token={{ token }}">Conversations</a>
+  <a class="quick-link-card" href="/admin/incidents?token={{ token }}">Incidents</a>
+  <a class="quick-link-card" href="/admin/intents?token={{ token }}">Intents</a>
+  <a class="quick-link-card" href="/admin/insights?token={{ token }}">Insights</a>
+  <a class="quick-link-card" href="/admin/usage?token={{ token }}">Usage</a>
+</div>
+{% endblock %}

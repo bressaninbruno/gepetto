@@ -1,0 +1,20 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gepetto Admin{% endblock %}</title>
+
+    <link rel="stylesheet" href="/static/admin/admin.css">
+
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script defer src="/static/admin/admin.js"></script>
+</head>
+<body class="admin-body">
+    <div class="admin-shell">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

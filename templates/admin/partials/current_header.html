@@ -1,0 +1,41 @@
+<div class="panel current-hero">
+    <div class="current-hero-grid">
+      <div class="hero-main">
+        <div class="eyebrow">Gepetto • Dashboard Current</div>
+        <h1 class="hero-title">{{ guest_name or "Hospedagem ativa" }}</h1>
+  
+        <div class="hero-meta">
+          {{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }} •
+          check-in {{ guest_checkin or "-" }} • check-out {{ guest_checkout or "-" }}
+        </div>
+  
+        <div class="badge-row hero-badges">
+          {% if pending_bruno %}
+            <span class="badge badge-warning">Bruno pendente</span>
+          {% else %}
+            <span class="badge badge-success">Bruno ok</span>
+          {% endif %}
+  
+          {% if pending_incident %}
+            <span class="badge badge-danger">Incidente pendente</span>
+          {% else %}
+            <span class="badge badge-success">Incidente ok</span>
+          {% endif %}
+  
+          <span class="badge">Saída: {{ guest_checkout_time or "-" }}</span>
+        </div>
+      </div>
+  
+      <div class="hero-side">
+        <div class="hero-mini-card">
+          <div class="mini-label">Última atualização</div>
+          <div class="mini-value">{{ last_updated or "-" }}</div>
+        </div>
+  
+        <div class="hero-mini-card">
+          <div class="mini-label">Âncora ativa</div>
+          <div class="mini-value">{{ current_active_name or "-" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>

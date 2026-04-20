@@ -1,0 +1,23 @@
+
+<div class="panel panel-pad-lg">
+    <div class="panel-title-row">
+      <h2 class="panel-title">Intents recentes</h2>
+      <a class="panel-subtle-link" href="/admin/intents?token={{ token }}">ver intents</a>
+    </div>
+  
+    {% if recent_intents %}
+      <div class="compact-list">
+        {% for item in recent_intents %}
+          <div class="compact-item">
+            <div class="compact-top">
+              <div class="compact-title">{{ item.get("intent") or "-" }}</div>
+              <div class="compact-meta">{{ item.get("timestamp_label") or "-" }}</div>
+            </div>
+            <div class="compact-text">topic: {{ item.get("topic") or "-" }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">Nenhuma intent recente.</div>
+    {% endif %}
+  </div>

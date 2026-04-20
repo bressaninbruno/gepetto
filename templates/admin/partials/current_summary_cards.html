@@ -1,0 +1,41 @@
+<div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-label">Estado operacional</div>
+      <div class="summary-value">
+        {% if pending_incident %}
+          Incidente pendente
+        {% elif pending_bruno %}
+          Bruno pendente
+        {% else %}
+          Estável
+        {% endif %}
+      </div>
+      <div class="summary-subvalue">
+        {% if pending_incident %}
+          Há acompanhamento aberto na hospedagem
+        {% elif pending_bruno %}
+          Existe contato pendente com Bruno
+        {% else %}
+          Sem pendências abertas neste momento
+        {% endif %}
+      </div>
+    </div>
+  
+    <div class="summary-card">
+      <div class="summary-label">Último tópico</div>
+      <div class="summary-value">{{ last_topic or "-" }}</div>
+      <div class="summary-subvalue">Leitura atual da conversa</div>
+    </div>
+  
+    <div class="summary-card">
+      <div class="summary-label">Última intent</div>
+      <div class="summary-value">{{ last_intent or "-" }}</div>
+      <div class="summary-subvalue">Última interpretação principal</div>
+    </div>
+  
+    <div class="summary-card">
+      <div class="summary-label">Contexto ativo</div>
+      <div class="summary-value">{{ last_recommendation_name or current_active_name or "-" }}</div>
+      <div class="summary-subvalue">{{ last_entity_name or last_recommendation_type or "-" }}</div>
+    </div>
+  </div>

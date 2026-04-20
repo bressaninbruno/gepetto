@@ -1,5 +1,5 @@
 
-from flask import Flask, request, send_from_directory, Response
+from flask import Flask, request, send_from_directory, Response, render_template
 import os
 import json
 import random
@@ -9115,79 +9115,45 @@ def admin_dashboard_current():
         except Exception:
             return str(value)
 
-    def build_badge(label, kind="neutral"):
-        styles = {
-            "neutral": "background:#f3f3f3;border:1px solid #e2e2e2;color:#444;",
-            "warning": "background:#fff3cd;border:1px solid #f1d58a;color:#5f4b00;",
-            "danger": "background:#ffe3e3;border:1px solid #f0b2b2;color:#7a1f1f;",
-            "success": "background:#e7f5ea;border:1px solid #b9e0c2;color:#1d5b2f;"
-        }
-        style = styles.get(kind, styles["neutral"])
-        return f'<span style="display:inline-block;padding:6px 10px;border-radius:999px;{style}">{label}</span>'
-
-    def build_simple_list(items, empty_text, render_item):
-        if not items:
-            return f'<div style="color:#666;">{empty_text}</div>'
-        return "".join(render_item(item) for item in items)
-
     guest_name = "-"
     guest_group = "-"
     guest_profile = "-"
-    guest_updated_at = "-"
+    guest_idioma = "-"
     guest_checkin = "-"
     guest_checkout = "-"
     guest_checkout_time = "-"
-    preferencias_html = '<span style="color:#666;">nenhuma</span>'
-    guest_html = '<div style="color:#666;">Nenhum guest atual encontrado.</div>'
+    guest_updated_at = "-"
+    guest_observacoes = "-"
+    preferencias_html = "<span style='color:#6b7280;'>nenhuma</span>"
 
     if current_guest:
         guest_name = current_guest.get("nome") or "-"
         guest_group = current_guest.get("grupo") or "-"
         guest_profile = current_guest.get("perfil_hospede") or "-"
-        guest_updated_at = fmt_dt(current_guest.get("updated_at"))
+        guest_idioma = current_guest.get("idioma") or "-"
         guest_checkin = fmt_date(current_guest.get("checkin_date"))
         guest_checkout = fmt_date(current_guest.get("checkout_date"))
         guest_checkout_time = fmt_time(current_guest.get("checkout_time"))
+        guest_updated_at = fmt_dt(current_guest.get("updated_at"))
+        guest_observacoes = current_guest.get("observacoes") or "-"
 
         preferencias = current_guest.get("preferencias_json") or {}
         if isinstance(preferencias, dict) and preferencias:
-            preferencias_html = "<br>".join(f"• {k}: {v}" for k, v in preferencias.items())
-
-        guest_html = f"""
-        <div style="line-height:1.7;">
-            <div><strong>Nome:</strong> {guest_name}</div>
-            <div><strong>Grupo:</strong> {guest_group}</div>
-            <div><strong>Perfil:</strong> {guest_profile}</div>
-            <div><strong>Idioma:</strong> {current_guest.get("idioma") or "-"}</div>
-            <div><strong>Check-in:</strong> {guest_checkin}</div>
-            <div><strong>Check-out:</strong> {guest_checkout}</div>
-            <div><strong>Horário de saída:</strong> {guest_checkout_time}</div>
-            <div><strong>Atualizado em:</strong> {guest_updated_at}</div>
-            <div style="margin-top:10px;"><strong>Observações:</strong><br>{(current_guest.get("observacoes") or "-")}</div>
-            <div style="margin-top:10px;"><strong>Preferências:</strong><br>{preferencias_html}</div>
-        </div>
-        """
+            preferencias_html = "<br>".join(
+                f"• <strong>{k}</strong>: {v}" for k, v in preferencias.items()
+            )
 
     last_topic = "-"
     last_intent = "-"
     last_recommendation_name = "-"
     last_recommendation_type = "-"
     last_entity_name = "-"
+    current_active_name = "-"
     pending_bruno = False
     pending_incident = False
-    current_active_name = "-"
     session_updated_at = "-"
-    session_html = '<div style="color:#666;">Nenhuma session atual encontrada.</div>'
 
     if current_session:
-        active_options = current_session.get("active_recommendation_options_json")
-        if not isinstance(active_options, list):
-            active_options = []
-
-        idx = current_session.get("active_recommendation_index", 0)
-        if active_options and isinstance(idx, int) and 0 <= idx < len(active_options):
-            current_active_name = str(active_options[idx])
-
         last_topic = current_session.get("last_topic") or "-"
         last_intent = current_session.get("last_intent") or "-"
         last_recommendation_name = current_session.get("last_recommendation_name") or "-"
@@ -9197,214 +9163,62 @@ def admin_dashboard_current():
         pending_incident = bool(current_session.get("pending_incident_context"))
         session_updated_at = fmt_dt(current_session.get("updated_at"))
 
-        session_html = f"""
-        <div style="line-height:1.7;">
-            <div><strong>Último tópico:</strong> {last_topic}</div>
-            <div><strong>Última intent:</strong> {last_intent}</div>
-            <div><strong>Última recomendação:</strong> {last_recommendation_name}</div>
-            <div><strong>Tipo de recomendação:</strong> {last_recommendation_type}</div>
-            <div><strong>Entidade atual:</strong> {last_entity_name}</div>
-            <div><strong>Categoria da entidade:</strong> {current_session.get("last_entity_category") or "-"}</div>
-            <div><strong>Bruno pendente:</strong> {"sim" if pending_bruno else "não"}</div>
-            <div><strong>Incidente pendente:</strong> {"sim" if pending_incident else "não"}</div>
-            <div><strong>Current active name:</strong> {current_active_name}</div>
-            <div><strong>Atualizado em:</strong> {session_updated_at}</div>
-        </div>
-        """
+        active_options = current_session.get("active_recommendation_options_json")
+        if not isinstance(active_options, list):
+            active_options = []
 
-    messages_html = build_simple_list(
-        recent_messages,
-        "Nenhuma mensagem recente.",
-        lambda item: f"""
-        <div style="padding:10px 0;border-top:1px solid #efefef;">
-            <div><strong>{item.get("role") or "-"}</strong> • topic: {item.get("topic") or "-"}</div>
-            <div style="margin-top:4px;color:#444;white-space:pre-wrap;">{item.get("text") or "-"}</div>
-            <div style="margin-top:4px;font-size:13px;color:#666;">{fmt_dt(item.get("timestamp"))}</div>
-        </div>
-        """
-    )
+        idx = current_session.get("active_recommendation_index", 0)
+        if active_options and isinstance(idx, int) and 0 <= idx < len(active_options):
+            current_active_name = str(active_options[idx])
 
-    incidents_html = build_simple_list(
-        recent_incidents,
-        "Nenhum incidente recente.",
-        lambda item: f"""
-        <div style="padding:10px 0;border-top:1px solid #efefef;">
-            <div><strong>{item.get("tipo") or "-"}</strong> • gravidade: {item.get("gravidade") or "-"}</div>
-            <div style="margin-top:4px;color:#444;">{item.get("mensagem") or "-"}</div>
-            <div style="margin-top:4px;font-size:13px;color:#666;">status: {item.get("status") or "-"} • {fmt_dt(item.get("timestamp"))}</div>
-        </div>
-        """
-    )
+    for item in recent_messages:
+        item["timestamp_label"] = fmt_dt(item.get("timestamp"))
 
-    intents_html = build_simple_list(
-        recent_intents,
-        "Nenhuma intent recente.",
-        lambda item: f"""
-        <div style="padding:10px 0;border-top:1px solid #efefef;">
-            <div><strong>{item.get("intent") or "-"}</strong> • topic: {item.get("topic") or "-"}</div>
-            <div style="margin-top:4px;font-size:13px;color:#666;">{fmt_dt(item.get("timestamp"))}</div>
-        </div>
-        """
-    )
+    for item in recent_incidents:
+        item["timestamp_label"] = fmt_dt(item.get("timestamp"))
 
-    insights_html = build_simple_list(
-        recent_insights,
-        "Nenhum insight recente.",
-        lambda item: f"""
-        <div style="padding:10px 0;border-top:1px solid #efefef;">
-            <div><strong>{item.get("insight_key") or "-"}</strong></div>
-            <div style="margin-top:4px;color:#444;white-space:pre-wrap;">{item.get("source_message") or "-"}</div>
-            <div style="margin-top:4px;font-size:13px;color:#666;">{fmt_dt(item.get("timestamp"))}</div>
-        </div>
-        """
-    )
+    for item in recent_intents:
+        item["timestamp_label"] = fmt_dt(item.get("timestamp"))
 
-    usage_html = build_simple_list(
-        recent_usage,
-        "Nenhum usage recente.",
-        lambda item: f"""
-        <div style="padding:10px 0;border-top:1px solid #efefef;">
-            <div><strong>{item.get("topic") or "-"}</strong> • follow-up: {"sim" if item.get("used_followup") else "não"}</div>
-            <div style="margin-top:4px;color:#444;">Usuário: {item.get("user_text") or "-"}</div>
-            <div style="margin-top:4px;color:#444;">Gepetto: {item.get("assistant_text") or "-"}</div>
-            <div style="margin-top:4px;font-size:13px;color:#666;">{fmt_dt(item.get("timestamp"))}</div>
-        </div>
-        """
-    )
+    for item in recent_insights:
+        item["timestamp_label"] = fmt_dt(item.get("timestamp"))
 
+    for item in recent_usage:
+        item["timestamp_label"] = fmt_dt(item.get("timestamp"))
+
+    last_updated = session_updated_at if session_updated_at != "-" else guest_updated_at
     db_status = "conectado" if has_database() and not db_error else ("erro" if db_error else "não configurado")
 
-    badges = []
-    badges.append(build_badge(f"Guest: {guest_name}", "neutral"))
-    badges.append(build_badge(f"Tópico: {last_topic}", "neutral"))
-    badges.append(build_badge(f"Intent: {last_intent}", "neutral"))
-    badges.append(build_badge("Bruno pendente", "warning") if pending_bruno else build_badge("Bruno ok", "success"))
-    badges.append(build_badge("Incidente pendente", "danger") if pending_incident else build_badge("Incidente ok", "success"))
-    badges_html = "".join(badges)
-
-    html = f"""
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gepetto Current Dashboard</title>
-    </head>
-    <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#111;">
-        <div style="max-width:1200px;margin:0 auto;padding:24px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap;">
-                <div>
-                    <div style="font-size:12px;letter-spacing:0.08em;color:#666;text-transform:uppercase;">
-                        Gepetto • Dashboard Current
-                    </div>
-                    <h1 style="margin:8px 0 0 0;font-size:32px;line-height:1.1;">Hospedagem atual em foco</h1>
-                    <p style="margin:10px 0 0 0;color:#555;">
-                        Recorte operacional do guest atual persistido no sistema.
-                    </p>
-                </div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <a href="/admin/dashboard?token={token}" style="text-decoration:none;color:#111;background:#fff;border:1px solid #ddd;padding:10px 14px;border-radius:10px;">← Dashboard geral</a>
-                    <a href="/admin?token={token}" style="text-decoration:none;color:#111;background:#fff;border:1px solid #ddd;padding:10px 14px;border-radius:10px;">Admin</a>
-                </div>
-            </div>
-
-            <div style="background:white;border-radius:16px;padding:18px 20px;border:1px solid #e6e6e6;margin-bottom:18px;">
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
-                    <div><strong>Horário local:</strong> {now_iso()}</div>
-                    <div><strong>Banco:</strong> {db_status}</div>
-                    <div><strong>Escopo:</strong> guest atual</div>
-                    <div><strong>Última atualização:</strong> {session_updated_at if session_updated_at != "-" else guest_updated_at}</div>
-                </div>
-                {f'<div style="margin-top:12px;color:#a33;"><strong>Erro DB:</strong> {db_error}</div>' if db_error else ''}
-            </div>
-
-            <div style="background:white;border-radius:16px;padding:18px 20px;border:1px solid #e6e6e6;margin-bottom:18px;">
-                <div style="font-size:12px;letter-spacing:0.06em;color:#666;text-transform:uppercase;margin-bottom:10px;">Resumo atual</div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
-                    {badges_html}
-                </div>
-
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
-                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
-                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Hóspede atual</div>
-                        <div style="font-size:20px;font-weight:700;">{guest_name}</div>
-                        <div style="margin-top:6px;color:#555;">{guest_group} • {guest_profile}</div>
-                    </div>
-
-                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
-                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Estadia</div>
-                        <div><strong>Check-in:</strong> {guest_checkin}</div>
-                        <div><strong>Check-out:</strong> {guest_checkout}</div>
-                        <div><strong>Saída:</strong> {guest_checkout_time}</div>
-                    </div>
-
-                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
-                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Direção atual</div>
-                        <div><strong>Tópico:</strong> {last_topic}</div>
-                        <div><strong>Intent:</strong> {last_intent}</div>
-                        <div><strong>Recomendação:</strong> {last_recommendation_name}</div>
-                    </div>
-
-                    <div style="background:#fafafa;border:1px solid #ececec;border-radius:14px;padding:14px;">
-                        <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Âncora da conversa</div>
-                        <div><strong>Tipo:</strong> {last_recommendation_type}</div>
-                        <div><strong>Entidade:</strong> {last_entity_name}</div>
-                        <div><strong>Ativo agora:</strong> {current_active_name}</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:18px;">
-                <a href="/admin/guests?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver guests</a>
-                <a href="/admin/sessions?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver sessions</a>
-                <a href="/admin/conversations?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver conversations</a>
-                <a href="/admin/incidents?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver incidents</a>
-                <a href="/admin/intents?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver intents</a>
-                <a href="/admin/insights?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver insights</a>
-                <a href="/admin/usage?token={token}" style="text-decoration:none;color:#111;background:white;border:1px solid #e6e6e6;border-radius:14px;padding:16px;">Ver usage</a>
-            </div>
-
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;">
-                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
-                    <h2 style="margin:0 0 14px 0;font-size:20px;">Guest atual</h2>
-                    {guest_html}
-                </div>
-
-                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
-                    <h2 style="margin:0 0 14px 0;font-size:20px;">Session atual</h2>
-                    {session_html}
-                </div>
-
-                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
-                    <h2 style="margin:0 0 14px 0;font-size:20px;">Mensagens recentes</h2>
-                    {messages_html}
-                </div>
-
-                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
-                    <h2 style="margin:0 0 14px 0;font-size:20px;">Incidentes recentes</h2>
-                    {incidents_html}
-                </div>
-
-                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
-                    <h2 style="margin:0 0 14px 0;font-size:20px;">Intents recentes</h2>
-                    {intents_html}
-                </div>
-
-                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
-                    <h2 style="margin:0 0 14px 0;font-size:20px;">Insights recentes</h2>
-                    {insights_html}
-                </div>
-
-                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e6e6e6;">
-                    <h2 style="margin:0 0 14px 0;font-size:20px;">Usage recente</h2>
-                    {usage_html}
-                </div>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    return Response(html, mimetype="text/html")    
+    return render_template(
+        "admin/dashboard_current.html",
+        token=token,
+        db_error=db_error,
+        db_status=db_status,
+        now_local=now_iso(),
+        last_updated=last_updated,
+        guest_name=guest_name,
+        guest_group=guest_group,
+        guest_profile=guest_profile,
+        guest_idioma=guest_idioma,
+        guest_checkin=guest_checkin,
+        guest_checkout=guest_checkout,
+        guest_checkout_time=guest_checkout_time,
+        guest_observacoes=guest_observacoes,
+        preferencias_html=preferencias_html,
+        last_topic=last_topic,
+        last_intent=last_intent,
+        last_recommendation_name=last_recommendation_name,
+        last_recommendation_type=last_recommendation_type,
+        last_entity_name=last_entity_name,
+        current_active_name=current_active_name,
+        pending_bruno=pending_bruno,
+        pending_incident=pending_incident,
+        recent_messages=recent_messages,
+        recent_incidents=recent_incidents,
+        recent_intents=recent_intents,
+        recent_insights=recent_insights,
+        recent_usage=recent_usage,
+    )    
 
 @app.route("/admin/conversations", methods=["GET"])
 @admin_required

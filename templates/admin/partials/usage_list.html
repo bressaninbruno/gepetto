@@ -1,0 +1,32 @@
+
+<div class="panel panel-pad-lg">
+    <div class="panel-title-row">
+      <h2 class="panel-title">Usage recente</h2>
+      <a class="panel-subtle-link" href="/admin/usage?token={{ token }}">ver usage</a>
+    </div>
+  
+    {% if recent_usage %}
+      <div class="compact-list">
+        {% for item in recent_usage %}
+          <div class="compact-item">
+            <div class="compact-top">
+              <div class="compact-title">{{ item.get("topic") or "-" }}</div>
+              <div class="badge-row">
+                {% if item.get("used_followup") %}
+                  <span class="badge badge-info">follow-up: sim</span>
+                {% else %}
+                  <span class="badge">follow-up: não</span>
+                {% endif %}
+              </div>
+            </div>
+  
+            <div class="compact-text"><strong>{{ guest_name or "Hóspede" }}:</strong> {{ item.get("user_text") or "-" }}</div>
+            <div class="compact-text"><strong>Gepetto:</strong> {{ item.get("assistant_text") or "-" }}</div>
+            <div class="compact-meta">{{ item.get("timestamp_label") or "-" }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">Nenhum usage recente.</div>
+    {% endif %}
+  </div>
