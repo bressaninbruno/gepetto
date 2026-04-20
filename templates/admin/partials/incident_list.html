@@ -1,36 +1,37 @@
+{% set display_incidents = recent_incidents[:3] if recent_incidents else [] %}
 
-<div class="panel panel-pad-lg">
-    <div class="panel-title-row">
-      <h2 class="panel-title">Incidentes recentes</h2>
-      <a class="panel-subtle-link" href="/admin/incidents?token={{ token }}">ver incidents</a>
-    </div>
-  
-    {% if recent_incidents %}
-      <div class="compact-list">
-        {% for item in recent_incidents %}
-          <div class="compact-item">
-            <div class="compact-top">
-              <div class="compact-title">{{ item.get("tipo") or "-" }}</div>
-              <div class="badge-row">
-                {% set gravidade = (item.get("gravidade") or "")|lower %}
-                {% if gravidade == "alta" %}
-                  <span class="badge badge-danger">Alta</span>
-                {% elif gravidade == "media" %}
-                  <span class="badge badge-warning">Média</span>
-                {% elif gravidade == "baixa" %}
-                  <span class="badge badge-success">Baixa</span>
-                {% else %}
-                  <span class="badge">{{ item.get("gravidade") or "-" }}</span>
-                {% endif %}
-              </div>
-            </div>
-  
-            <div class="compact-text">{{ item.get("mensagem") or "-" }}</div>
-            <div class="compact-meta">status: {{ item.get("status") or "-" }} • {{ item.get("timestamp_label") or "-" }}</div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="empty-state">Nenhum incidente recente.</div>
-    {% endif %}
+<div class="panel panel-pad-md panel-compact">
+  <div class="panel-title-row">
+    <h2 class="panel-title panel-title-sm">Incidents recentes</h2>
+    <a class="panel-subtle-link" href="/admin/incidents?token={{ token }}">ver incidents</a>
   </div>
+
+  {% if display_incidents %}
+    <div class="compact-list">
+      {% for item in display_incidents %}
+        <div class="compact-item">
+          <div class="compact-top">
+            <div class="compact-title">{{ item.get("tipo") or "-" }}</div>
+            <div class="badge-row">
+              {% set gravidade = (item.get("gravidade") or "")|lower %}
+              {% if gravidade == "alta" %}
+                <span class="badge badge-danger">Alta</span>
+              {% elif gravidade == "media" %}
+                <span class="badge badge-warning">Média</span>
+              {% elif gravidade == "baixa" %}
+                <span class="badge badge-success">Baixa</span>
+              {% else %}
+                <span class="badge">{{ item.get("gravidade") or "-" }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="compact-text">{{ item.get("mensagem") or "-" }}</div>
+          <div class="compact-meta">status: {{ item.get("status") or "-" }} • {{ item.get("timestamp_label") or "-" }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">Nenhum incidente recente.</div>
+  {% endif %}
+</div>

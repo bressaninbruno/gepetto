@@ -1,13 +1,15 @@
+{% set display_messages = recent_messages[:6] if recent_messages else [] %}
 
-<div class="panel panel-pad-lg">
-    <div class="panel-title-row">
-      <h2 class="panel-title">Conversa recente</h2>
-      <a class="panel-subtle-link" href="/admin/conversations?token={{ token }}">ver conversations</a>
-    </div>
-  
-    {% if recent_messages %}
+<div class="panel panel-pad-lg panel-conversation">
+  <div class="panel-title-row">
+    <h2 class="panel-title">Conversa recente</h2>
+    <a class="panel-subtle-link" href="/admin/conversations?token={{ token }}">ver conversations</a>
+  </div>
+
+  {% if display_messages %}
+    <div class="feed-window">
       <div class="feed-list">
-        {% for item in recent_messages %}
+        {% for item in display_messages %}
           {% set role = item.get("role") or "-" %}
           {% if role == "assistant" %}
             {% set role_label = "Gepetto" %}
@@ -19,19 +21,20 @@
             {% set role_label = guest_name or "Hóspede" %}
             {% set role_class = "guest" %}
           {% endif %}
-  
+
           <div class="feed-message {{ role_class }}">
             <div class="feed-top">
               <div class="feed-name">{{ role_label }}</div>
               <div class="feed-meta">{{ item.get("timestamp_label") or "-" }}</div>
             </div>
-  
-            <div class="feed-topic">topic: {{ item.get("topic") or "-" }}</div>
+
+            <div class="feed-topic">Tema: {{ item.get("topic") or "-" }}</div>
             <div class="feed-text">{{ item.get("text") or "-" }}</div>
           </div>
         {% endfor %}
       </div>
-    {% else %}
-      <div class="empty-state">Nenhuma mensagem recente.</div>
-    {% endif %}
-  </div>
+    </div>
+  {% else %}
+    <div class="empty-state">Nenhuma mensagem recente.</div>
+  {% endif %}
+</div>

@@ -1,23 +1,24 @@
+{% set display_insights = recent_insights[:4] if recent_insights else [] %}
 
-<div class="panel panel-pad-lg">
-    <div class="panel-title-row">
-      <h2 class="panel-title">Insights recentes</h2>
-      <a class="panel-subtle-link" href="/admin/insights?token={{ token }}">ver insights</a>
-    </div>
-  
-    {% if recent_insights %}
-      <div class="compact-list">
-        {% for item in recent_insights %}
-          <div class="compact-item">
-            <div class="compact-top">
-              <div class="compact-title">{{ item.get("insight_key") or "-" }}</div>
-              <div class="compact-meta">{{ item.get("timestamp_label") or "-" }}</div>
-            </div>
-            <div class="compact-text">{{ item.get("source_message") or "-" }}</div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="empty-state">Nenhum insight recente.</div>
-    {% endif %}
+<div class="panel panel-pad-md panel-compact">
+  <div class="panel-title-row">
+    <h2 class="panel-title panel-title-sm">Insights recentes</h2>
+    <a class="panel-subtle-link" href="/admin/insights?token={{ token }}">ver insights</a>
   </div>
+
+  {% if display_insights %}
+    <div class="compact-list">
+      {% for item in display_insights %}
+        <div class="compact-item">
+          <div class="compact-top">
+            <div class="compact-title">{{ item.get("insight_key") or "-" }}</div>
+            <div class="compact-meta">{{ item.get("timestamp_label") or "-" }}</div>
+          </div>
+          <div class="compact-text">{{ item.get("source_message") or "-" }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">Nenhum insight recente.</div>
+  {% endif %}
+</div>
