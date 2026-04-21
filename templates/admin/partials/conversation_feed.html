@@ -1,38 +1,43 @@
-{% set display_messages = recent_messages[:6] if recent_messages else [] %}
+{% set display_messages = recent_messages[:4] if recent_messages else [] %}
 
-<div class="panel panel-pad-lg panel-conversation">
+<div class="panel panel-pad-lg panel-conversation current-conversation-panel">
   <div class="panel-title-row">
     <h2 class="panel-title">Conversa recente</h2>
     <a class="panel-subtle-link" href="/admin/conversations?token={{ token }}">ver conversations</a>
   </div>
 
   {% if display_messages %}
-    <div class="feed-window">
-      <div class="feed-list">
-        {% for item in display_messages %}
-          {% set role = item.get("role") or "-" %}
-          {% if role == "assistant" %}
-            {% set role_label = "Gepetto" %}
-            {% set role_class = "gepetto" %}
-          {% elif role == "admin" %}
-            {% set role_label = "Bruno" %}
-            {% set role_class = "admin" %}
-          {% else %}
-            {% set role_label = guest_name or "Hóspede" %}
-            {% set role_class = "guest" %}
-          {% endif %}
+    <div class="current-conversation-list">
+      {% for item in display_messages %}
+        {% set role = item.get("role") or "-" %}
+        {% if role == "assistant" %}
+          {% set role_label = "Gepetto" %}
+          {% set role_class = "gepetto" %}
+          {% set role_initial = "G" %}
+        {% elif role == "admin" %}
+          {% set role_label = "Bruno" %}
+          {% set role_class = "admin" %}
+          {% set role_initial = "B" %}
+        {% else %}
+          {% set role_label = guest_name or "Hóspede" %}
+          {% set role_class = "guest" %}
+          {% set role_initial = (guest_name or "H")[:1] %}
+        {% endif %}
 
-          <div class="feed-message {{ role_class }}">
-            <div class="feed-top">
-              <div class="feed-name">{{ role_label }}</div>
-              <div class="feed-meta">{{ item.get("timestamp_label") or "-" }}</div>
+        <div class="current-conversation-item {{ role_class }}">
+          <div class="current-conversation-avatar">{{ role_initial }}</div>
+
+          <div class="current-conversation-body">
+            <div class="current-conversation-top">
+              <div class="current-conversation-name">{{ role_label }}</div>
+              <div class="current-conversation-time">{{ item.get("timestamp_label") or "-" }}</div>
             </div>
 
-            <div class="feed-topic">Tema: {{ item.get("topic") or "-" }}</div>
-            <div class="feed-text">{{ item.get("text") or "-" }}</div>
+            <div class="current-conversation-topic">Tema: {{ item.get("topic") or "-" }}</div>
+            <div class="current-conversation-text">{{ item.get("text") or "-" }}</div>
           </div>
-        {% endfor %}
-      </div>
+        </div>
+      {% endfor %}
     </div>
   {% else %}
     <div class="empty-state">Nenhuma mensagem recente.</div>

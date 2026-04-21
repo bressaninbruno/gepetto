@@ -121,76 +121,123 @@
     </section>
 
     <section class="current-body-grid">
-      <div class="current-column current-column-left">
-        <div class="panel panel-pad-lg panel-primary-block">
-          <div class="panel-title-row">
-            <h2 class="panel-title">Hospedagem ativa</h2>
+        <div class="current-column current-column-left">
+            <div class="panel panel-pad-lg panel-primary-block current-stay-panel">
+              <div class="panel-title-row">
+                <h2 class="panel-title">Hospedagem ativa</h2>
+              </div>
+          
+              <div class="current-stay-grid">
+                <div class="current-stay-facts">
+                  <div class="current-stay-row">
+                    <div class="current-stay-label">Nome</div>
+                    <div class="current-stay-value">{{ guest_name or "-" }}</div>
+                  </div>
+          
+                  <div class="current-stay-row">
+                    <div class="current-stay-label">Grupo / perfil / idioma</div>
+                    <div class="current-stay-value">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</div>
+                  </div>
+          
+                  <div class="current-stay-row">
+                    <div class="current-stay-label">Estadia</div>
+                    <div class="current-stay-value">
+                      Check-in {{ guest_checkin or "-" }}<br>
+                      Check-out {{ guest_checkout or "-" }} • Saída {{ guest_checkout_time or "-" }}
+                    </div>
+                  </div>
+          
+                  <div class="current-stay-row">
+                    <div class="current-stay-label">Observações</div>
+                    <div class="current-stay-value">{{ guest_observacoes or "-" }}</div>
+                  </div>
+                </div>
+          
+                <div class="current-stay-context">
+                  <div class="current-context-item">
+                    <div class="current-context-label">Último tópico</div>
+                    <div class="current-context-value">{{ last_topic or "-" }}</div>
+                  </div>
+          
+                  <div class="current-context-item">
+                    <div class="current-context-label">Última intent</div>
+                    <div class="current-context-value">{{ last_intent or "-" }}</div>
+                  </div>
+          
+                  <div class="current-context-item">
+                    <div class="current-context-label">Contexto atual</div>
+                    <div class="current-context-value">{{ last_recommendation_name or current_active_name or "-" }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+            <div class="current-left-bottom-grid">
+              <div class="panel panel-pad-lg panel-primary-block">
+                <div class="panel-title-row">
+                  <h2 class="panel-title">Estado da conversa</h2>
+                </div>
+          
+                <div class="info-list">
+                  <div class="info-item">
+                    <div class="info-label">Último tópico</div>
+                    <div class="info-value">{{ last_topic or "-" }}</div>
+                  </div>
+          
+                  <div class="info-item">
+                    <div class="info-label">Última intent</div>
+                    <div class="info-value">{{ last_intent or "-" }}</div>
+                  </div>
+          
+                  <div class="info-item">
+                    <div class="info-label">Última recomendação</div>
+                    <div class="info-value">{{ last_recommendation_name or "-" }}{% if last_recommendation_type %} • {{ last_recommendation_type }}{% endif %}</div>
+                  </div>
+          
+                  <div class="info-item">
+                    <div class="info-label">Entidade atual</div>
+                    <div class="info-value">{{ last_entity_name or "-" }}</div>
+                  </div>
+          
+                  <div class="info-item">
+                    <div class="info-label">Âncora ativa</div>
+                    <div class="info-value">{{ current_active_name or "-" }}</div>
+                  </div>
+                </div>
+              </div>
+          
+              <div class="panel panel-pad-lg panel-primary-block current-alerts-panel">
+                <div class="panel-title-row">
+                  <h2 class="panel-title">Pendências & Alertas</h2>
+                </div>
+          
+                <div class="current-alerts-list">
+                  {% if pending_bruno %}
+                    <div class="current-alert-item current-alert-warning">
+                      <div class="current-alert-text">Bruno precisa revisar a hospedagem atual</div>
+                    </div>
+                  {% endif %}
+          
+                  {% if recent_incidents %}
+                    {% for item in recent_incidents[:2] %}
+                      <div class="current-alert-item current-alert-danger">
+                        <div class="current-alert-text">
+                          {{ item.get("tipo") or "Incidente" }}: {{ item.get("mensagem") or "-" }}
+                        </div>
+                        <div class="current-alert-meta">{{ item.get("timestamp_label") or "-" }}</div>
+                      </div>
+                    {% endfor %}
+                  {% elif not pending_bruno %}
+                    <div class="current-alert-item current-alert-neutral">
+                      <div class="current-alert-text">Sem pendências críticas no momento</div>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          
+            {% include "admin/partials/usage_list.html" %}
           </div>
-
-          <div class="info-list">
-            <div class="info-item">
-              <div class="info-label">Nome</div>
-              <div class="info-value">{{ guest_name or "-" }}</div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-label">Grupo / perfil / idioma</div>
-              <div class="info-value">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-label">Estadia</div>
-              <div class="info-value">check-in {{ guest_checkin or "-" }} • check-out {{ guest_checkout or "-" }} • saída {{ guest_checkout_time or "-" }}</div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-label">Observações</div>
-              <div class="info-value">{{ guest_observacoes or "-" }}</div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-label">Preferências</div>
-              <div class="preference-box">{{ preferencias_html|safe }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel panel-pad-lg panel-primary-block">
-          <div class="panel-title-row">
-            <h2 class="panel-title">Estado da conversa</h2>
-          </div>
-
-          <div class="info-list">
-            <div class="info-item">
-              <div class="info-label">Último tópico</div>
-              <div class="info-value">{{ last_topic or "-" }}</div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-label">Última intent</div>
-              <div class="info-value">{{ last_intent or "-" }}</div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-label">Última recomendação</div>
-              <div class="info-value">{{ last_recommendation_name or "-" }}{% if last_recommendation_type %} • {{ last_recommendation_type }}{% endif %}</div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-label">Entidade atual</div>
-              <div class="info-value">{{ last_entity_name or "-" }}</div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-label">Âncora ativa</div>
-              <div class="info-value">{{ current_active_name or "-" }}</div>
-            </div>
-          </div>
-        </div>
-
-        {% include "admin/partials/incident_list.html" %}
-        {% include "admin/partials/usage_list.html" %}
-      </div>
 
       <div class="current-column current-column-right">
         {% include "admin/partials/conversation_feed.html" %}

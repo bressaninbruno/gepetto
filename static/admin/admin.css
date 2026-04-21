@@ -1153,4 +1153,209 @@
     }
   }
 
+  /* ===== GEPETTO CURRENT — BLOCO CURRENT LAYOUT B ===== */
+
+.current-stay-panel {
+    overflow: hidden;
+  }
+  
+  .current-stay-grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 1.05fr) minmax(220px, 0.95fr);
+    gap: 14px;
+  }
+  
+  .current-stay-facts,
+  .current-stay-context {
+    background: rgba(255, 255, 255, 0.42);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+  }
+  
+  .current-stay-row + .current-stay-row,
+  .current-context-item + .current-context-item {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  
+  .current-stay-label,
+  .current-context-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  
+  .current-stay-value,
+  .current-context-value {
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--text);
+    font-weight: 600;
+  }
+  
+  .current-left-bottom-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+  }
+  
+  .current-alerts-panel {
+    background: rgba(255, 252, 247, 0.96);
+  }
+  
+  .current-alerts-list {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .current-alert-item {
+    border-radius: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+  }
+  
+  .current-alert-warning {
+    background: #fbf4e6;
+    border-color: #ebd2a0;
+  }
+  
+  .current-alert-danger {
+    background: #faece8;
+    border-color: #e9c2b8;
+  }
+  
+  .current-alert-neutral {
+    background: rgba(255, 255, 255, 0.52);
+  }
+  
+  .current-alert-text {
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--text);
+    font-weight: 600;
+  }
+  
+  .current-alert-meta {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+  
+  @media (max-width: 980px) {
+    .current-stay-grid,
+    .current-left-bottom-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ===== GEPETTO CURRENT — BLOCO CURRENT LAYOUT C ===== */
+
+.current-conversation-panel {
+    overflow: hidden;
+  }
+  
+  .current-conversation-list {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .current-conversation-item {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.52);
+  }
+  
+  .current-conversation-item.guest {
+    background: rgba(255, 255, 255, 0.78);
+  }
+  
+  .current-conversation-item.gepetto {
+    background: rgba(237, 243, 248, 0.72);
+  }
+  
+  .current-conversation-item.admin {
+    background: rgba(251, 241, 221, 0.62);
+  }
+  
+  .current-conversation-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: 13px;
+    font-weight: 800;
+  }
+  
+  .current-conversation-body {
+    min-width: 0;
+  }
+  
+  .current-conversation-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  
+  .current-conversation-name {
+    font-size: 14px;
+    font-weight: 760;
+    color: var(--text);
+  }
+  
+  .current-conversation-time {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  
+  .current-conversation-topic {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  
+  .current-conversation-text {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+  
+  @media (max-width: 760px) {
+    .current-conversation-item {
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 10px;
+      padding: 10px 12px;
+    }
+  
+    .current-conversation-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+  
+    .current-conversation-text {
+      font-size: 13px;
+    }
+  }
+
  
