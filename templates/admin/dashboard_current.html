@@ -110,6 +110,18 @@
   </aside>
 
   <main class="current-v2__main">
+    <div class="current-v2__top-actions">
+      <a href="/admin/dashboard?token={{ token }}" class="current-v2__action-btn">
+        {{ icon("grid") }}
+        <span>Dashboard geral</span>
+      </a>
+  
+      <a href="/admin?token={{ token }}" class="current-v2__action-btn">
+        {{ icon("user") }}
+        <span>Admin</span>
+      </a>
+    </div>
+  
     <header class="current-v2__hero">
       <div class="current-v2__hero-main">
         <div class="current-v2__eyebrow">Dashboard current</div>
@@ -234,7 +246,10 @@
           <div class="current-v2__panel-head">
             <div>
               <div class="current-v2__panel-eyebrow">Hospedagem ativa</div>
-              <h2 class="current-v2__panel-title">Hospedagem ativa</h2>
+              <h2 class="current-v2__panel-title">
+                <span class="current-v2__icon-chip current-v2__icon-chip--sand">{{ icon("user") }}</span>
+                <span>Hospedagem ativa</span>
+              </h2>
             </div>
           </div>
 
@@ -290,7 +305,10 @@
             <div class="current-v2__panel-head">
               <div>
                 <div class="current-v2__panel-eyebrow">Estado da conversa</div>
-                <h2 class="current-v2__panel-title">Pulso atual</h2>
+                <h2 class="current-v2__panel-title">
+                    <span class="current-v2__icon-chip current-v2__icon-chip--green">{{ icon("pulse") }}</span>
+                    <span>Pulso atual</span>
+                  </h2>
               </div>
             </div>
 
@@ -331,7 +349,10 @@
             <div class="current-v2__panel-head">
               <div>
                 <div class="current-v2__panel-eyebrow">Pendências & alertas</div>
-                <h2 class="current-v2__panel-title">Atenção operacional</h2>
+                <h2 class="current-v2__panel-title">
+                    <span class="current-v2__icon-chip current-v2__icon-chip--red">{{ icon("alert") }}</span>
+                    <span>Atenção operacional</span>
+                  </h2>
               </div>
             </div>
           
@@ -383,7 +404,9 @@
                 {% if recent_incidents %}
                   {% for item in recent_incidents[:4] %}
                     <div class="current-v2__history-row">
-                      <div class="current-v2__history-icon">•</div>
+                        <div class="current-v2__history-icon">
+                            {{ icon("alert") }}
+                        </div>
                       <div class="current-v2__history-main">
                         <div class="current-v2__history-title">{{ item.get("tipo") or "Incidente" }}</div>
                         <div class="current-v2__history-text">{{ item.get("mensagem") or "-" }}</div>
@@ -416,7 +439,10 @@
           <div class="current-v2__panel-head">
             <div>
               <div class="current-v2__panel-eyebrow">Conversa recente</div>
-              <h2 class="current-v2__panel-title">Conversa recente</h2>
+              <h2 class="current-v2__panel-title">
+                <span class="current-v2__icon-chip current-v2__icon-chip--blue">{{ icon("chat") }}</span>
+                <span>Conversa recente</span>
+              </h2>
             </div>
 
             <a class="current-v2__panel-link" href="/admin/conversations?token={{ token }}">Ver tudo</a>
@@ -465,7 +491,10 @@
             <div class="current-v2__panel-head">
               <div>
                 <div class="current-v2__panel-eyebrow">Painel integrado de sinais</div>
-                <h2 class="current-v2__panel-title">Usage • Intents • Insights</h2>
+                <h2 class="current-v2__panel-title">
+                    <span class="current-v2__icon-chip current-v2__icon-chip--purple">{{ icon("spark") }}</span>
+                    <span>Usage • Intents • Insights</span>
+                  </h2>
               </div>
             </div>
 
@@ -540,15 +569,33 @@
             <div class="current-v2__panel-head">
               <div>
                 <div class="current-v2__panel-eyebrow">Atalhos</div>
-                <h2 class="current-v2__panel-title">Acesso rápido</h2>
+                <h2 class="current-v2__panel-title">
+                    <span class="current-v2__icon-chip current-v2__icon-chip--blue">{{ icon("grid") }}</span>
+                    <span>Acesso rápido</span>
+                  </h2>
               </div>
             </div>
 
             <div class="current-v2__shortcut-grid">
-                <a href="/admin/guests?token={{ token }}" class="current-v2__shortcut">Guests</a>
-                <a href="/admin/sessions?token={{ token }}" class="current-v2__shortcut">Sessions</a>
-                <a href="/admin/conversations?token={{ token }}" class="current-v2__shortcut">Conversations</a>
-                <a href="/admin/incidents?token={{ token }}" class="current-v2__shortcut">Incidents</a>
+                <a href="/admin/guests?token={{ token }}" class="current-v2__shortcut">
+                  {{ icon("user") }}
+                  <span>Guests</span>
+                </a>
+              
+                <a href="/admin/sessions?token={{ token }}" class="current-v2__shortcut">
+                  {{ icon("stack") }}
+                  <span>Sessions</span>
+                </a>
+              
+                <a href="/admin/conversations?token={{ token }}" class="current-v2__shortcut">
+                  {{ icon("chat") }}
+                  <span>Conversations</span>
+                </a>
+              
+                <a href="/admin/incidents?token={{ token }}" class="current-v2__shortcut">
+                  {{ icon("alert") }}
+                  <span>Incidents</span>
+                </a>
             </div>
           </article>
         </div>

@@ -3250,3 +3250,538 @@
       display: none;
     }
   }
+
+  /* =========================
+   GEPETTO — CURRENT V2
+   REFINO VISUAL / ENCAIXE
+   ========================= */
+
+.current-v2 {
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  
+  .current-v2__sidebar {
+    padding: 14px 12px;
+    border-radius: 24px;
+    gap: 16px;
+  }
+  
+  .current-v2__brand {
+    gap: 10px;
+  }
+  
+  .current-v2__brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+  
+  .current-v2__nav {
+    gap: 5px;
+  }
+  
+  .current-v2__nav-link {
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 13px;
+    border-radius: 12px;
+  }
+  
+  .current-v2__main {
+    gap: 12px;
+  }
+  
+  .current-v2__top-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  .current-v2__action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 0 12px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid var(--cv2-border);
+    box-shadow: var(--cv2-shadow);
+    text-decoration: none;
+    color: var(--cv2-text);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  
+  .current-v2__action-btn .current-v2-icon {
+    width: 15px;
+    height: 15px;
+    color: var(--cv2-text-soft);
+  }
+  
+  .current-v2__hero {
+    padding: 12px 16px;
+    gap: 12px;
+    border-radius: 24px;
+    grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
+  }
+  
+  .current-v2__guest-name {
+    font-size: 27px;
+  }
+  
+  .current-v2__hero-title-row {
+    margin-bottom: 6px;
+  }
+  
+  .current-v2__live-pill {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  
+  .current-v2__guest-meta {
+    margin-bottom: 8px;
+    gap: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .current-v2__stay-line {
+    gap: 8px;
+  }
+  
+  .current-v2__stay-pill {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+  
+  .current-v2__badge {
+    min-height: 30px;
+    padding: 0 9px;
+    font-size: 11px;
+  }
+  
+  .current-v2__hero-mini-grid {
+    gap: 8px;
+  }
+  
+  .current-v2__mini-card {
+    min-height: 60px;
+    padding: 10px 12px;
+    border-radius: 16px;
+  }
+  
+  .current-v2__mini-label {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  
+  .current-v2__mini-value {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  
+  .current-v2__summary-strip {
+    gap: 8px;
+  }
+  
+  .current-v2__summary-card {
+    min-height: 74px;
+    padding: 10px 12px;
+    border-radius: 16px;
+  }
+  
+  .current-v2__summary-head {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  
+  .current-v2__summary-value {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  
+  .current-v2__body {
+    grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+    gap: 12px;
+  }
+  
+  .current-v2__col {
+    gap: 12px;
+  }
+  
+  .current-v2__left-bottom {
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+    gap: 12px;
+    align-items: start;
+  }
+  
+  .current-v2__right-bottom {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .current-v2__panel {
+    padding: 14px;
+    border-radius: 20px;
+  }
+  
+  .current-v2__panel-head {
+    margin-bottom: 10px;
+  }
+  
+  .current-v2__panel-eyebrow {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+  
+  .current-v2__panel-title {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .current-v2__icon-chip {
+    width: 24px;
+    height: 24px;
+    border-radius: 10px;
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 24px;
+    border: 1px solid transparent;
+  }
+  
+  .current-v2__icon-chip .current-v2-icon {
+    width: 13px;
+    height: 13px;
+  }
+  
+  .current-v2__icon-chip--blue {
+    background: #eff6ff;
+    border-color: #dbeafe;
+    color: #2563eb;
+  }
+  
+  .current-v2__icon-chip--green {
+    background: #ecfdf3;
+    border-color: #ccefd7;
+    color: #15803d;
+  }
+  
+  .current-v2__icon-chip--red {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #dc2626;
+  }
+  
+  .current-v2__icon-chip--sand {
+    background: #fff8eb;
+    border-color: #f4d7aa;
+    color: #b45309;
+  }
+  
+  .current-v2__icon-chip--purple {
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+    color: #7c3aed;
+  }
+  
+  .current-v2__stay-grid {
+    grid-template-columns: minmax(0, 1fr) 190px;
+    gap: 12px;
+  }
+  
+  .current-v2__stay-block {
+    gap: 10px;
+  }
+  
+  .current-v2__data-label,
+  .current-v2__state-label {
+    font-size: 10px;
+  }
+  
+  .current-v2__data-value {
+    font-size: 14px;
+    line-height: 1.42;
+  }
+  
+  .current-v2__preferences {
+    padding: 9px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    max-height: 108px;
+    overflow: hidden;
+  }
+  
+  .current-v2__state-grid {
+    gap: 9px;
+  }
+  
+  .current-v2__state-item {
+    padding: 10px;
+    border-radius: 14px;
+  }
+  
+  .current-v2__state-value {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  
+  .current-v2__alerts-section {
+    margin-bottom: 10px;
+  }
+  
+  .current-v2__alert-row {
+    grid-template-columns: minmax(0, 1fr) 90px;
+    gap: 8px;
+    padding: 10px 11px;
+    border-radius: 14px;
+  }
+  
+  .current-v2__alert-row-title {
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+  
+  .current-v2__alert-row-text {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  
+  .current-v2__alert-row-meta {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+  
+  .current-v2__alerts-history {
+    padding-top: 10px;
+  }
+  
+  .current-v2__alerts-history-title {
+    font-size: 10px;
+  }
+  
+  .current-v2__history-row {
+    grid-template-columns: 24px minmax(0, 1fr) 90px;
+    gap: 8px;
+    padding: 8px 0;
+  }
+  
+  .current-v2__history-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: #fff8eb;
+    border: 1px solid #f4d7aa;
+    color: #b45309;
+  }
+  
+  .current-v2__history-icon .current-v2-icon {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .current-v2__history-title {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+  
+  .current-v2__history-text {
+    font-size: 11px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  
+  .current-v2__history-meta {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+  
+  .current-v2__messages {
+    gap: 7px;
+  }
+  
+  .current-v2__message {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 16px;
+  }
+  
+  .current-v2__message-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+  
+  .current-v2__message-name {
+    font-size: 13px;
+  }
+  
+  .current-v2__message-time {
+    font-size: 11px;
+  }
+  
+  .current-v2__message-topic {
+    font-size: 10px;
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+  }
+  
+  .current-v2__message-text {
+    font-size: 13px;
+    line-height: 1.38;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  
+  .current-v2__signals-head {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .current-v2__signal-stat {
+    padding: 9px 10px;
+    border-radius: 14px;
+  }
+  
+  .current-v2__signal-stat-label {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+  
+  .current-v2__signal-stat-value {
+    font-size: 16px;
+  }
+  
+  .current-v2__signal-tabs {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  
+  .current-v2__signal-tab {
+    min-height: 28px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+  
+  .current-v2__signal-list {
+    gap: 6px;
+  }
+  
+  .current-v2__signal-row {
+    grid-template-columns: minmax(0, 1fr) 88px;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+  
+  .current-v2__signal-title {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+  
+  .current-v2__signal-text {
+    font-size: 11px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  
+  .current-v2__signal-time {
+    font-size: 10px;
+  }
+  
+  .current-v2__signal-tag {
+    min-height: 22px;
+    padding: 0 7px;
+    font-size: 10px;
+  }
+  
+  .current-v2__shortcut-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  
+  .current-v2__shortcut {
+    min-height: 40px;
+    padding: 0 10px;
+    border-radius: 14px;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    white-space: nowrap;
+  }
+  
+  .current-v2__shortcut .current-v2-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--cv2-text-soft);
+  }
+  
+  @media (max-width: 1380px) {
+    .current-v2__summary-strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  @media (max-width: 1180px) {
+    .current-v2 {
+      grid-template-columns: 1fr;
+    }
+  
+    .current-v2__body,
+    .current-v2__left-bottom,
+    .current-v2__right-bottom,
+    .current-v2__stay-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .current-v2__shortcut-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  @media (max-width: 920px) {
+    .current-v2__hero,
+    .current-v2__summary-strip {
+      grid-template-columns: 1fr;
+    }
+  
+    .current-v2__signals-head {
+      grid-template-columns: 1fr;
+    }
+  
+    .current-v2__signal-row,
+    .current-v2__alert-row,
+    .current-v2__history-row {
+      grid-template-columns: 1fr;
+    }
+  
+    .current-v2__alert-row-meta,
+    .current-v2__history-meta,
+    .current-v2__signal-side {
+      text-align: left;
+      justify-items: start;
+    }
+  }
