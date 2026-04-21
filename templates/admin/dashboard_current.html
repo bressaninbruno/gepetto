@@ -28,53 +28,61 @@
 
   <main class="current-content">
     <section class="current-topbar">
-      <div class="current-topbar-main">
-        <div class="current-topbar-eyebrow">Dashboard da Hospedagem atual</div>
-        <h1 class="current-topbar-title">{{ guest_name or "Hospedagem ativa" }}</h1>
-        <div class="current-topbar-meta">
-          {{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}
-        </div>
-      </div>
-
-      <div class="current-topbar-side">
-        <div class="current-topbar-status-row">
-          <span class="badge current-badge-emphasis">Check-in: {{ guest_checkin or "-" }}</span>
-          <span class="badge current-badge-emphasis">Check-out: {{ guest_checkout or "-" }}</span>
-          <span class="badge">Saída: {{ guest_checkout_time or "-" }}</span>
-
-          {% if pending_bruno %}
-            <span class="badge badge-warning">Bruno pendente</span>
-          {% else %}
-            <span class="badge badge-success">Bruno ok</span>
-          {% endif %}
-
-          {% if pending_incident %}
-            <span class="badge badge-danger">Incidente pendente</span>
-          {% else %}
-            <span class="badge badge-success">Incidente ok</span>
-          {% endif %}
-        </div>
-
-        <div class="current-topbar-info-row">
-          <div class="current-inline-info">
-            <span class="current-inline-label">Última atualização</span>
-            <span class="current-inline-value">{{ last_updated or "-" }}</span>
+        <div class="current-topbar-main">
+          <div class="current-topbar-eyebrow">Dashboard da Hospedagem atual</div>
+          <h1 class="current-topbar-title">{{ guest_name or "Hospedagem ativa" }}</h1>
+      
+          <div class="current-topbar-meta">
+            {{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}
           </div>
-          <div class="current-inline-info">
-            <span class="current-inline-label">Âncora ativa</span>
-            <span class="current-inline-value">{{ current_active_name or "-" }}</span>
-          </div>
-          <div class="current-inline-info">
-            <span class="current-inline-label">Banco</span>
-            <span class="current-inline-value">{{ db_status }}</span>
-          </div>
-          <div class="current-inline-info">
-            <span class="current-inline-label">Horário local</span>
-            <span class="current-inline-value">{{ now_local }}</span>
+      
+          <div class="current-topbar-stayline">
+            <span class="current-stayline-item">Check-in <strong>{{ guest_checkin or "-" }}</strong></span>
+            <span class="current-stayline-sep">•</span>
+            <span class="current-stayline-item">Check-out <strong>{{ guest_checkout or "-" }}</strong></span>
+            <span class="current-stayline-sep">•</span>
+            <span class="current-stayline-item">Saída <strong>{{ guest_checkout_time or "-" }}</strong></span>
           </div>
         </div>
-      </div>
-    </section>
+      
+        <div class="current-topbar-side">
+          <div class="current-topbar-status-row">
+            {% if pending_bruno %}
+              <span class="badge badge-warning">Bruno pendente</span>
+            {% else %}
+              <span class="badge badge-success">Bruno ok</span>
+            {% endif %}
+      
+            {% if pending_incident %}
+              <span class="badge badge-danger">Incidente pendente</span>
+            {% else %}
+              <span class="badge badge-success">Incidente ok</span>
+            {% endif %}
+      
+            <span class="badge current-badge-soft">Última atividade {{ last_updated or "-" }}</span>
+            <span class="badge current-badge-soft">Tópico: {{ last_topic or "-" }}</span>
+          </div>
+      
+          <div class="current-topbar-info-row">
+            <div class="current-inline-info">
+              <span class="current-inline-label">Última atualização</span>
+              <span class="current-inline-value">{{ last_updated or "-" }}</span>
+            </div>
+            <div class="current-inline-info">
+              <span class="current-inline-label">Âncora ativa</span>
+              <span class="current-inline-value">{{ current_active_name or "-" }}</span>
+            </div>
+            <div class="current-inline-info">
+              <span class="current-inline-label">Banco</span>
+              <span class="current-inline-value">{{ db_status }}</span>
+            </div>
+            <div class="current-inline-info">
+              <span class="current-inline-label">Horário local</span>
+              <span class="current-inline-value">{{ now_local }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
     {% if db_error %}
       <div class="error-box"><strong>Erro DB:</strong> {{ db_error }}</div>
