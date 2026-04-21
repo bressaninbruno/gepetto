@@ -3,95 +3,195 @@
 {% block title %}Gepetto • Dashboard Current{% endblock %}
 
 {% block content %}
-<div class="current-layout">
-  <aside class="current-sidebar">
-    <div class="current-sidebar-brand">
-      <div class="current-sidebar-mark">G</div>
-      <div class="current-sidebar-brand-text">
-        <div class="current-sidebar-brand-title">Gepetto</div>
-        <div class="current-sidebar-brand-subtitle">Admin</div>
+{% set display_messages = recent_messages[-4:] if recent_messages else [] %}
+{% set display_incidents = recent_incidents[:2] if recent_incidents else [] %}
+{% set display_usage = recent_usage[:4] if recent_usage else [] %}
+{% set display_intents = recent_intents[:4] if recent_intents else [] %}
+{% set display_insights = recent_insights[:4] if recent_insights else [] %}
+{% set signals_mode = 'usage' if display_usage else ('intents' if display_intents else ('insights' if display_insights else 'usage')) %}
+
+{% macro icon(name) -%}
+<span class="current-v2-icon" aria-hidden="true">
+  {% if name == "home" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "grid" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 3.5h7M16.5 13v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "user" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "stack" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="m12 4 8 4-8 4-8-4 8-4Zm8 8-8 4-8-4m16 4-8 4-8-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "chat" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M7 18 3.5 20v-4A8.5 8.5 0 1 1 12 20H7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "alert" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.2 4.8 3.9 16a2 2 0 0 0 1.75 3h12.7A2 2 0 0 0 20.1 16L13.8 4.8a2 2 0 0 0-3.6 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "spark" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Zm7 13 1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3ZM5 15l.8 2.2L8 18l-2.2.8L5 21l-.8-2.2L2 18l2.2-.8L5 15Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "pulse" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2-4 4 8 2-4h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "calendar" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3m10-3v3M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "clock" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "globe" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h18M12 3c3 3.2 4.5 6.2 4.5 9S15 17.8 12 21c-3-3.2-4.5-6.2-4.5-9S9 6.2 12 3Zm0 0a9 9 0 1 1 0 18 9 9 0 0 1 0-18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "anchor" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 6v10m0 0a6 6 0 0 1-6-6m6 6a6 6 0 0 0 6-6M6 14H3m18 0h-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "topic" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14M5 12h9M5 17h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  {% elif name == "intent" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="m5 19 5.5-5.5 3 3L20 10M15 10h5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "context" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 4 7v5c0 5 3.4 7.8 8 9 4.6-1.2 8-4 8-9V7l-8-4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "message" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M5 6h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9l-5 3v-3H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "database" %}
+    <svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="6" rx="7" ry="3" stroke="currentColor" stroke-width="1.8"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6m-14 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  {% elif name == "time" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v5l3 2m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "bolt" %}
+    <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 5 13h6l-1 9 9-12h-6l0-8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% endif %}
+</span>
+{%- endmacro %}
+
+<div class="current-v2">
+  <aside class="current-v2__sidebar" aria-label="Navegação lateral da dashboard current">
+    <div class="current-v2__brand">
+      <div class="current-v2__brand-mark">G</div>
+      <div class="current-v2__brand-copy">
+        <div class="current-v2__brand-title">Gepetto</div>
+        <div class="current-v2__brand-subtitle">Admin dashboard</div>
       </div>
     </div>
 
-    <nav class="current-sidebar-nav">
-      <a class="current-sidebar-link is-active" href="/admin/dashboard/current?token={{ token }}">Current</a>
-      <a class="current-sidebar-link" href="/admin/dashboard?token={{ token }}">Dashboard</a>
-      <a class="current-sidebar-link" href="/admin/guests?token={{ token }}">Guests</a>
-      <a class="current-sidebar-link" href="/admin/sessions?token={{ token }}">Sessions</a>
-      <a class="current-sidebar-link" href="/admin/conversations?token={{ token }}">Conversations</a>
-      <a class="current-sidebar-link" href="/admin/incidents?token={{ token }}">Incidents</a>
-      <a class="current-sidebar-link" href="/admin/intents?token={{ token }}">Intents</a>
-      <a class="current-sidebar-link" href="/admin/insights?token={{ token }}">Insights</a>
-      <a class="current-sidebar-link" href="/admin/usage?token={{ token }}">Usage</a>
+    <nav class="current-v2__nav">
+      <a class="current-v2__nav-link is-active" aria-current="page" href="/admin/dashboard/current?token={{ token }}">
+        {{ icon("home") }}
+        <span>Current</span>
+      </a>
+      <a class="current-v2__nav-link" href="/admin/dashboard?token={{ token }}">
+        {{ icon("grid") }}
+        <span>Dashboard</span>
+      </a>
+      <a class="current-v2__nav-link" href="/admin/guests?token={{ token }}">
+        {{ icon("user") }}
+        <span>Guests</span>
+      </a>
+      <a class="current-v2__nav-link" href="/admin/sessions?token={{ token }}">
+        {{ icon("stack") }}
+        <span>Sessions</span>
+      </a>
+      <a class="current-v2__nav-link" href="/admin/conversations?token={{ token }}">
+        {{ icon("chat") }}
+        <span>Conversations</span>
+      </a>
+      <a class="current-v2__nav-link" href="/admin/incidents?token={{ token }}">
+        {{ icon("alert") }}
+        <span>Incidents</span>
+      </a>
+      <a class="current-v2__nav-link" href="/admin/intents?token={{ token }}">
+        {{ icon("pulse") }}
+        <span>Intents</span>
+      </a>
+      <a class="current-v2__nav-link" href="/admin/insights?token={{ token }}">
+        {{ icon("spark") }}
+        <span>Insights</span>
+      </a>
+      <a class="current-v2__nav-link" href="/admin/usage?token={{ token }}">
+        {{ icon("bolt") }}
+        <span>Usage</span>
+      </a>
     </nav>
+
+    <div class="current-v2__sidebar-foot">
+      <div class="current-v2__sidebar-note">Hospedagem ativa</div>
+      <div class="current-v2__sidebar-guest">{{ guest_name or "—" }}</div>
+    </div>
   </aside>
 
-  <main class="current-content">
-    <section class="current-topbar">
-        <div class="current-topbar-main">
-          <div class="current-topbar-eyebrow">Dashboard da Hospedagem atual</div>
-          <h1 class="current-topbar-title">{{ guest_name or "Hospedagem ativa" }}</h1>
-      
-          <div class="current-topbar-meta">
-            {{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}
+  <main class="current-v2__main">
+    <header class="current-v2__hero">
+      <div class="current-v2__hero-main">
+        <div class="current-v2__eyebrow">Dashboard current</div>
+
+        <div class="current-v2__hero-title-row">
+          <h1 class="current-v2__guest-name">{{ guest_name or "Hospedagem ativa" }}</h1>
+          <span class="current-v2__live-pill">Hospedagem em foco</span>
+        </div>
+
+        <div class="current-v2__guest-meta">
+          <span>{{ icon("user") }} {{ guest_group or "-" }}</span>
+          <span>{{ icon("spark") }} {{ guest_profile or "-" }}</span>
+          <span>{{ icon("globe") }} {{ guest_idioma or "-" }}</span>
+        </div>
+
+        <div class="current-v2__stay-line" aria-label="Linha da estadia">
+          <div class="current-v2__stay-pill">
+            {{ icon("calendar") }}
+            <span><strong>Check-in</strong> {{ guest_checkin or "-" }}</span>
           </div>
-      
-          <div class="current-topbar-stayline">
-            <span class="current-stayline-item">Check-in <strong>{{ guest_checkin or "-" }}</strong></span>
-            <span class="current-stayline-sep">•</span>
-            <span class="current-stayline-item">Check-out <strong>{{ guest_checkout or "-" }}</strong></span>
-            <span class="current-stayline-sep">•</span>
-            <span class="current-stayline-item">Saída <strong>{{ guest_checkout_time or "-" }}</strong></span>
+          <div class="current-v2__stay-pill">
+            {{ icon("calendar") }}
+            <span><strong>Check-out</strong> {{ guest_checkout or "-" }}</span>
+          </div>
+          <div class="current-v2__stay-pill">
+            {{ icon("clock") }}
+            <span><strong>Saída</strong> {{ guest_checkout_time or "-" }}</span>
           </div>
         </div>
-      
-        <div class="current-topbar-side">
-          <div class="current-topbar-status-row">
-            {% if pending_bruno %}
-              <span class="badge badge-warning">Bruno pendente</span>
-            {% else %}
-              <span class="badge badge-success">Bruno ok</span>
-            {% endif %}
-      
-            {% if pending_incident %}
-              <span class="badge badge-danger">Incidente pendente</span>
-            {% else %}
-              <span class="badge badge-success">Incidente ok</span>
-            {% endif %}
-      
-            <span class="badge current-badge-soft">Última atividade {{ last_updated or "-" }}</span>
-            <span class="badge current-badge-soft">Tópico: {{ last_topic or "-" }}</span>
-          </div>
-      
-          <div class="current-topbar-info-row">
-            <div class="current-inline-info">
-              <span class="current-inline-label">Última atualização</span>
-              <span class="current-inline-value">{{ last_updated or "-" }}</span>
-            </div>
-            <div class="current-inline-info">
-              <span class="current-inline-label">Âncora ativa</span>
-              <span class="current-inline-value">{{ current_active_name or "-" }}</span>
-            </div>
-            <div class="current-inline-info">
-              <span class="current-inline-label">Banco</span>
-              <span class="current-inline-value">{{ db_status }}</span>
-            </div>
-            <div class="current-inline-info">
-              <span class="current-inline-label">Horário local</span>
-              <span class="current-inline-value">{{ now_local }}</span>
-            </div>
-          </div>
+      </div>
+
+      <div class="current-v2__hero-side">
+        <div class="current-v2__status-row">
+          {% if pending_bruno %}
+            <span class="current-v2__badge current-v2__badge--warning">Bruno pendente</span>
+          {% else %}
+            <span class="current-v2__badge current-v2__badge--success">Bruno ok</span>
+          {% endif %}
+
+          {% if pending_incident %}
+            <span class="current-v2__badge current-v2__badge--danger">Incidente pendente</span>
+          {% else %}
+            <span class="current-v2__badge current-v2__badge--success">Incidente ok</span>
+          {% endif %}
+
+          <span class="current-v2__badge current-v2__badge--soft">Tópico: {{ last_topic or "-" }}</span>
         </div>
-      </section>
+
+        <div class="current-v2__hero-mini-grid">
+          <article class="current-v2__mini-card">
+            <div class="current-v2__mini-label">{{ icon("time") }} Última atualização</div>
+            <div class="current-v2__mini-value">{{ last_updated or "-" }}</div>
+          </article>
+
+          <article class="current-v2__mini-card">
+            <div class="current-v2__mini-label">{{ icon("anchor") }} Âncora ativa</div>
+            <div class="current-v2__mini-value">{{ current_active_name or "-" }}</div>
+          </article>
+
+          <article class="current-v2__mini-card">
+            <div class="current-v2__mini-label">{{ icon("database") }} Banco</div>
+            <div class="current-v2__mini-value">{{ db_status }}</div>
+          </article>
+
+          <article class="current-v2__mini-card">
+            <div class="current-v2__mini-label">{{ icon("clock") }} Horário local</div>
+            <div class="current-v2__mini-value">{{ now_local }}</div>
+          </article>
+        </div>
+      </div>
+    </header>
 
     {% if db_error %}
-      <div class="error-box"><strong>Erro DB:</strong> {{ db_error }}</div>
+      <section class="current-v2__error-box" aria-live="polite">
+        <strong>Erro DB:</strong> {{ db_error }}
+      </section>
     {% endif %}
 
-    <section class="current-summary-strip">
-      <div class="current-summary-card">
-        <div class="current-summary-label">Estado operacional</div>
-        <div class="current-summary-value">
+    <section class="current-v2__summary-strip" aria-label="Faixa de síntese operacional">
+      <article class="current-v2__summary-card">
+        <div class="current-v2__summary-head">{{ icon("pulse") }} Estado operacional</div>
+        <div class="current-v2__summary-value">
           {% if pending_incident %}
             Incidente pendente
           {% elif pending_bruno %}
@@ -100,238 +200,314 @@
             Estável
           {% endif %}
         </div>
-      </div>
+      </article>
 
-      <div class="current-summary-card">
-        <div class="current-summary-label">Último tópico</div>
-        <div class="current-summary-value">{{ last_topic or "-" }}</div>
-      </div>
+      <article class="current-v2__summary-card">
+        <div class="current-v2__summary-head">{{ icon("topic") }} Último tópico</div>
+        <div class="current-v2__summary-value">{{ last_topic or "-" }}</div>
+      </article>
 
-      <div class="current-summary-card">
-        <div class="current-summary-label">Última intent</div>
-        <div class="current-summary-value">{{ last_intent or "-" }}</div>
-      </div>
+      <article class="current-v2__summary-card">
+        <div class="current-v2__summary-head">{{ icon("intent") }} Última intent</div>
+        <div class="current-v2__summary-value">{{ last_intent or "-" }}</div>
+      </article>
 
-      <div class="current-summary-card">
-        <div class="current-summary-label">Contexto ativo</div>
-        <div class="current-summary-value">{{ last_recommendation_name or current_active_name or "-" }}</div>
-      </div>
+      <article class="current-v2__summary-card">
+        <div class="current-v2__summary-head">{{ icon("anchor") }} Contexto ativo</div>
+        <div class="current-v2__summary-value">{{ last_recommendation_name or current_active_name or "-" }}</div>
+      </article>
 
-      <div class="current-summary-card">
-        <div class="current-summary-label">Incidents recentes</div>
-        <div class="current-summary-value">{{ recent_incidents|length }}</div>
-      </div>
+      <article class="current-v2__summary-card">
+        <div class="current-v2__summary-head">{{ icon("alert") }} Incidents recentes</div>
+        <div class="current-v2__summary-value">{{ recent_incidents|length }}</div>
+      </article>
 
-      <div class="current-summary-card">
-        <div class="current-summary-label">Mensagens recentes</div>
-        <div class="current-summary-value">{{ recent_messages|length }}</div>
-      </div>
+      <article class="current-v2__summary-card">
+        <div class="current-v2__summary-head">{{ icon("message") }} Mensagens recentes</div>
+        <div class="current-v2__summary-value">{{ recent_messages|length }}</div>
+      </article>
     </section>
 
-    <section class="current-body-grid">
-        <div class="current-column current-column-left">
-            <div class="panel panel-pad-lg panel-primary-block current-stay-panel">
-              <div class="panel-title-row">
-                <h2 class="panel-title">Hospedagem ativa</h2>
-              </div>
-          
-              <div class="current-stay-grid">
-                <div class="current-stay-facts">
-                  <div class="current-stay-row">
-                    <div class="current-stay-label">Nome</div>
-                    <div class="current-stay-value">{{ guest_name or "-" }}</div>
-                  </div>
-          
-                  <div class="current-stay-row">
-                    <div class="current-stay-label">Grupo / perfil / idioma</div>
-                    <div class="current-stay-value">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</div>
-                  </div>
-          
-                  <div class="current-stay-row">
-                    <div class="current-stay-label">Estadia</div>
-                    <div class="current-stay-value">
-                      Check-in {{ guest_checkin or "-" }}<br>
-                      Check-out {{ guest_checkout or "-" }} • Saída {{ guest_checkout_time or "-" }}
-                    </div>
-                  </div>
-          
-                  <div class="current-stay-row">
-                    <div class="current-stay-label">Observações</div>
-                    <div class="current-stay-value">{{ guest_observacoes or "-" }}</div>
-                  </div>
-                </div>
-          
-                <div class="current-stay-context">
-                  <div class="current-context-item">
-                    <div class="current-context-label">Último tópico</div>
-                    <div class="current-context-value">{{ last_topic or "-" }}</div>
-                  </div>
-          
-                  <div class="current-context-item">
-                    <div class="current-context-label">Última intent</div>
-                    <div class="current-context-value">{{ last_intent or "-" }}</div>
-                  </div>
-          
-                  <div class="current-context-item">
-                    <div class="current-context-label">Contexto atual</div>
-                    <div class="current-context-value">{{ last_recommendation_name or current_active_name or "-" }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          
-            <div class="current-left-bottom-grid">
-              <div class="panel panel-pad-lg panel-primary-block">
-                <div class="panel-title-row">
-                  <h2 class="panel-title">Estado da conversa</h2>
-                </div>
-          
-                <div class="info-list">
-                  <div class="info-item">
-                    <div class="info-label">Último tópico</div>
-                    <div class="info-value">{{ last_topic or "-" }}</div>
-                  </div>
-          
-                  <div class="info-item">
-                    <div class="info-label">Última intent</div>
-                    <div class="info-value">{{ last_intent or "-" }}</div>
-                  </div>
-          
-                  <div class="info-item">
-                    <div class="info-label">Última recomendação</div>
-                    <div class="info-value">{{ last_recommendation_name or "-" }}{% if last_recommendation_type %} • {{ last_recommendation_type }}{% endif %}</div>
-                  </div>
-          
-                  <div class="info-item">
-                    <div class="info-label">Entidade atual</div>
-                    <div class="info-value">{{ last_entity_name or "-" }}</div>
-                  </div>
-          
-                  <div class="info-item">
-                    <div class="info-label">Âncora ativa</div>
-                    <div class="info-value">{{ current_active_name or "-" }}</div>
-                  </div>
-                </div>
-              </div>
-          
-              <div class="panel panel-pad-lg panel-primary-block current-alerts-panel">
-                <div class="panel-title-row">
-                  <h2 class="panel-title">Pendências & Alertas</h2>
-                </div>
-          
-                <div class="current-alerts-list">
-                  {% if pending_bruno %}
-                    <div class="current-alert-item current-alert-warning">
-                      <div class="current-alert-text">Bruno precisa revisar a hospedagem atual</div>
-                    </div>
-                  {% endif %}
-          
-                  {% if recent_incidents %}
-                    {% for item in recent_incidents[:2] %}
-                      <div class="current-alert-item current-alert-danger">
-                        <div class="current-alert-text">
-                          {{ item.get("tipo") or "Incidente" }}: {{ item.get("mensagem") or "-" }}
-                        </div>
-                        <div class="current-alert-meta">{{ item.get("timestamp_label") or "-" }}</div>
-                      </div>
-                    {% endfor %}
-                  {% elif not pending_bruno %}
-                    <div class="current-alert-item current-alert-neutral">
-                      <div class="current-alert-text">Sem pendências críticas no momento</div>
-                    </div>
-                  {% endif %}
-                </div>
-              </div>
+    <section class="current-v2__body">
+      <div class="current-v2__col current-v2__col--left">
+        <article class="current-v2__panel current-v2__panel--stay">
+          <div class="current-v2__panel-head">
+            <div>
+              <div class="current-v2__panel-eyebrow">Hospedagem ativa</div>
+              <h2 class="current-v2__panel-title">Ficha atual</h2>
             </div>
           </div>
 
-      <div class="current-column current-column-right">
-        {% include "admin/partials/conversation_feed.html" %}
-
-        <div class="current-right-secondary-grid">
-            <div class="panel panel-pad-md panel-compact current-signals-panel">
-                <div class="current-signals-tabs">
-                  <div class="current-signals-tab is-active">Usage recente</div>
-                  <div class="current-signals-tab">Intents</div>
-                  <div class="current-signals-tab">Insights</div>
-                </div>
-              
-                <div class="current-signals-list">
-                  {% if recent_usage %}
-                    {% for item in recent_usage[:4] %}
-                      <div class="current-signals-row">
-                        <div class="current-signals-row-main">
-                          <div class="current-signals-row-title">{{ item.get("topic") or "-" }}</div>
-                          <div class="current-signals-row-text">{{ item.get("user_text") or "-" }}</div>
-                        </div>
-              
-                        <div class="current-signals-row-meta">{{ item.get("timestamp_label") or "-" }}</div>
-              
-                        <div class="current-signals-row-side">
-                          {% if item.get("used_followup") %}
-                            <span class="current-signals-row-tag">follow-up</span>
-                          {% else %}
-                            <span class="current-signals-row-tag">info</span>
-                          {% endif %}
-                        </div>
-                      </div>
-                    {% endfor %}
-                  {% else %}
-                    <div class="empty-state">Nenhum usage recente.</div>
-                  {% endif %}
-                </div>
+          <div class="current-v2__stay-grid">
+            <div class="current-v2__stay-block">
+              <div class="current-v2__data-item">
+                <div class="current-v2__data-label">Nome</div>
+                <div class="current-v2__data-value">{{ guest_name or "-" }}</div>
               </div>
-          
-                <div class="current-signals-column">
-                  {% if recent_intents %}
-                    {% for item in recent_intents[:4] %}
-                      <div class="current-signals-item">
-                        <div class="current-signals-item-top">
-                          <div class="current-signals-item-title">{{ item.get("intent") or "-" }}</div>
-                          <div class="current-signals-item-meta">{{ item.get("timestamp_label") or "-" }}</div>
-                        </div>
-                        <div class="current-signals-item-text">tema: {{ item.get("topic") or "-" }}</div>
-                      </div>
-                    {% endfor %}
-                  {% else %}
-                    <div class="empty-state">Nenhuma intent recente.</div>
-                  {% endif %}
-                </div>
-          
-                <div class="current-signals-column">
-                  {% if recent_insights %}
-                    {% for item in recent_insights[:4] %}
-                      <div class="current-signals-item">
-                        <div class="current-signals-item-top">
-                          <div class="current-signals-item-title">{{ item.get("insight_key") or "-" }}</div>
-                          <div class="current-signals-item-meta">{{ item.get("timestamp_label") or "-" }}</div>
-                        </div>
-                        <div class="current-signals-item-text">{{ item.get("source_message") or "-" }}</div>
-                      </div>
-                    {% endfor %}
-                  {% else %}
-                    <div class="empty-state">Nenhum insight recente.</div>
-                  {% endif %}
-                </div>
+
+              <div class="current-v2__data-item">
+                <div class="current-v2__data-label">Grupo / perfil / idioma</div>
+                <div class="current-v2__data-value">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</div>
+              </div>
+
+              <div class="current-v2__data-item">
+                <div class="current-v2__data-label">Estadia</div>
+                <div class="current-v2__data-value">Check-in {{ guest_checkin or "-" }} • Check-out {{ guest_checkout or "-" }} • Saída {{ guest_checkout_time or "-" }}</div>
+              </div>
+
+              <div class="current-v2__data-item">
+                <div class="current-v2__data-label">Observações</div>
+                <div class="current-v2__data-value current-v2__data-value--multiline">{{ guest_observacoes or "-" }}</div>
               </div>
             </div>
-          
-            <div class="panel panel-pad-md panel-compact panel-quick-links">
-              <div class="panel-title-row">
-                <h2 class="panel-title panel-title-sm">Atalhos</h2>
+
+            <div class="current-v2__stay-block current-v2__stay-block--context">
+              <div class="current-v2__data-item">
+                <div class="current-v2__data-label">Último tópico</div>
+                <div class="current-v2__data-value">{{ last_topic or "-" }}</div>
               </div>
-          
-              <div class="quick-links-mini-grid">
-                <a class="quick-link-mini" href="/admin/guests?token={{ token }}">Guests</a>
-                <a class="quick-link-mini" href="/admin/sessions?token={{ token }}">Sessions</a>
-                <a class="quick-link-mini" href="/admin/conversations?token={{ token }}">Conversations</a>
-                <a class="quick-link-mini" href="/admin/incidents?token={{ token }}">Incidents</a>
-                <a class="quick-link-mini" href="/admin/intents?token={{ token }}">Intents</a>
-                <a class="quick-link-mini" href="/admin/insights?token={{ token }}">Insights</a>
-                <a class="quick-link-mini" href="/admin/usage?token={{ token }}">Usage</a>
+
+              <div class="current-v2__data-item">
+                <div class="current-v2__data-label">Última intent</div>
+                <div class="current-v2__data-value">{{ last_intent or "-" }}</div>
+              </div>
+
+              <div class="current-v2__data-item">
+                <div class="current-v2__data-label">Contexto atual</div>
+                <div class="current-v2__data-value">{{ last_recommendation_name or current_active_name or "-" }}</div>
+              </div>
+
+              <div class="current-v2__data-item">
+                <div class="current-v2__data-label">Preferências</div>
+                <div class="current-v2__preferences">{{ preferencias_html|safe }}</div>
               </div>
             </div>
           </div>
+        </article>
+
+        <div class="current-v2__left-bottom">
+          <article class="current-v2__panel">
+            <div class="current-v2__panel-head">
+              <div>
+                <div class="current-v2__panel-eyebrow">Estado da conversa</div>
+                <h2 class="current-v2__panel-title">Pulso atual</h2>
+              </div>
+            </div>
+
+            <div class="current-v2__state-grid">
+              <div class="current-v2__state-item">
+                <div class="current-v2__state-label">Último tópico</div>
+                <div class="current-v2__state-value">{{ last_topic or "-" }}</div>
+              </div>
+
+              <div class="current-v2__state-item">
+                <div class="current-v2__state-label">Última intent</div>
+                <div class="current-v2__state-value">{{ last_intent or "-" }}</div>
+              </div>
+
+              <div class="current-v2__state-item">
+                <div class="current-v2__state-label">Última recomendação</div>
+                <div class="current-v2__state-value">{{ last_recommendation_name or "-" }}</div>
+              </div>
+
+              <div class="current-v2__state-item">
+                <div class="current-v2__state-label">Entidade atual</div>
+                <div class="current-v2__state-value">{{ last_entity_name or "-" }}</div>
+              </div>
+
+              <div class="current-v2__state-item">
+                <div class="current-v2__state-label">Âncora ativa</div>
+                <div class="current-v2__state-value">{{ current_active_name or "-" }}</div>
+              </div>
+
+              <div class="current-v2__state-item">
+                <div class="current-v2__state-label">Tipo</div>
+                <div class="current-v2__state-value">{{ last_recommendation_type or "-" }}</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="current-v2__panel current-v2__panel--alerts">
+            <div class="current-v2__panel-head">
+              <div>
+                <div class="current-v2__panel-eyebrow">Pendências & alertas</div>
+                <h2 class="current-v2__panel-title">Atenção operacional</h2>
+              </div>
+            </div>
+
+            <div class="current-v2__alerts">
+              {% if pending_bruno %}
+                <div class="current-v2__alert current-v2__alert--warning">
+                  <div class="current-v2__alert-title">Bruno pendente</div>
+                  <div class="current-v2__alert-text">A hospedagem atual ainda exige revisão manual.</div>
+                </div>
+              {% endif %}
+
+              {% if display_incidents %}
+                {% for item in display_incidents %}
+                  <div class="current-v2__alert current-v2__alert--danger">
+                    <div class="current-v2__alert-top">
+                      <span class="current-v2__alert-type">{{ item.get("tipo") or "Incidente" }}</span>
+                      <span class="current-v2__alert-time">{{ item.get("timestamp_label") or "-" }}</span>
+                    </div>
+                    <div class="current-v2__alert-text">{{ item.get("mensagem") or "-" }}</div>
+                  </div>
+                {% endfor %}
+              {% elif not pending_bruno %}
+                <div class="current-v2__alert current-v2__alert--neutral">
+                  <div class="current-v2__alert-title">Sem pendências críticas</div>
+                  <div class="current-v2__alert-text">O estado operacional da hospedagem está estável neste momento.</div>
+                </div>
+              {% endif %}
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="current-v2__col current-v2__col--right">
+        <article class="current-v2__panel current-v2__panel--conversation">
+          <div class="current-v2__panel-head">
+            <div>
+              <div class="current-v2__panel-eyebrow">Conversa recente</div>
+              <h2 class="current-v2__panel-title">Últimos movimentos</h2>
+            </div>
+
+            <a class="current-v2__panel-link" href="/admin/conversations?token={{ token }}">Ver tudo</a>
+          </div>
+
+          <div class="current-v2__messages">
+            {% if display_messages %}
+              {% for item in display_messages %}
+                {% set role = item.get("role") or "user" %}
+                {% if role == "assistant" %}
+                  {% set role_name = "Gepetto" %}
+                  {% set role_initial = "G" %}
+                  {% set role_class = "assistant" %}
+                {% elif role == "admin" %}
+                  {% set role_name = "Bruno" %}
+                  {% set role_initial = "B" %}
+                  {% set role_class = "admin" %}
+                {% else %}
+                  {% set role_name = guest_name or "Hóspede" %}
+                  {% set role_initial = "H" %}
+                  {% set role_class = "guest" %}
+                {% endif %}
+
+                <article class="current-v2__message current-v2__message--{{ role_class }}">
+                  <div class="current-v2__message-avatar" aria-hidden="true">{{ role_initial }}</div>
+
+                  <div class="current-v2__message-body">
+                    <div class="current-v2__message-top">
+                      <div class="current-v2__message-name">{{ role_name }}</div>
+                      <div class="current-v2__message-time">{{ item.get("timestamp_label") or "-" }}</div>
+                    </div>
+
+                    <div class="current-v2__message-topic">{{ item.get("topic") or "-" }}</div>
+                    <div class="current-v2__message-text">{{ item.get("text") or "-" }}</div>
+                  </div>
+                </article>
+              {% endfor %}
+            {% else %}
+              <div class="current-v2__empty">Nenhuma mensagem recente.</div>
+            {% endif %}
+          </div>
+        </article>
+
+        <div class="current-v2__right-bottom">
+          <article class="current-v2__panel current-v2__panel--signals">
+            <div class="current-v2__panel-head">
+              <div>
+                <div class="current-v2__panel-eyebrow">Painel integrado de sinais</div>
+                <h2 class="current-v2__panel-title">Usage • Intents • Insights</h2>
+              </div>
+            </div>
+
+            <div class="current-v2__signals-head">
+              <div class="current-v2__signal-stat">
+                <span class="current-v2__signal-stat-label">Usage</span>
+                <span class="current-v2__signal-stat-value">{{ recent_usage|length }}</span>
+              </div>
+              <div class="current-v2__signal-stat">
+                <span class="current-v2__signal-stat-label">Intents</span>
+                <span class="current-v2__signal-stat-value">{{ recent_intents|length }}</span>
+              </div>
+              <div class="current-v2__signal-stat">
+                <span class="current-v2__signal-stat-label">Insights</span>
+                <span class="current-v2__signal-stat-value">{{ recent_insights|length }}</span>
+              </div>
+            </div>
+
+            <div class="current-v2__signal-tabs" role="tablist" aria-label="Sinais recentes">
+              <button class="current-v2__signal-tab {% if signals_mode == 'usage' %}is-active{% endif %}" type="button">Usage</button>
+              <button class="current-v2__signal-tab {% if signals_mode == 'intents' %}is-active{% endif %}" type="button">Intents</button>
+              <button class="current-v2__signal-tab {% if signals_mode == 'insights' %}is-active{% endif %}" type="button">Insights</button>
+            </div>
+
+            <div class="current-v2__signal-list">
+              {% if signals_mode == 'usage' and display_usage %}
+                {% for item in display_usage %}
+                  <div class="current-v2__signal-row">
+                    <div class="current-v2__signal-main">
+                      <div class="current-v2__signal-title">{{ item.get("topic") or "-" }}</div>
+                      <div class="current-v2__signal-text">{{ item.get("user_text") or "-" }}</div>
+                    </div>
+                    <div class="current-v2__signal-side">
+                      <div class="current-v2__signal-time">{{ item.get("timestamp_label") or "-" }}</div>
+                      <span class="current-v2__signal-tag">{% if item.get("used_followup") %}follow-up{% else %}info{% endif %}</span>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% elif signals_mode == 'intents' and display_intents %}
+                {% for item in display_intents %}
+                  <div class="current-v2__signal-row">
+                    <div class="current-v2__signal-main">
+                      <div class="current-v2__signal-title">{{ item.get("intent") or "-" }}</div>
+                      <div class="current-v2__signal-text">{{ item.get("topic") or "-" }}</div>
+                    </div>
+                    <div class="current-v2__signal-side">
+                      <div class="current-v2__signal-time">{{ item.get("timestamp_label") or "-" }}</div>
+                      <span class="current-v2__signal-tag">intent</span>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% elif signals_mode == 'insights' and display_insights %}
+                {% for item in display_insights %}
+                  <div class="current-v2__signal-row">
+                    <div class="current-v2__signal-main">
+                      <div class="current-v2__signal-title">{{ item.get("insight_key") or "-" }}</div>
+                      <div class="current-v2__signal-text">{{ item.get("source_message") or "-" }}</div>
+                    </div>
+                    <div class="current-v2__signal-side">
+                      <div class="current-v2__signal-time">{{ item.get("timestamp_label") or "-" }}</div>
+                      <span class="current-v2__signal-tag">insight</span>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="current-v2__empty">Nenhum sinal recente disponível.</div>
+              {% endif %}
+            </div>
+          </article>
+
+          <article class="current-v2__panel current-v2__panel--shortcuts">
+            <div class="current-v2__panel-head">
+              <div>
+                <div class="current-v2__panel-eyebrow">Atalhos</div>
+                <h2 class="current-v2__panel-title">Acesso rápido</h2>
+              </div>
+            </div>
+
+            <div class="current-v2__shortcut-grid">
+              <a href="/admin/guests?token={{ token }}" class="current-v2__shortcut">Guests</a>
+              <a href="/admin/sessions?token={{ token }}" class="current-v2__shortcut">Sessions</a>
+              <a href="/admin/conversations?token={{ token }}" class="current-v2__shortcut">Conversations</a>
+              <a href="/admin/incidents?token={{ token }}" class="current-v2__shortcut">Incidents</a>
+              <a href="/admin/intents?token={{ token }}" class="current-v2__shortcut">Intents</a>
+              <a href="/admin/insights?token={{ token }}" class="current-v2__shortcut">Insights</a>
+              <a href="/admin/usage?token={{ token }}" class="current-v2__shortcut">Usage</a>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
   </main>
