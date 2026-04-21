@@ -2896,3 +2896,357 @@
     }
   }
  
+
+/* =========================
+   GEPETTO — CURRENT V2
+   REFINO FINAL DE PROPORÇÃO
+   ========================= */
+
+   .current-v2__hero {
+    padding: 14px 18px;
+    min-height: 0;
+  }
+  
+  .current-v2__hero-main {
+    align-content: start;
+  }
+  
+  .current-v2__guest-name {
+    font-size: 28px;
+  }
+  
+  .current-v2__guest-meta {
+    margin-bottom: 8px;
+  }
+  
+  .current-v2__stay-line {
+    margin-top: 2px;
+  }
+  
+  .current-v2__hero-mini-grid {
+    gap: 8px;
+  }
+  
+  .current-v2__mini-card {
+    min-height: 64px;
+    padding: 10px 12px;
+  }
+  
+  .current-v2__mini-value {
+    font-size: 13px;
+  }
+  
+  .current-v2__summary-card {
+    min-height: 78px;
+    padding: 11px 12px;
+  }
+  
+  .current-v2__summary-value {
+    font-size: 14px;
+  }
+  
+  .current-v2__panel {
+    padding: 15px;
+  }
+  
+  .current-v2__panel-title {
+    font-size: 16px;
+  }
+  
+  .current-v2__messages {
+    gap: 7px;
+  }
+  
+  .current-v2__message {
+    padding: 9px 10px;
+  }
+  
+  .current-v2__message-text {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  
+  .current-v2__left-bottom {
+    align-items: start;
+  }
+  
+  .current-v2__right-bottom {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .current-v2__panel--signals {
+    order: 1;
+  }
+  
+  .current-v2__panel--shortcuts {
+    order: 2;
+  }
+  
+  .current-v2__shortcut-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  
+  .current-v2__shortcut {
+    min-height: 36px;
+    padding: 0 8px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .current-v2__signal-row {
+    padding: 9px 10px;
+  }
+  
+  .current-v2__signal-title {
+    font-size: 12px;
+  }
+  
+  .current-v2__signal-text {
+    font-size: 11px;
+  }
+  
+  .current-v2__signal-time {
+    font-size: 10px;
+  }
+  
+  .current-v2__signal-tag {
+    font-size: 10px;
+  }
+  
+  @media (max-width: 1380px) {
+    .current-v2__shortcut-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* =========================
+   GEPETTO — ALERTAS EM LINHA
+   ========================= */
+
+.current-v2__alerts-list {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .current-v2__alert-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 132px;
+    gap: 12px;
+    align-items: start;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--cv2-border);
+  }
+  
+  .current-v2__alert-row--warning {
+    background: var(--cv2-amber-soft);
+    border-color: #f4d7aa;
+  }
+  
+  .current-v2__alert-row--danger {
+    background: var(--cv2-red-soft);
+    border-color: #fecdd3;
+  }
+  
+  .current-v2__alert-row--neutral {
+    background: var(--cv2-surface-soft);
+    border-color: var(--cv2-border);
+  }
+  
+  .current-v2__alert-row-main {
+    min-width: 0;
+  }
+  
+  .current-v2__alert-row-title {
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 800;
+    color: var(--cv2-text);
+    margin-bottom: 4px;
+  }
+  
+  .current-v2__alert-row-text {
+    font-size: 12px;
+    line-height: 1.45;
+    color: #475467;
+  }
+  
+  .current-v2__alert-row-meta {
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--cv2-text-soft);
+    text-align: right;
+    white-space: nowrap;
+  }
+  
+  @media (max-width: 920px) {
+    .current-v2__alert-row {
+      grid-template-columns: 1fr;
+    }
+  
+    .current-v2__alert-row-meta {
+      text-align: left;
+      white-space: normal;
+    }
+  }
+
+  /* =========================
+   GEPETTO — ALERTAS + HISTÓRICO
+   ========================= */
+
+.current-v2__alerts-section {
+    margin-bottom: 14px;
+  }
+  
+  .current-v2__alerts-list {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .current-v2__alert-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 132px;
+    gap: 12px;
+    align-items: start;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--cv2-border);
+  }
+  
+  .current-v2__alert-row--warning {
+    background: var(--cv2-amber-soft);
+    border-color: #f4d7aa;
+  }
+  
+  .current-v2__alert-row--danger {
+    background: var(--cv2-red-soft);
+    border-color: #fecdd3;
+  }
+  
+  .current-v2__alert-row--neutral {
+    background: var(--cv2-surface-soft);
+    border-color: var(--cv2-border);
+  }
+  
+  .current-v2__alert-row-main {
+    min-width: 0;
+  }
+  
+  .current-v2__alert-row-title {
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 800;
+    color: var(--cv2-text);
+    margin-bottom: 4px;
+  }
+  
+  .current-v2__alert-row-text {
+    font-size: 12px;
+    line-height: 1.45;
+    color: #475467;
+  }
+  
+  .current-v2__alert-row-meta {
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--cv2-text-soft);
+    text-align: right;
+    white-space: nowrap;
+  }
+  
+  .current-v2__alerts-history {
+    padding-top: 12px;
+    border-top: 1px solid var(--cv2-border);
+  }
+  
+  .current-v2__alerts-history-head {
+    margin-bottom: 10px;
+  }
+  
+  .current-v2__alerts-history-title {
+    font-size: 11px;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cv2-text-muted);
+    font-weight: 750;
+  }
+  
+  .current-v2__alerts-history-list {
+    display: grid;
+    gap: 8px;
+  }
+  
+  .current-v2__history-row {
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr) 132px;
+    gap: 10px;
+    align-items: start;
+    padding: 10px 0;
+    border-top: 1px solid #edf1f5;
+  }
+  
+  .current-v2__history-row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  
+  .current-v2__history-icon {
+    font-size: 13px;
+    line-height: 1.2;
+    color: var(--cv2-text-muted);
+    margin-top: 2px;
+  }
+  
+  .current-v2__history-main {
+    min-width: 0;
+  }
+  
+  .current-v2__history-title {
+    font-size: 12px;
+    line-height: 1.35;
+    font-weight: 800;
+    color: var(--cv2-text);
+    margin-bottom: 3px;
+  }
+  
+  .current-v2__history-text {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #667085;
+  }
+  
+  .current-v2__history-meta {
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--cv2-text-soft);
+    text-align: right;
+    white-space: nowrap;
+  }
+  
+  .current-v2__history-empty {
+    font-size: 12px;
+    color: var(--cv2-text-soft);
+    padding: 4px 0 0 0;
+  }
+  
+  @media (max-width: 920px) {
+    .current-v2__alert-row,
+    .current-v2__history-row {
+      grid-template-columns: 1fr;
+    }
+  
+    .current-v2__alert-row-meta,
+    .current-v2__history-meta {
+      text-align: left;
+      white-space: normal;
+    }
+  
+    .current-v2__history-icon {
+      display: none;
+    }
+  }

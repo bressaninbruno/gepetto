@@ -234,7 +234,7 @@
           <div class="current-v2__panel-head">
             <div>
               <div class="current-v2__panel-eyebrow">Hospedagem ativa</div>
-              <h2 class="current-v2__panel-title">Ficha atual</h2>
+              <h2 class="current-v2__panel-title">Hospedagem ativa</h2>
             </div>
           </div>
 
@@ -334,31 +334,78 @@
                 <h2 class="current-v2__panel-title">Atenção operacional</h2>
               </div>
             </div>
-
-            <div class="current-v2__alerts">
-              {% if pending_bruno %}
-                <div class="current-v2__alert current-v2__alert--warning">
-                  <div class="current-v2__alert-title">Bruno pendente</div>
-                  <div class="current-v2__alert-text">A hospedagem atual ainda exige revisão manual.</div>
-                </div>
-              {% endif %}
-
-              {% if display_incidents %}
-                {% for item in display_incidents %}
-                  <div class="current-v2__alert current-v2__alert--danger">
-                    <div class="current-v2__alert-top">
-                      <span class="current-v2__alert-type">{{ item.get("tipo") or "Incidente" }}</span>
-                      <span class="current-v2__alert-time">{{ item.get("timestamp_label") or "-" }}</span>
+          
+            <div class="current-v2__alerts-section">
+              <div class="current-v2__alerts-list">
+                {% if pending_bruno %}
+                  <div class="current-v2__alert-row current-v2__alert-row--warning">
+                    <div class="current-v2__alert-row-main">
+                      <div class="current-v2__alert-row-title">Bruno precisa revisar</div>
+                      <div class="current-v2__alert-row-text">A hospedagem atual ainda exige acompanhamento manual.</div>
                     </div>
-                    <div class="current-v2__alert-text">{{ item.get("mensagem") or "-" }}</div>
+                    <div class="current-v2__alert-row-meta">agora</div>
                   </div>
-                {% endfor %}
-              {% elif not pending_bruno %}
-                <div class="current-v2__alert current-v2__alert--neutral">
-                  <div class="current-v2__alert-title">Sem pendências críticas</div>
-                  <div class="current-v2__alert-text">O estado operacional da hospedagem está estável neste momento.</div>
-                </div>
-              {% endif %}
+                {% endif %}
+          
+                {% if display_incidents %}
+                  {% for item in display_incidents %}
+                    <div class="current-v2__alert-row current-v2__alert-row--danger">
+                      <div class="current-v2__alert-row-main">
+                        <div class="current-v2__alert-row-title">
+                          {{ item.get("tipo") or "Incidente" }}
+                          {% if item.get("gravidade") %}
+                            • {{ item.get("gravidade") }}
+                          {% endif %}
+                        </div>
+                        <div class="current-v2__alert-row-text">{{ item.get("mensagem") or "-" }}</div>
+                      </div>
+                      <div class="current-v2__alert-row-meta">{{ item.get("timestamp_label") or "-" }}</div>
+                    </div>
+                  {% endfor %}
+                {% elif not pending_bruno %}
+                  <div class="current-v2__alert-row current-v2__alert-row--neutral">
+                    <div class="current-v2__alert-row-main">
+                      <div class="current-v2__alert-row-title">Sem pendências críticas</div>
+                      <div class="current-v2__alert-row-text">O estado operacional da hospedagem está estável neste momento.</div>
+                    </div>
+                    <div class="current-v2__alert-row-meta">ok</div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          
+            <div class="current-v2__alerts-history">
+              <div class="current-v2__alerts-history-head">
+                <div class="current-v2__alerts-history-title">Histórico curto</div>
+              </div>
+          
+              <div class="current-v2__alerts-history-list">
+                {% if recent_incidents %}
+                  {% for item in recent_incidents[:4] %}
+                    <div class="current-v2__history-row">
+                      <div class="current-v2__history-icon">•</div>
+                      <div class="current-v2__history-main">
+                        <div class="current-v2__history-title">{{ item.get("tipo") or "Incidente" }}</div>
+                        <div class="current-v2__history-text">{{ item.get("mensagem") or "-" }}</div>
+                      </div>
+                      <div class="current-v2__history-meta">{{ item.get("timestamp_label") or "-" }}</div>
+                    </div>
+                  {% endfor %}
+                {% elif recent_intents %}
+                  {% for item in recent_intents[:4] %}
+                    <div class="current-v2__history-row">
+                      <div class="current-v2__history-icon">•</div>
+                      <div class="current-v2__history-main">
+                        <div class="current-v2__history-title">{{ item.get("intent") or "-" }}</div>
+                        <div class="current-v2__history-text">{{ item.get("topic") or "-" }}</div>
+                      </div>
+                      <div class="current-v2__history-meta">{{ item.get("timestamp_label") or "-" }}</div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="current-v2__history-empty">Sem histórico recente.</div>
+                {% endif %}
+              </div>
             </div>
           </article>
         </div>
@@ -369,7 +416,7 @@
           <div class="current-v2__panel-head">
             <div>
               <div class="current-v2__panel-eyebrow">Conversa recente</div>
-              <h2 class="current-v2__panel-title">Últimos movimentos</h2>
+              <h2 class="current-v2__panel-title">Conversa recente</h2>
             </div>
 
             <a class="current-v2__panel-link" href="/admin/conversations?token={{ token }}">Ver tudo</a>
