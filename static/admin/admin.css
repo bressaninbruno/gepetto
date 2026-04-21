@@ -1358,4 +1358,91 @@
     }
   }
 
+  /* ===== GEPETTO CURRENT — BLOCO CURRENT LAYOUT D ===== */
+
+.current-signals-panel {
+    grid-column: 1 / -1;
+    background: rgba(255, 252, 247, 0.96);
+  }
+  
+  .current-signals-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .current-signals-tab {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: rgba(246, 240, 231, 0.78);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 650;
+  }
+  
+  .current-signals-tab.is-active {
+    background: var(--brand-soft);
+    border-color: var(--brand);
+    color: var(--brand);
+    font-weight: 760;
+  }
+  
+  .current-signals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  
+  .current-signals-column {
+    display: grid;
+    gap: 8px;
+  }
+  
+  .current-signals-item {
+    background: rgba(255, 255, 255, 0.58);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 12px;
+  }
+  
+  .current-signals-item-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 5px;
+  }
+  
+  .current-signals-item-title {
+    font-size: 13px;
+    font-weight: 760;
+    line-height: 1.25;
+    color: var(--text);
+  }
+  
+  .current-signals-item-meta {
+    font-size: 11px;
+    line-height: 1.25;
+    color: var(--muted);
+  }
+  
+  .current-signals-item-text {
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: #3d372f;
+    white-space: pre-wrap;
+  }
+  
+  @media (max-width: 980px) {
+    .current-signals-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
  

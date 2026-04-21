@@ -235,33 +235,86 @@
                 </div>
               </div>
             </div>
-          
-            {% include "admin/partials/usage_list.html" %}
           </div>
 
       <div class="current-column current-column-right">
         {% include "admin/partials/conversation_feed.html" %}
 
         <div class="current-right-secondary-grid">
-          {% include "admin/partials/intent_list.html" %}
-          {% include "admin/partials/insight_list.html" %}
-
-          <div class="panel panel-pad-md panel-compact panel-quick-links">
-            <div class="panel-title-row">
-              <h2 class="panel-title panel-title-sm">Atalhos</h2>
+            <div class="panel panel-pad-md panel-compact current-signals-panel">
+              <div class="current-signals-tabs">
+                <div class="current-signals-tab is-active">Usage recente</div>
+                <div class="current-signals-tab">Intents</div>
+                <div class="current-signals-tab">Insights</div>
+              </div>
+          
+              <div class="current-signals-grid">
+                <div class="current-signals-column">
+                  {% if recent_usage %}
+                    {% for item in recent_usage[:3] %}
+                      <div class="current-signals-item">
+                        <div class="current-signals-item-top">
+                          <div class="current-signals-item-title">{{ item.get("topic") or "-" }}</div>
+                          <div class="current-signals-item-meta">{{ item.get("timestamp_label") or "-" }}</div>
+                        </div>
+                        <div class="current-signals-item-text">{{ item.get("user_text") or "-" }}</div>
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <div class="empty-state">Nenhum usage recente.</div>
+                  {% endif %}
+                </div>
+          
+                <div class="current-signals-column">
+                  {% if recent_intents %}
+                    {% for item in recent_intents[:4] %}
+                      <div class="current-signals-item">
+                        <div class="current-signals-item-top">
+                          <div class="current-signals-item-title">{{ item.get("intent") or "-" }}</div>
+                          <div class="current-signals-item-meta">{{ item.get("timestamp_label") or "-" }}</div>
+                        </div>
+                        <div class="current-signals-item-text">tema: {{ item.get("topic") or "-" }}</div>
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <div class="empty-state">Nenhuma intent recente.</div>
+                  {% endif %}
+                </div>
+          
+                <div class="current-signals-column">
+                  {% if recent_insights %}
+                    {% for item in recent_insights[:4] %}
+                      <div class="current-signals-item">
+                        <div class="current-signals-item-top">
+                          <div class="current-signals-item-title">{{ item.get("insight_key") or "-" }}</div>
+                          <div class="current-signals-item-meta">{{ item.get("timestamp_label") or "-" }}</div>
+                        </div>
+                        <div class="current-signals-item-text">{{ item.get("source_message") or "-" }}</div>
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <div class="empty-state">Nenhum insight recente.</div>
+                  {% endif %}
+                </div>
+              </div>
             </div>
-
-            <div class="quick-links-mini-grid">
-              <a class="quick-link-mini" href="/admin/guests?token={{ token }}">Guests</a>
-              <a class="quick-link-mini" href="/admin/sessions?token={{ token }}">Sessions</a>
-              <a class="quick-link-mini" href="/admin/conversations?token={{ token }}">Conversations</a>
-              <a class="quick-link-mini" href="/admin/incidents?token={{ token }}">Incidents</a>
-              <a class="quick-link-mini" href="/admin/intents?token={{ token }}">Intents</a>
-              <a class="quick-link-mini" href="/admin/insights?token={{ token }}">Insights</a>
-              <a class="quick-link-mini" href="/admin/usage?token={{ token }}">Usage</a>
+          
+            <div class="panel panel-pad-md panel-compact panel-quick-links">
+              <div class="panel-title-row">
+                <h2 class="panel-title panel-title-sm">Atalhos</h2>
+              </div>
+          
+              <div class="quick-links-mini-grid">
+                <a class="quick-link-mini" href="/admin/guests?token={{ token }}">Guests</a>
+                <a class="quick-link-mini" href="/admin/sessions?token={{ token }}">Sessions</a>
+                <a class="quick-link-mini" href="/admin/conversations?token={{ token }}">Conversations</a>
+                <a class="quick-link-mini" href="/admin/incidents?token={{ token }}">Incidents</a>
+                <a class="quick-link-mini" href="/admin/intents?token={{ token }}">Intents</a>
+                <a class="quick-link-mini" href="/admin/insights?token={{ token }}">Insights</a>
+                <a class="quick-link-mini" href="/admin/usage?token={{ token }}">Usage</a>
+              </div>
             </div>
           </div>
-        </div>
       </div>
     </section>
   </main>
