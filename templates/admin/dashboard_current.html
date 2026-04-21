@@ -250,28 +250,37 @@
 
         <div class="current-right-secondary-grid">
             <div class="panel panel-pad-md panel-compact current-signals-panel">
-              <div class="current-signals-tabs">
-                <div class="current-signals-tab is-active">Usage recente</div>
-                <div class="current-signals-tab">Intents</div>
-                <div class="current-signals-tab">Insights</div>
-              </div>
-          
-              <div class="current-signals-grid">
-                <div class="current-signals-column">
+                <div class="current-signals-tabs">
+                  <div class="current-signals-tab is-active">Usage recente</div>
+                  <div class="current-signals-tab">Intents</div>
+                  <div class="current-signals-tab">Insights</div>
+                </div>
+              
+                <div class="current-signals-list">
                   {% if recent_usage %}
-                    {% for item in recent_usage[:3] %}
-                      <div class="current-signals-item">
-                        <div class="current-signals-item-top">
-                          <div class="current-signals-item-title">{{ item.get("topic") or "-" }}</div>
-                          <div class="current-signals-item-meta">{{ item.get("timestamp_label") or "-" }}</div>
+                    {% for item in recent_usage[:4] %}
+                      <div class="current-signals-row">
+                        <div class="current-signals-row-main">
+                          <div class="current-signals-row-title">{{ item.get("topic") or "-" }}</div>
+                          <div class="current-signals-row-text">{{ item.get("user_text") or "-" }}</div>
                         </div>
-                        <div class="current-signals-item-text">{{ item.get("user_text") or "-" }}</div>
+              
+                        <div class="current-signals-row-meta">{{ item.get("timestamp_label") or "-" }}</div>
+              
+                        <div class="current-signals-row-side">
+                          {% if item.get("used_followup") %}
+                            <span class="current-signals-row-tag">follow-up</span>
+                          {% else %}
+                            <span class="current-signals-row-tag">info</span>
+                          {% endif %}
+                        </div>
                       </div>
                     {% endfor %}
                   {% else %}
                     <div class="empty-state">Nenhum usage recente.</div>
                   {% endif %}
                 </div>
+              </div>
           
                 <div class="current-signals-column">
                   {% if recent_intents %}

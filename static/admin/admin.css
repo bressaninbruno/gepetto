@@ -1457,52 +1457,67 @@
     color: var(--brand);
   }
   
-  .current-signals-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-  }
-  
-  .current-signals-column {
+  .current-signals-list {
     display: grid;
     gap: 8px;
   }
   
-  .current-signals-item {
+  .current-signals-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) auto auto;
+    gap: 12px;
+    align-items: start;
     background: rgba(255, 255, 255, 0.58);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 10px 12px;
-    min-height: 82px;
   }
   
-  .current-signals-item-top {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    margin-bottom: 6px;
+  .current-signals-row-main {
+    min-width: 0;
   }
   
-  .current-signals-item-title {
+  .current-signals-row-title {
     font-size: 13px;
     font-weight: 760;
     line-height: 1.25;
     color: var(--text);
+    margin-bottom: 4px;
   }
   
-  .current-signals-item-meta {
-    font-size: 11px;
-    line-height: 1.25;
-    color: var(--muted);
-  }
-  
-  .current-signals-item-text {
+  .current-signals-row-text {
     font-size: 12.5px;
     line-height: 1.45;
     color: #3d372f;
     white-space: pre-wrap;
+  }
+  
+  .current-signals-row-meta {
+    font-size: 11px;
+    line-height: 1.25;
+    color: var(--muted);
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+  
+  .current-signals-row-side {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: 1px;
+  }
+  
+  .current-signals-row-tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(246, 240, 231, 0.9);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
   }
   
   .panel-quick-links {
@@ -1538,12 +1553,22 @@
   }
   
   @media (max-width: 1080px) {
-    .current-signals-grid {
-      grid-template-columns: 1fr;
-    }
-  
     .quick-links-mini-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  @media (max-width: 860px) {
+    .current-signals-row {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  
+    .current-signals-row-meta,
+    .current-signals-row-side {
+      white-space: normal;
+      justify-content: flex-start;
+      padding-top: 0;
     }
   }
   
