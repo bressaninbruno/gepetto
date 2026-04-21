@@ -2554,4 +2554,345 @@
     }
   }
 
+  /* =========================
+   GEPETTO — CURRENT V2
+   REFINO DE PROPORÇÃO
+   ========================= */
+
+.current-v2 {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 14px;
+  }
+  
+  .current-v2__sidebar {
+    padding: 18px 14px;
+    border-radius: 26px;
+    gap: 18px;
+  }
+  
+  .current-v2__nav {
+    gap: 6px;
+  }
+  
+  .current-v2__nav-link {
+    min-height: 40px;
+    padding: 0 11px;
+    font-size: 13px;
+  }
+  
+  .current-v2__main {
+    gap: 14px;
+  }
+  
+  .current-v2__hero {
+    padding: 16px 18px;
+    gap: 14px;
+    border-radius: 26px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  }
+  
+  .current-v2__guest-name {
+    font-size: 30px;
+  }
+  
+  .current-v2__hero-title-row {
+    margin-bottom: 8px;
+  }
+  
+  .current-v2__guest-meta {
+    margin-bottom: 10px;
+    gap: 8px 14px;
+    font-size: 13px;
+  }
+  
+  .current-v2__stay-line {
+    gap: 8px;
+  }
+  
+  .current-v2__stay-pill {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+  
+  .current-v2__status-row {
+    gap: 6px;
+  }
+  
+  .current-v2__badge {
+    min-height: 30px;
+    padding: 0 9px;
+    font-size: 11px;
+  }
+  
+  .current-v2__hero-mini-grid {
+    gap: 8px;
+  }
+  
+  .current-v2__mini-card {
+    min-height: 72px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+  
+  .current-v2__mini-label {
+    font-size: 10px;
+    margin-bottom: 7px;
+  }
+  
+  .current-v2__mini-value {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  
+  .current-v2__summary-strip {
+    gap: 8px;
+  }
+  
+  .current-v2__summary-card {
+    min-height: 86px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+  
+  .current-v2__summary-head {
+    font-size: 10px;
+    margin-bottom: 7px;
+  }
+  
+  .current-v2__summary-value {
+    font-size: 15px;
+    line-height: 1.25;
+  }
+  
+  .current-v2__body {
+    gap: 14px;
+    grid-template-columns: minmax(0, 0.92fr) minmax(400px, 1.08fr);
+  }
+  
+  .current-v2__col {
+    gap: 14px;
+  }
+  
+  .current-v2__left-bottom,
+  .current-v2__right-bottom {
+    gap: 14px;
+  }
+  
+  .current-v2__panel {
+    padding: 16px;
+    border-radius: 22px;
+  }
+  
+  .current-v2__panel-head {
+    margin-bottom: 12px;
+  }
+  
+  .current-v2__panel-eyebrow {
+    font-size: 10px;
+    margin-bottom: 5px;
+  }
+  
+  .current-v2__panel-title {
+    font-size: 17px;
+  }
+  
+  .current-v2__stay-grid {
+    gap: 12px;
+    grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.9fr);
+  }
+  
+  .current-v2__stay-block {
+    gap: 12px;
+  }
+  
+  .current-v2__data-label,
+  .current-v2__state-label {
+    font-size: 10px;
+  }
+  
+  .current-v2__data-value {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  
+  .current-v2__preferences {
+    padding: 10px 11px;
+    font-size: 13px;
+    line-height: 1.45;
+    max-height: 118px;
+    overflow: hidden;
+  }
+  
+  .current-v2__state-grid {
+    gap: 10px;
+  }
+  
+  .current-v2__state-item {
+    padding: 11px;
+    border-radius: 14px;
+  }
+  
+  .current-v2__state-value {
+    font-size: 13px;
+  }
+  
+  .current-v2__alerts {
+    gap: 8px;
+  }
+  
+  .current-v2__alert {
+    padding: 11px 12px;
+    border-radius: 14px;
+  }
+  
+  .current-v2__alert-title,
+  .current-v2__alert-type {
+    font-size: 12px;
+  }
+  
+  .current-v2__alert-text {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  
+  .current-v2__alert-time {
+    font-size: 11px;
+  }
+  
+  .current-v2__messages {
+    gap: 8px;
+  }
+  
+  .current-v2__message {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px 11px;
+    border-radius: 16px;
+  }
+  
+  .current-v2__message-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+  
+  .current-v2__message-top {
+    margin-bottom: 4px;
+  }
+  
+  .current-v2__message-name {
+    font-size: 13px;
+  }
+  
+  .current-v2__message-time {
+    font-size: 11px;
+  }
+  
+  .current-v2__message-topic {
+    font-size: 11px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  
+  .current-v2__message-text {
+    font-size: 13px;
+    line-height: 1.42;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  
+  .current-v2__signals-head {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .current-v2__signal-stat {
+    padding: 10px 11px;
+    border-radius: 14px;
+  }
+  
+  .current-v2__signal-stat-label {
+    font-size: 10px;
+    margin-bottom: 5px;
+  }
+  
+  .current-v2__signal-stat-value {
+    font-size: 16px;
+  }
+  
+  .current-v2__signal-tabs {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  
+  .current-v2__signal-tab {
+    min-height: 30px;
+    padding: 0 9px;
+    font-size: 11px;
+  }
+  
+  .current-v2__signal-list {
+    gap: 8px;
+  }
+  
+  .current-v2__signal-row {
+    grid-template-columns: minmax(0, 1fr) 106px;
+    gap: 8px;
+    padding: 10px 11px;
+    border-radius: 14px;
+  }
+  
+  .current-v2__signal-title {
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+  
+  .current-v2__signal-text {
+    font-size: 12px;
+    line-height: 1.38;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  
+  .current-v2__signal-time {
+    font-size: 11px;
+  }
+  
+  .current-v2__signal-tag {
+    min-height: 24px;
+    padding: 0 8px;
+    font-size: 10px;
+  }
+  
+  .current-v2__shortcut-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  
+  .current-v2__shortcut {
+    min-height: 38px;
+    padding: 0 10px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  
+  @media (min-width: 1280px) {
+    .current-v2 {
+      min-height: calc(100vh - 32px);
+    }
+  
+    .current-v2__main {
+      align-content: start;
+    }
+  }
  

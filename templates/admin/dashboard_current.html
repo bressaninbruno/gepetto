@@ -5,9 +5,9 @@
 {% block content %}
 {% set display_messages = recent_messages[-4:] if recent_messages else [] %}
 {% set display_incidents = recent_incidents[:2] if recent_incidents else [] %}
-{% set display_usage = recent_usage[:4] if recent_usage else [] %}
-{% set display_intents = recent_intents[:4] if recent_intents else [] %}
-{% set display_insights = recent_insights[:4] if recent_insights else [] %}
+{% set display_usage = recent_usage[:3] if recent_usage else [] %}
+{% set display_intents = recent_intents[:3] if recent_intents else [] %}
+{% set display_insights = recent_insights[:3] if recent_insights else [] %}
 {% set signals_mode = 'usage' if display_usage else ('intents' if display_intents else ('insights' if display_insights else 'usage')) %}
 
 {% macro icon(name) -%}
@@ -498,13 +498,10 @@
             </div>
 
             <div class="current-v2__shortcut-grid">
-              <a href="/admin/guests?token={{ token }}" class="current-v2__shortcut">Guests</a>
-              <a href="/admin/sessions?token={{ token }}" class="current-v2__shortcut">Sessions</a>
-              <a href="/admin/conversations?token={{ token }}" class="current-v2__shortcut">Conversations</a>
-              <a href="/admin/incidents?token={{ token }}" class="current-v2__shortcut">Incidents</a>
-              <a href="/admin/intents?token={{ token }}" class="current-v2__shortcut">Intents</a>
-              <a href="/admin/insights?token={{ token }}" class="current-v2__shortcut">Insights</a>
-              <a href="/admin/usage?token={{ token }}" class="current-v2__shortcut">Usage</a>
+                <a href="/admin/guests?token={{ token }}" class="current-v2__shortcut">Guests</a>
+                <a href="/admin/sessions?token={{ token }}" class="current-v2__shortcut">Sessions</a>
+                <a href="/admin/conversations?token={{ token }}" class="current-v2__shortcut">Conversations</a>
+                <a href="/admin/incidents?token={{ token }}" class="current-v2__shortcut">Incidents</a>
             </div>
           </article>
         </div>
