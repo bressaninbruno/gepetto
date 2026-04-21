@@ -1246,22 +1246,22 @@
   
   .current-left-bottom-grid {
     display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 14px;
+    grid-template-columns: minmax(220px, 0.8fr) minmax(260px, 1.2fr);
+    gap: 12px;
     align-items: start;
   }
   
   .current-left-bottom-grid .panel-pad-lg {
-    padding: 16px 18px;
+    padding: 14px 16px;
   }
   
   .current-left-bottom-grid .info-list {
-    gap: 12px;
+    gap: 10px;
   }
   
   .current-left-bottom-grid .info-item {
     gap: 4px;
-    padding-top: 10px;
+    padding-top: 8px;
   }
   
   .current-left-bottom-grid .info-item:first-child {
