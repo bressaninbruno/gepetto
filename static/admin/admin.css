@@ -2520,40 +2520,42 @@ body.admin-body {
   }
 
   /* =========================
-   FAIXA 3 — AJUSTE LIMPO FINAL
+   FAIXA 3 — AJUSTE LIMPO REVISADO
    usage + atalhos = referência
    faixa desloca para a direita
    espaço morto permitido na esquerda
    ========================= */
 
 .gc1__band--bottom {
-    grid-template-columns: 305px 350px 410px;
+    grid-template-columns: 300px 335px 410px;
     gap: 10px;
     justify-content: end;
     align-items: stretch;
   }
   
-  /* os 3 painéis terminam na mesma altura */
-  .gc1__band--bottom > .gc1__panel {
-    height: 100%;
-  }
-  
-  /* =========================
-     ESTADO DA CONVERSA
-     cresce um pouco e acompanha a faixa para a direita
-     a caixa interna fica em cima
-     o painel branco desce até a altura do usage
-     ========================= */
-  
-  .gc1__band--bottom > .gc1__panel:nth-child(1) {
+  /* todos os 3 painéis acompanham a mesma altura da linha */
+  .gc1__band--bottom > .gc1__panel:nth-child(1),
+  .gc1__band--bottom > .gc1__panel:nth-child(2),
+  .gc1__band--bottom > .gc1__panel:nth-child(3) {
     display: flex;
     flex-direction: column;
     align-self: stretch;
   }
   
+  /* =========================
+     ESTADO DA CONVERSA
+     cresce um pouco
+     painel acompanha a altura da faixa
+     caixa interna fica no topo
+     ========================= */
+  
+  .gc1__band--bottom > .gc1__panel:nth-child(1) {
+    justify-self: start;
+  }
+  
   .gc1__state-box {
     padding: 9px 11px;
-    align-self: start;
+    align-self: stretch;
   }
   
   .gc1__state-line {
@@ -2569,14 +2571,10 @@ body.admin-body {
      PENDÊNCIAS & ALERTAS
      mais central
      mesma altura total do macrobloco da direita
-     sem branco morto embaixo:
-     histórico ganha mais corpo e linhas mais altas
+     histórico complementar preenche melhor a altura
      ========================= */
   
   .gc1__band--bottom > .gc1__panel:nth-child(2) {
-    display: flex;
-    flex-direction: column;
-    align-self: stretch;
     justify-self: center;
   }
   
@@ -2606,7 +2604,7 @@ body.admin-body {
   }
   
   .gc1__history-box {
-    flex: 1;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     border-top: 1px solid var(--line);
@@ -2653,26 +2651,25 @@ body.admin-body {
   }
   
   /* =========================
-     MACROBLOCO DIREITO
+     MACROBLOCO DA DIREITA
      usage + atalhos é a referência
-     NÃO mexer no tamanho macro
+     não mudar o tamanho macro
      ========================= */
   
   .gc1__panel--ops {
-    width: 100%;
-    max-width: 410px;
+    width: 410px;
     justify-self: end;
-    align-self: stretch;
     display: flex;
     flex-direction: column;
+    align-self: stretch;
     padding-top: 5px;
   }
   
+  /* mantém o usage estável; só refinamento leve interno */
   .gc1__panel-head--ops {
     margin-bottom: 3px;
   }
   
-  /* estética interna do usage sem mexer no tamanho macro */
   .gc1__ops-tabs {
     gap: 3px;
     align-items: end;
@@ -2700,7 +2697,6 @@ body.admin-body {
   .gc1__ops-box {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-    flex: 1 0 auto;
   }
   
   .gc1__ops-row {
@@ -2728,7 +2724,7 @@ body.admin-body {
     font-size: 8px;
   }
   
-  /* atalhos continuam fazendo parte do macrobloco da direita */
+  /* atalhos fazem parte do macrobloco de referência */
   .gc1__shortcut-box {
     margin-top: 6px;
     gap: 5px;
