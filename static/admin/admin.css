@@ -2787,3 +2787,159 @@ body.admin-body {
     min-height: 50px;
     padding: 6px 4px;
   }
+
+  /* =========================
+   FAIXA 3 — AJUSTE FINO
+   usage mantém tamanho
+   pendências encurta ~20%
+   faixa 3 reduz altura total
+   ========================= */
+
+.gc1__band--bottom {
+    grid-template-columns: 275px 305px 410px;
+    gap: 8px;
+    align-items: start;
+  }
+  
+  /* estado da conversa ganha um pouco mais de área */
+  .gc1__state-box {
+    padding: 8px 10px;
+  }
+  
+  .gc1__state-line {
+    min-height: 31px;
+  }
+  
+  .gc1__state-key,
+  .gc1__state-value {
+    font-size: 10px;
+  }
+  
+  /* pendências encurta e fica menos "bloco esticado" */
+  .gc1__band--bottom > .gc1__panel:nth-child(2) {
+    width: 100%;
+    max-width: 305px;
+    justify-self: center;
+    align-self: start;
+  }
+  
+  .gc1__alerts-box {
+    gap: 5px;
+    margin-bottom: 6px;
+  }
+  
+  .gc1__alert-row {
+    grid-template-columns: minmax(0, 1fr) 58px;
+    gap: 6px;
+    padding: 7px 8px;
+  }
+  
+  .gc1__alert-title {
+    font-size: 10px;
+    margin-bottom: 1px;
+  }
+  
+  .gc1__alert-text {
+    font-size: 9px;
+    line-height: 1.18;
+  }
+  
+  .gc1__alert-meta {
+    font-size: 8px;
+  }
+  
+  .gc1__history-box {
+    padding-top: 6px;
+  }
+  
+  .gc1__history-title {
+    margin-bottom: 4px;
+  }
+  
+  .gc1__history-row {
+    grid-template-columns: 15px minmax(0, 1fr) 58px;
+    gap: 6px;
+    padding: 4px 0;
+  }
+  
+  .gc1__history-head {
+    font-size: 9px;
+  }
+  
+  .gc1__history-text,
+  .gc1__history-meta {
+    font-size: 8px;
+  }
+  
+  /* usage mantém largura atual, só baixa um pouco a altura total */
+  .gc1__panel--ops {
+    width: 100%;
+    max-width: 410px;
+    justify-self: end;
+    align-self: start;
+    padding-top: 5px;
+  }
+  
+  .gc1__panel-head--ops {
+    margin-bottom: 3px;
+  }
+  
+  .gc1__ops-tabs {
+    gap: 3px;
+    align-items: end;
+    border-bottom: 1px solid var(--line);
+  }
+  
+  .gc1__ops-tab {
+    min-height: 25px;
+    padding: 0 10px;
+    border-radius: 8px 8px 0 0;
+    font-size: 10px;
+  }
+  
+  .gc1__ops-row {
+    grid-template-columns: minmax(0, 1fr) 64px;
+    gap: 7px;
+    padding: 7px 8px;
+  }
+  
+  .gc1__ops-head {
+    font-size: 10px;
+  }
+  
+  .gc1__ops-text {
+    font-size: 9px;
+    line-height: 1.16;
+  }
+  
+  .gc1__ops-time {
+    font-size: 8px;
+  }
+  
+  .gc1__ops-info {
+    min-height: 15px;
+    padding: 0 5px;
+    font-size: 8px;
+  }
+  
+  /* atalhos menores para ajudar a reduzir a altura da faixa 3 */
+  .gc1__shortcut-box {
+    margin-top: 6px;
+    gap: 5px;
+  }
+  
+  .gc1__shortcut-tile {
+    min-height: 42px;
+    padding: 4px 4px;
+    gap: 3px;
+  }
+  
+  .gc1__shortcut-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .gc1__shortcut-label {
+    font-size: 8px;
+    line-height: 1.02;
+  }
