@@ -9667,3 +9667,187 @@
       grid-template-columns: 1fr 1fr 1fr;
     }
   }
+
+  /* =========================
+   GEPETTO — CURRENT V6.4
+   ajuste de shell / encaixe final
+   append após V6/V6.2/V6.3
+   ========================= */
+
+.gp-v6 {
+    position: relative;
+    grid-template-columns: 116px minmax(0, 1fr);
+    width: calc(100% + 28px);
+    margin: -14px;
+    min-height: calc(100vh + 4px);
+    border-radius: 5px;
+  }
+  
+  .gp-v6__sidebar {
+    padding: 8px 7px 7px;
+  }
+  
+  .gp-v6__nav-link {
+    min-height: 28px;
+    padding: 0 7px;
+    font-size: 10px;
+  }
+  
+  .gp-v6__main {
+    position: relative;
+    min-width: 0;
+    padding: 5px 6px 5px;
+    gap: 5px;
+  }
+  
+  /* reduz um pouco a “moldura” geral */
+  .gp-v6__hero-shell,
+  .gp-v6__panel {
+    border-radius: 6px;
+  }
+  
+  .gp-v6__hero-top {
+    padding: 7px;
+    gap: 7px;
+    grid-template-columns: minmax(0, 1.18fr) minmax(296px, 0.82fr);
+  }
+  
+  .gp-v6__summary-band {
+    padding: 6px 7px 7px;
+    gap: 5px;
+  }
+  
+  /* middle band fica quase como está */
+  .gp-v6__band {
+    gap: 5px;
+  }
+  
+  .gp-v6__band--middle {
+    grid-template-columns: minmax(0, 1.06fr) minmax(286px, 0.8fr);
+  }
+  
+  /* bottom band:
+     usage menos comprido na horizontal
+     mais área para estado + pendências */
+  .gp-v6__band--bottom {
+    grid-template-columns: 188px 272px minmax(0, 0.9fr);
+    gap: 5px;
+    align-items: start;
+  }
+  
+  /* painéis só um toque mais secos */
+  .gp-v6__panel {
+    padding: 5px;
+  }
+  
+  .gp-v6__panel-head {
+    margin-bottom: 4px;
+  }
+  
+  .gp-v6__panel-title {
+    font-size: 12px;
+  }
+  
+  /* usage um pouco menos "container" */
+  .gp-v6__ops-box {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 5px;
+  }
+  
+  .gp-v6__ops-tabs {
+    padding: 4px 5px;
+    gap: 3px;
+  }
+  
+  .gp-v6__ops-tab {
+    min-height: 18px;
+    padding: 0 5px;
+    font-size: 8px;
+  }
+  
+  .gp-v6__ops-row {
+    grid-template-columns: minmax(0, 1fr) 56px;
+    gap: 5px;
+    padding: 4px 5px;
+  }
+  
+  .gp-v6__ops-head {
+    font-size: 9px;
+  }
+  
+  .gp-v6__ops-text {
+    font-size: 8px;
+    line-height: 1.12;
+  }
+  
+  .gp-v6__ops-time,
+  .gp-v6__ops-info {
+    font-size: 8px;
+  }
+  
+  .gp-v6__ops-info {
+    min-height: 14px;
+    padding: 0 4px;
+  }
+  
+  /* atalhos continuam compactos e mais intencionais */
+  .gp-v6__shortcut-box {
+    gap: 4px;
+  }
+  
+  .gp-v6__shortcut-tile {
+    min-height: 38px;
+    padding: 4px;
+    gap: 2px;
+  }
+  
+  /* sincronizado vira status estrutural limpo no canto inferior */
+  .gp-v6__footer-strip {
+    position: absolute;
+    left: 8px;
+    bottom: 7px;
+    z-index: 4;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+  }
+  
+  .gp-v6__footer-sync {
+    min-height: 16px;
+    padding: 0 6px;
+    font-size: 8px;
+    border-radius: 4px;
+    opacity: 0.96;
+  }
+  
+  /* responsivo */
+  @media (max-width: 1400px) {
+    .gp-v6 {
+      grid-template-columns: 112px minmax(0, 1fr);
+    }
+  
+    .gp-v6__band--bottom {
+      grid-template-columns: 182px 258px minmax(0, 0.92fr);
+    }
+  }
+  
+  @media (max-width: 1180px) {
+    .gp-v6 {
+      width: 100%;
+      margin: 0;
+      grid-template-columns: 1fr;
+    }
+  
+    .gp-v6__footer-strip {
+      position: static;
+      pointer-events: auto;
+    }
+  
+    .gp-v6__hero-top,
+    .gp-v6__band--middle,
+    .gp-v6__band--bottom,
+    .gp-v6__stay-shell {
+      grid-template-columns: 1fr;
+    }
+  }
