@@ -9958,3 +9958,32 @@
       pointer-events: auto;
     }
   }
+
+  /* =========================
+   GEPETTO — BASE FIT FOR CURRENT
+   encaixe estrutural da shell
+   ========================= */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100dvh;
+}
+
+body.admin-body {
+  margin: 0;
+  padding: 0;
+  min-height: 100dvh;
+}
+
+/* aplica o encaixe total quando a current estiver presente */
+.admin-shell:has(.gp-v6) {
+  width: 100%;
+  max-width: none;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  display: block;
+  box-sizing: border-box;
+}
