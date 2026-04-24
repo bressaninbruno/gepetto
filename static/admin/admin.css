@@ -2520,23 +2520,43 @@ body.admin-body {
   }
 
   /* =========================
-   FAIXA 3 — AJUSTE LIMPO REVISADO
-   usage + atalhos = referência
-   faixa desloca para a direita
-   espaço morto permitido na esquerda
+   FAIXA 3 — REDISTRIBUIÇÃO HORIZONTAL FINAL
+   regra:
+   - não muda altura
+   - muda só comprimento
+   - usage = conversa recente
+   - pendências = bloco 2 da hospedagem ativa
+   - estado = metade do bloco 1 da hospedagem ativa
+   - sobra espaço morto controlado na esquerda
    ========================= */
 
 .gc1__band--bottom {
-    grid-template-columns: 300px 335px 410px;
+    grid-template-columns:
+      minmax(0, 0.49fr)   /* espaço morto à esquerda */
+      minmax(190px, 0.49fr) /* estado da conversa */
+      minmax(300px, 0.74fr) /* pendências = bloco 2 hospedagem */
+      minmax(280px, 0.78fr); /* usage = conversa recente */
     gap: 10px;
-    justify-content: end;
     align-items: stretch;
   }
   
-  /* todos os 3 painéis acompanham a mesma altura da linha */
-  .gc1__band--bottom > .gc1__panel:nth-child(1),
-  .gc1__band--bottom > .gc1__panel:nth-child(2),
+  /* posicionamento real dos 3 blocos dentro da faixa */
+  .gc1__band--bottom > .gc1__panel:nth-child(1) {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+  }
+  
+  .gc1__band--bottom > .gc1__panel:nth-child(2) {
+    grid-column: 3;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+  }
+  
   .gc1__band--bottom > .gc1__panel:nth-child(3) {
+    grid-column: 4;
     display: flex;
     flex-direction: column;
     align-self: stretch;
@@ -2544,14 +2564,9 @@ body.admin-body {
   
   /* =========================
      ESTADO DA CONVERSA
-     cresce um pouco
-     painel acompanha a altura da faixa
-     caixa interna fica no topo
+     mantém a caixa de info no topo;
+     só o painel branco acompanha a altura
      ========================= */
-  
-  .gc1__band--bottom > .gc1__panel:nth-child(1) {
-    justify-self: start;
-  }
   
   .gc1__state-box {
     padding: 9px 11px;
@@ -2569,14 +2584,9 @@ body.admin-body {
   
   /* =========================
      PENDÊNCIAS & ALERTAS
-     mais central
-     mesma altura total do macrobloco da direita
-     histórico complementar preenche melhor a altura
+     mesma altura total do usage;
+     histórico ganha mais corpo para não sobrar branco
      ========================= */
-  
-  .gc1__band--bottom > .gc1__panel:nth-child(2) {
-    justify-self: center;
-  }
   
   .gc1__alerts-box {
     gap: 6px;
@@ -2651,21 +2661,22 @@ body.admin-body {
   }
   
   /* =========================
-     MACROBLOCO DA DIREITA
-     usage + atalhos é a referência
-     não mudar o tamanho macro
+     USAGE + ATALHOS
+     não muda altura;
+     não fixa largura em px extra;
+     a largura agora vem da coluna da grid
      ========================= */
   
   .gc1__panel--ops {
-    width: 410px;
-    justify-self: end;
+    width: auto;
+    max-width: none;
+    justify-self: stretch;
     display: flex;
     flex-direction: column;
     align-self: stretch;
     padding-top: 5px;
   }
   
-  /* mantém o usage estável; só refinamento leve interno */
   .gc1__panel-head--ops {
     margin-bottom: 3px;
   }
@@ -2697,6 +2708,7 @@ body.admin-body {
   .gc1__ops-box {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+    flex: 1 1 auto;
   }
   
   .gc1__ops-row {
@@ -2724,7 +2736,7 @@ body.admin-body {
     font-size: 8px;
   }
   
-  /* atalhos fazem parte do macrobloco de referência */
+  /* atalhos seguem como parte do macrobloco da direita */
   .gc1__shortcut-box {
     margin-top: 6px;
     gap: 5px;
