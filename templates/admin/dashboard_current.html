@@ -10,15 +10,16 @@
 {% set display_intents = recent_intents[:3] if recent_intents else [] %}
 {% set display_insights = recent_insights[:3] if recent_insights else [] %}
 {% set summary_context = last_recommendation_name or current_active_name or "-" %}
-{% set summary_state = "Incidente pendente" if pending_incident else ("Bruno pendente" if pending_bruno else "Estável") %}
+{% set activity_label = last_updated_relative or last_updated or "-" %}
+{% set sync_label = "Sincronizado" if db_status == "conectado" else ("Erro de sincronização" if db_status == "erro" else "Não configurado") %}
 {% set signals_mode = 'usage' if display_usage else ('intents' if display_intents else ('insights' if display_insights else 'usage')) %}
 
 {% macro icon(name) -%}
-<span class="gp-proto__icon" aria-hidden="true">
+<span class="gp-v4__icon" aria-hidden="true">
   {% if name == "home" %}
     <svg viewBox="0 0 24 24" fill="none"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% elif name == "grid" %}
-    <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 3.5h7M16.5 13v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% elif name == "user" %}
     <svg viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% elif name == "stack" %}
@@ -27,8 +28,6 @@
     <svg viewBox="0 0 24 24" fill="none"><path d="M7 18 3.5 20v-4A8.5 8.5 0 1 1 12 20H7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% elif name == "alert" %}
     <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.2 4.8 3.9 16a2 2 0 0 0 1.75 3h12.7A2 2 0 0 0 20.1 16L13.8 4.8a2 2 0 0 0-3.6 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  {% elif name == "spark" %}
-    <svg viewBox="0 0 24 24" fill="none"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Zm7 13 1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3ZM5 15l.8 2.2L8 18l-2.2.8L5 21l-.8-2.2L2 18l2.2-.8L5 15Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% elif name == "pulse" %}
     <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2-4 4 8 2-4h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% elif name == "calendar" %}
@@ -47,236 +46,221 @@
     <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 4 7v5c0 5 3.4 7.8 8 9 4.6-1.2 8-4 8-9V7l-8-4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% elif name == "message" %}
     <svg viewBox="0 0 24 24" fill="none"><path d="M5 6h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9l-5 3v-3H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  {% elif name == "database" %}
-    <svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="6" rx="7" ry="3" stroke="currentColor" stroke-width="1.8"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6m-14 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
   {% elif name == "bolt" %}
     <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 5 13h6l-1 9 9-12h-6l0-8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% elif name == "arrow" %}
     <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% elif name == "database" %}
+    <svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="6" rx="7" ry="3" stroke="currentColor" stroke-width="1.8"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6m-14 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
   {% endif %}
 </span>
 {%- endmacro %}
 
-<div class="gp-proto">
-  <aside class="gp-proto__sidebar">
-    <div class="gp-proto__brand">
-      <div class="gp-proto__brand-mark">G</div>
-      <div class="gp-proto__brand-copy">
-        <div class="gp-proto__brand-title">Gepetto</div>
-        <div class="gp-proto__brand-subtitle">Stealth admin</div>
+<div class="gp-v4">
+  <aside class="gp-v4__sidebar">
+    <div class="gp-v4__brand">
+      <div class="gp-v4__brand-mark">G</div>
+      <div class="gp-v4__brand-copy">
+        <div class="gp-v4__brand-title">Gepetto</div>
+        <div class="gp-v4__brand-subtitle">Stealth admin</div>
       </div>
     </div>
 
-    <nav class="gp-proto__nav">
-      <a class="gp-proto__nav-link is-active" href="/admin/dashboard/current?token={{ token }}">{{ icon("home") }}<span>Current</span></a>
-      <a class="gp-proto__nav-link" href="/admin/dashboard?token={{ token }}">{{ icon("grid") }}<span>Dashboard</span></a>
-      <a class="gp-proto__nav-link" href="/admin/guests?token={{ token }}">{{ icon("user") }}<span>Guests</span></a>
-      <a class="gp-proto__nav-link" href="/admin/sessions?token={{ token }}">{{ icon("stack") }}<span>Sessions</span></a>
-      <a class="gp-proto__nav-link" href="/admin/conversations?token={{ token }}">{{ icon("chat") }}<span>Conversations</span></a>
-      <a class="gp-proto__nav-link" href="/admin/incidents?token={{ token }}">{{ icon("alert") }}<span>Incidents</span></a>
-      <a class="gp-proto__nav-link" href="/admin/intents?token={{ token }}">{{ icon("pulse") }}<span>Intents</span></a>
-      <a class="gp-proto__nav-link" href="/admin/insights?token={{ token }}">{{ icon("spark") }}<span>Insights</span></a>
-      <a class="gp-proto__nav-link" href="/admin/usage?token={{ token }}">{{ icon("bolt") }}<span>Usage</span></a>
+    <nav class="gp-v4__nav">
+      <a class="gp-v4__nav-link is-active" href="/admin/dashboard/current?token={{ token }}">{{ icon("home") }}<span>Current</span></a>
+      <a class="gp-v4__nav-link" href="/admin/dashboard?token={{ token }}">{{ icon("grid") }}<span>Dashboard</span></a>
+      <a class="gp-v4__nav-link" href="/admin/guests?token={{ token }}">{{ icon("user") }}<span>Guests</span></a>
+      <a class="gp-v4__nav-link" href="/admin/sessions?token={{ token }}">{{ icon("stack") }}<span>Sessions</span></a>
+      <a class="gp-v4__nav-link" href="/admin/conversations?token={{ token }}">{{ icon("chat") }}<span>Conversations</span></a>
+      <a class="gp-v4__nav-link" href="/admin/incidents?token={{ token }}">{{ icon("alert") }}<span>Incidents</span></a>
+      <a class="gp-v4__nav-link" href="/admin/intents?token={{ token }}">{{ icon("pulse") }}<span>Intents</span></a>
+      <a class="gp-v4__nav-link" href="/admin/insights?token={{ token }}">{{ icon("context") }}<span>Insights</span></a>
+      <a class="gp-v4__nav-link" href="/admin/usage?token={{ token }}">{{ icon("bolt") }}<span>Usage</span></a>
     </nav>
 
-    <div class="gp-proto__sidebar-foot">
-      <div class="gp-proto__sidebar-card">
-        <div class="gp-proto__sidebar-label">Admin</div>
-        <div class="gp-proto__sidebar-name">Bruno</div>
-        <div class="gp-proto__sidebar-sub">Stealth Hospitality</div>
-      </div>
-
-      <div class="gp-proto__sidebar-card gp-proto__sidebar-card--guest">
-        <div class="gp-proto__sidebar-label">Hospedagem ativa</div>
-        <div class="gp-proto__sidebar-name">{{ guest_name or "—" }}</div>
-        <div class="gp-proto__sidebar-sub">{{ guest_group or "-" }}</div>
+    <div class="gp-v4__sidebar-foot">
+      <div class="gp-v4__sidebar-card">
+        <div class="gp-v4__sidebar-label">Admin</div>
+        <div class="gp-v4__sidebar-name">Bruno</div>
+        <div class="gp-v4__sidebar-sub">Stealth Hospitality</div>
       </div>
     </div>
   </aside>
 
-  <main class="gp-proto__main">
-    <div class="gp-proto__top-actions">
-      <a href="/admin/dashboard?token={{ token }}" class="gp-proto__action-btn">{{ icon("grid") }}<span>Dashboard geral</span></a>
-      <a href="/admin?token={{ token }}" class="gp-proto__action-btn">{{ icon("user") }}<span>Admin</span></a>
+  <main class="gp-v4__main">
+    <div class="gp-v4__top-actions">
+      <a href="/admin/dashboard?token={{ token }}" class="gp-v4__action-btn">{{ icon("grid") }}<span>Dashboard geral</span></a>
+      <a href="/admin?token={{ token }}" class="gp-v4__action-btn">{{ icon("user") }}<span>Admin</span></a>
     </div>
 
-    <section class="gp-proto__hero-shell">
-      <div class="gp-proto__hero-top">
-        <div class="gp-proto__hero-main">
-          <div class="gp-proto__eyebrow">Dashboard current</div>
+    <section class="gp-v4__hero-shell">
+      <div class="gp-v4__hero-top">
+        <div class="gp-v4__hero-main">
+          <div class="gp-v4__eyebrow">Dashboard current</div>
 
-          <div class="gp-proto__hero-title-row">
-            <h1 class="gp-proto__guest-name">{{ guest_name or "Hospedagem ativa" }}</h1>
-            <span class="gp-proto__stay-live-badge">{{ icon("pulse") }}<span>Hospedagem ativa</span></span>
+          <div class="gp-v4__hero-title-row">
+            <h1 class="gp-v4__guest-name">{{ guest_name or "Hospedagem ativa" }}</h1>
+            <span class="gp-v4__stay-live">{{ icon("pulse") }}<span>Hospedagem ativa</span></span>
           </div>
 
-          <div class="gp-proto__hero-meta">
+          <div class="gp-v4__hero-meta">
             <span>{{ icon("user") }} {{ guest_group or "-" }}</span>
-            <span>{{ icon("spark") }} {{ guest_profile or "-" }}</span>
+            <span>{{ icon("context") }} {{ guest_profile or "-" }}</span>
             <span>{{ icon("globe") }} {{ guest_idioma or "-" }}</span>
           </div>
 
-          <div class="gp-proto__stay-line">
-            <span><strong>Check-in</strong> {{ guest_checkin or "-" }}</span>
-            <span><strong>Check-out</strong> {{ guest_checkout or "-" }}</span>
-            <span><strong>Saída</strong> {{ guest_checkout_time or "-" }}</span>
+          <div class="gp-v4__stay-line">
+            <span>{{ icon("calendar") }} <strong>Check-in</strong> {{ guest_checkin or "-" }}</span>
+            <span>{{ icon("calendar") }} <strong>Check-out</strong> {{ guest_checkout or "-" }}</span>
+            <span>{{ icon("clock") }} <strong>Saída</strong> {{ guest_checkout_time or "-" }}</span>
           </div>
         </div>
 
-        <div class="gp-proto__hero-side">
-          <div class="gp-proto__status-badges">
+        <div class="gp-v4__hero-side">
+          <div class="gp-v4__status-cards">
             {% if pending_bruno %}
-              <div class="gp-proto__status-badge gp-proto__status-badge--warning">{{ icon("alert") }}<span>Bruno pendente</span></div>
+              <article class="gp-v4__status-card gp-v4__status-card--warning">
+                <div class="gp-v4__status-head">{{ icon("alert") }} Bruno pendente</div>
+                <div class="gp-v4__status-value">1 ação</div>
+              </article>
             {% else %}
-              <div class="gp-proto__status-badge gp-proto__status-badge--success">{{ icon("pulse") }}<span>Bruno ok</span></div>
+              <article class="gp-v4__status-card gp-v4__status-card--success">
+                <div class="gp-v4__status-head">{{ icon("pulse") }} Bruno ok</div>
+                <div class="gp-v4__status-value">sem pendência</div>
+              </article>
             {% endif %}
 
             {% if pending_incident %}
-              <div class="gp-proto__status-badge gp-proto__status-badge--danger">{{ icon("alert") }}<span>Incidente pendente</span></div>
+              <article class="gp-v4__status-card gp-v4__status-card--danger">
+                <div class="gp-v4__status-head">{{ icon("alert") }} Incidente pendente</div>
+                <div class="gp-v4__status-value">{{ recent_incidents|length }} aberto{{ "" if recent_incidents|length == 1 else "s" }}</div>
+              </article>
             {% else %}
-              <div class="gp-proto__status-badge gp-proto__status-badge--success">{{ icon("pulse") }}<span>Incidente ok</span></div>
+              <article class="gp-v4__status-card gp-v4__status-card--success">
+                <div class="gp-v4__status-head">{{ icon("pulse") }} Incidente ok</div>
+                <div class="gp-v4__status-value">sem alerta crítico</div>
+              </article>
             {% endif %}
-          </div>
 
-          <div class="gp-proto__hero-mini">
-            <div class="gp-proto__hero-mini-card">
-              <div class="gp-proto__hero-mini-label">{{ icon("clock") }} Última atualização</div>
-              <div class="gp-proto__hero-mini-value">{{ last_updated or "-" }}</div>
-            </div>
-
-            <div class="gp-proto__hero-mini-card">
-              <div class="gp-proto__hero-mini-label">{{ icon("anchor") }} Contexto ativo</div>
-              <div class="gp-proto__hero-mini-value">{{ summary_context }}</div>
-            </div>
-
-            <div class="gp-proto__hero-mini-card">
-              <div class="gp-proto__hero-mini-label">{{ icon("database") }} Banco</div>
-              <div class="gp-proto__hero-mini-value">{{ db_status }}</div>
-            </div>
+            <article class="gp-v4__status-card gp-v4__status-card--neutral">
+              <div class="gp-v4__status-head">{{ icon("clock") }} Última atividade</div>
+              <div class="gp-v4__status-value">{{ activity_label }}</div>
+            </article>
           </div>
         </div>
       </div>
 
-      <div class="gp-proto__hero-divider"></div>
+      <div class="gp-v4__hero-divider"></div>
 
-      <div class="gp-proto__summary-band">
-        <article class="gp-proto__summary-card gp-proto__summary-card--guest">
-          <div class="gp-proto__summary-label">{{ icon("user") }} Último tópico</div>
-          <div class="gp-proto__summary-value">{{ last_topic or "-" }}</div>
+      <div class="gp-v4__summary-band">
+        <article class="gp-v4__summary-card gp-v4__summary-card--guest">
+          <div class="gp-v4__summary-label">{{ icon("topic") }} Último tópico</div>
+          <div class="gp-v4__summary-value">{{ last_topic or "-" }}</div>
         </article>
 
-        <article class="gp-proto__summary-card gp-proto__summary-card--stay">
-          <div class="gp-proto__summary-label">{{ icon("intent") }} Última intent</div>
-          <div class="gp-proto__summary-value">{{ last_intent or "-" }}</div>
+        <article class="gp-v4__summary-card gp-v4__summary-card--stay">
+          <div class="gp-v4__summary-label">{{ icon("intent") }} Última intent</div>
+          <div class="gp-v4__summary-value">{{ last_intent or "-" }}</div>
         </article>
 
-        <article class="gp-proto__summary-card gp-proto__summary-card--wide gp-proto__summary-card--stay">
-          <div class="gp-proto__summary-label">{{ icon("anchor") }} Contexto atual</div>
-          <div class="gp-proto__summary-value">{{ summary_context }}</div>
+        <article class="gp-v4__summary-card gp-v4__summary-card--wide gp-v4__summary-card--stay">
+          <div class="gp-v4__summary-label">{{ icon("anchor") }} Contexto atual</div>
+          <div class="gp-v4__summary-value">{{ summary_context }}</div>
         </article>
 
-        <article class="gp-proto__summary-card gp-proto__summary-card--danger">
-          <div class="gp-proto__summary-label">{{ icon("alert") }} Incidentes abertos</div>
-          <div class="gp-proto__summary-value gp-proto__summary-value--danger">{{ recent_incidents|length }}</div>
+        <article class="gp-v4__summary-card gp-v4__summary-card--danger">
+          <div class="gp-v4__summary-label">{{ icon("alert") }} Incidentes abertos</div>
+          <div class="gp-v4__summary-value gp-v4__summary-value--danger">{{ recent_incidents|length }}</div>
         </article>
 
-        <article class="gp-proto__summary-card gp-proto__summary-card--stay">
-          <div class="gp-proto__summary-label">{{ icon("message") }} Mensagens recentes</div>
-          <div class="gp-proto__summary-value">{{ recent_messages|length }}</div>
+        <article class="gp-v4__summary-card gp-v4__summary-card--stay">
+          <div class="gp-v4__summary-label">{{ icon("message") }} Mensagens recentes</div>
+          <div class="gp-v4__summary-value">{{ recent_messages|length }}</div>
         </article>
 
-        <article class="gp-proto__summary-card gp-proto__summary-card--stay">
-          <div class="gp-proto__summary-label">{{ icon("bolt") }} Usage recente</div>
-          <div class="gp-proto__summary-value">{{ recent_usage|length }}</div>
+        <article class="gp-v4__summary-card gp-v4__summary-card--stay">
+          <div class="gp-v4__summary-label">{{ icon("bolt") }} Usage recente</div>
+          <div class="gp-v4__summary-value">{{ recent_usage|length }}</div>
         </article>
       </div>
     </section>
 
     {% if db_error %}
-      <section class="gp-proto__error">
-        <strong>Erro DB:</strong> {{ db_error }}
-      </section>
+      <section class="gp-v4__error"><strong>Erro DB:</strong> {{ db_error }}</section>
     {% endif %}
 
-    <section class="gp-proto__band gp-proto__band--middle">
-      <article class="gp-proto__panel gp-proto__panel--stay">
-        <div class="gp-proto__panel-head">
-          <h2 class="gp-proto__panel-title">{{ icon("user") }} <span>Hospedagem ativa</span></h2>
+    <section class="gp-v4__band gp-v4__band--middle">
+      <article class="gp-v4__panel">
+        <div class="gp-v4__panel-head">
+          <h2 class="gp-v4__panel-title">{{ icon("user") }} <span>Hospedagem ativa</span></h2>
         </div>
 
-        <div class="gp-proto__stay-shell">
-          <div class="gp-proto__stay-main-card">
-            <div class="gp-proto__stay-row">
-              <div class="gp-proto__stay-k">Nome</div>
-              <div class="gp-proto__stay-v">{{ guest_name or "-" }}</div>
+        <div class="gp-v4__stay-shell">
+          <div class="gp-v4__stay-main">
+            <div class="gp-v4__field">
+              <div class="gp-v4__field-label">Nome</div>
+              <div class="gp-v4__field-value">{{ guest_name or "-" }}</div>
             </div>
 
-            <div class="gp-proto__stay-row">
-              <div class="gp-proto__stay-k">Grupo / perfil / idioma</div>
-              <div class="gp-proto__stay-v">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</div>
+            <div class="gp-v4__field">
+              <div class="gp-v4__field-label">Grupo / perfil / idioma</div>
+              <div class="gp-v4__field-value">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</div>
             </div>
 
-            <div class="gp-proto__stay-row">
-              <div class="gp-proto__stay-k">Estadia</div>
-              <div class="gp-proto__stay-stack">
-                <div class="gp-proto__stay-stack-line">
-                  <span class="gp-proto__stay-stack-label">Check-in</span>
-                  <span class="gp-proto__stay-stack-value">{{ guest_checkin or "-" }}</span>
+            <div class="gp-v4__field">
+              <div class="gp-v4__field-label">Estadia</div>
+              <div class="gp-v4__stay-vertical">
+                <div class="gp-v4__stay-vertical-row">
+                  <span class="gp-v4__stay-vertical-k">Check-in</span>
+                  <span class="gp-v4__stay-vertical-v">{{ guest_checkin or "-" }}</span>
                 </div>
-                <div class="gp-proto__stay-stack-line">
-                  <span class="gp-proto__stay-stack-label">Check-out</span>
-                  <span class="gp-proto__stay-stack-value">{{ guest_checkout or "-" }}</span>
+                <div class="gp-v4__stay-vertical-row">
+                  <span class="gp-v4__stay-vertical-k">Check-out</span>
+                  <span class="gp-v4__stay-vertical-v">{{ guest_checkout or "-" }}</span>
                 </div>
-                <div class="gp-proto__stay-stack-line">
-                  <span class="gp-proto__stay-stack-label">Saída</span>
-                  <span class="gp-proto__stay-stack-value">{{ guest_checkout_time or "-" }}</span>
+                <div class="gp-v4__stay-vertical-row">
+                  <span class="gp-v4__stay-vertical-k">Saída</span>
+                  <span class="gp-v4__stay-vertical-v">{{ guest_checkout_time or "-" }}</span>
                 </div>
               </div>
             </div>
 
-            <div class="gp-proto__stay-row">
-              <div class="gp-proto__stay-k">Observações</div>
-              <div class="gp-proto__stay-v gp-proto__stay-v--multiline">{{ guest_observacoes or "-" }}</div>
+            <div class="gp-v4__field">
+              <div class="gp-v4__field-label">Observações</div>
+              <div class="gp-v4__field-value gp-v4__field-value--multiline">{{ guest_observacoes or "-" }}</div>
             </div>
           </div>
 
-          <div class="gp-proto__stay-focus-card">
-            <div class="gp-proto__stay-focus-title">{{ icon("arrow") }} Resumo da estadia</div>
-
-            <div class="gp-proto__stay-focus-row">
-              <div class="gp-proto__stay-focus-k">{{ icon("topic") }} Último tópico</div>
-              <div class="gp-proto__stay-focus-v">{{ last_topic or "-" }}</div>
+          <div class="gp-v4__stay-focus">
+            <div class="gp-v4__focus-row">
+              <div class="gp-v4__focus-k">{{ icon("arrow") }} Último tópico</div>
+              <div class="gp-v4__focus-v">{{ last_topic or "-" }}</div>
             </div>
 
-            <div class="gp-proto__stay-focus-row">
-              <div class="gp-proto__stay-focus-k">{{ icon("intent") }} Última intent</div>
-              <div class="gp-proto__stay-focus-v">{{ last_intent or "-" }}</div>
+            <div class="gp-v4__focus-row">
+              <div class="gp-v4__focus-k">{{ icon("intent") }} Última intent</div>
+              <div class="gp-v4__focus-v">{{ last_intent or "-" }}</div>
             </div>
 
-            <div class="gp-proto__stay-focus-row">
-              <div class="gp-proto__stay-focus-k">{{ icon("anchor") }} Contexto atual</div>
-              <div class="gp-proto__stay-focus-v">{{ summary_context }}</div>
+            <div class="gp-v4__focus-row">
+              <div class="gp-v4__focus-k">{{ icon("anchor") }} Contexto atual</div>
+              <div class="gp-v4__focus-v">{{ summary_context }}</div>
             </div>
 
-            <div class="gp-proto__stay-focus-row">
-              <div class="gp-proto__stay-focus-k">{{ icon("message") }} Mensagens</div>
-              <div class="gp-proto__stay-focus-v">{{ recent_messages|length }}</div>
-            </div>
-
-            <div class="gp-proto__stay-focus-row">
-              <div class="gp-proto__stay-focus-k">{{ icon("spark") }} Preferências</div>
-              <div class="gp-proto__stay-focus-note">{{ preferencias_html|safe }}</div>
+            <div class="gp-v4__focus-row">
+              <div class="gp-v4__focus-k">{{ icon("context") }} Preferências</div>
+              <div class="gp-v4__focus-note">{{ preferencias_html|safe }}</div>
             </div>
           </div>
         </div>
       </article>
 
-      <article class="gp-proto__panel gp-proto__panel--conversation">
-        <div class="gp-proto__panel-head">
-          <h2 class="gp-proto__panel-title">{{ icon("chat") }} <span>Conversa recente</span></h2>
+      <article class="gp-v4__panel">
+        <div class="gp-v4__panel-head">
+          <h2 class="gp-v4__panel-title">{{ icon("chat") }} <span>Conversa recente</span></h2>
         </div>
 
-        <div class="gp-proto__conversation-list">
+        <div class="gp-v4__conversation-box">
           {% if display_messages %}
             {% for item in display_messages %}
               {% set role = item.get("role") or "user" %}
@@ -294,195 +278,199 @@
                 {% set agent_class = "guest" %}
               {% endif %}
 
-              <article class="gp-proto__message-row gp-proto__message-row--{{ agent_class }}">
-                <div class="gp-proto__message-avatar">{{ agent_initial }}</div>
+              <article class="gp-v4__message-row gp-v4__message-row--{{ agent_class }}">
+                <div class="gp-v4__message-avatar">{{ agent_initial }}</div>
 
-                <div class="gp-proto__message-body">
-                  <div class="gp-proto__message-top">
-                    <div class="gp-proto__message-name">{{ agent_name }}</div>
-                    <div class="gp-proto__message-time">{{ item.get("timestamp_label") or "-" }}</div>
+                <div class="gp-v4__message-body">
+                  <div class="gp-v4__message-top">
+                    <div class="gp-v4__message-name">{{ agent_name }}</div>
+                    <div class="gp-v4__message-time">{{ item.get("timestamp_label") or "-" }}</div>
                   </div>
 
-                  <div class="gp-proto__message-text">{{ item.get("text") or "-" }}</div>
+                  <div class="gp-v4__message-text">{{ item.get("text") or "-" }}</div>
                 </div>
               </article>
             {% endfor %}
           {% else %}
-            <div class="gp-proto__empty">Nenhuma mensagem recente.</div>
+            <div class="gp-v4__empty">Nenhuma mensagem recente.</div>
           {% endif %}
         </div>
       </article>
     </section>
 
-    <section class="gp-proto__band gp-proto__band--bottom">
-      <article class="gp-proto__panel gp-proto__panel--state">
-        <div class="gp-proto__panel-head">
-          <h2 class="gp-proto__panel-title">{{ icon("pulse") }} <span>Estado da conversa</span></h2>
+    <section class="gp-v4__band gp-v4__band--bottom">
+      <article class="gp-v4__panel">
+        <div class="gp-v4__panel-head">
+          <h2 class="gp-v4__panel-title">{{ icon("pulse") }} <span>Estado da conversa</span></h2>
         </div>
 
-        <div class="gp-proto__state-box">
-          <div class="gp-proto__state-row">
-            <div class="gp-proto__state-k">Último tópico</div>
-            <div class="gp-proto__state-v">{{ last_topic or "-" }}</div>
+        <div class="gp-v4__state-box">
+          <div class="gp-v4__state-row">
+            <div class="gp-v4__state-k">Último tópico</div>
+            <div class="gp-v4__state-v">{{ last_topic or "-" }}</div>
           </div>
 
-          <div class="gp-proto__state-row">
-            <div class="gp-proto__state-k">Última intent</div>
-            <div class="gp-proto__state-v">{{ last_intent or "-" }}</div>
+          <div class="gp-v4__state-row">
+            <div class="gp-v4__state-k">Última intent</div>
+            <div class="gp-v4__state-v">{{ last_intent or "-" }}</div>
           </div>
 
-          <div class="gp-proto__state-row">
-            <div class="gp-proto__state-k">Recomendação</div>
-            <div class="gp-proto__state-v">{{ last_recommendation_name or "-" }}</div>
+          <div class="gp-v4__state-row">
+            <div class="gp-v4__state-k">Recomendação</div>
+            <div class="gp-v4__state-v">{{ last_recommendation_name or "-" }}</div>
           </div>
 
-          <div class="gp-proto__state-row">
-            <div class="gp-proto__state-k">Âncora</div>
-            <div class="gp-proto__state-v">{{ current_active_name or "-" }}</div>
+          <div class="gp-v4__state-row">
+            <div class="gp-v4__state-k">Âncora ativa</div>
+            <div class="gp-v4__state-v">{{ current_active_name or "-" }}</div>
           </div>
         </div>
       </article>
 
-      <article class="gp-proto__panel gp-proto__panel--alerts">
-        <div class="gp-proto__panel-head">
-          <h2 class="gp-proto__panel-title">{{ icon("alert") }} <span>Pendências & alertas</span></h2>
+      <article class="gp-v4__panel">
+        <div class="gp-v4__panel-head">
+          <h2 class="gp-v4__panel-title">{{ icon("alert") }} <span>Pendências & alertas</span></h2>
         </div>
 
-        <div class="gp-proto__alert-cards">
+        <div class="gp-v4__alerts-box">
           {% if pending_bruno %}
-            <div class="gp-proto__alert-card gp-proto__alert-card--warning">
-              <div class="gp-proto__alert-main">
-                <div class="gp-proto__alert-title">Bruno precisa revisar</div>
-                <div class="gp-proto__alert-text">A hospedagem atual exige acompanhamento manual.</div>
+            <div class="gp-v4__alert-row gp-v4__alert-row--warning">
+              <div class="gp-v4__alert-main">
+                <div class="gp-v4__alert-title">Bruno precisa revisar</div>
+                <div class="gp-v4__alert-text">A hospedagem atual exige acompanhamento manual.</div>
               </div>
-              <div class="gp-proto__alert-meta">agora</div>
+              <div class="gp-v4__alert-meta">agora</div>
             </div>
           {% endif %}
 
           {% if display_incidents %}
             {% for item in display_incidents %}
-              <div class="gp-proto__alert-card gp-proto__alert-card--danger">
-                <div class="gp-proto__alert-main">
-                  <div class="gp-proto__alert-title">{{ item.get("tipo") or "Incidente" }}</div>
-                  <div class="gp-proto__alert-text">{{ item.get("mensagem") or "-" }}</div>
+              <div class="gp-v4__alert-row gp-v4__alert-row--danger">
+                <div class="gp-v4__alert-main">
+                  <div class="gp-v4__alert-title">{{ item.get("tipo") or "Incidente" }}</div>
+                  <div class="gp-v4__alert-text">{{ item.get("mensagem") or "-" }}</div>
                 </div>
-                <div class="gp-proto__alert-meta">{{ item.get("timestamp_label") or "-" }}</div>
+                <div class="gp-v4__alert-meta">{{ item.get("timestamp_label") or "-" }}</div>
               </div>
             {% endfor %}
           {% elif not pending_bruno %}
-            <div class="gp-proto__alert-card gp-proto__alert-card--neutral">
-              <div class="gp-proto__alert-main">
-                <div class="gp-proto__alert-title">Sem pendências críticas</div>
-                <div class="gp-proto__alert-text">O estado operacional está estável neste momento.</div>
+            <div class="gp-v4__alert-row gp-v4__alert-row--neutral">
+              <div class="gp-v4__alert-main">
+                <div class="gp-v4__alert-title">Sem pendências críticas</div>
+                <div class="gp-v4__alert-text">O estado operacional está estável neste momento.</div>
               </div>
-              <div class="gp-proto__alert-meta">ok</div>
+              <div class="gp-v4__alert-meta">ok</div>
             </div>
           {% endif %}
         </div>
 
-        <div class="gp-proto__history-box">
-          <div class="gp-proto__history-title">Histórico complementar</div>
+        <div class="gp-v4__history-box">
+          <div class="gp-v4__history-title">Histórico complementar</div>
 
           {% if display_incident_history %}
             {% for item in display_incident_history %}
-              <div class="gp-proto__history-row">
-                <div class="gp-proto__history-icon">{{ icon("alert") }}</div>
-                <div class="gp-proto__history-main">
-                  <div class="gp-proto__history-head">{{ item.get("tipo") or "Evento" }}</div>
-                  <div class="gp-proto__history-text">{{ item.get("mensagem") or "-" }}</div>
+              <div class="gp-v4__history-row">
+                <div class="gp-v4__history-icon">{{ icon("alert") }}</div>
+                <div class="gp-v4__history-main">
+                  <div class="gp-v4__history-head">{{ item.get("tipo") or "Evento" }}</div>
+                  <div class="gp-v4__history-text">{{ item.get("mensagem") or "-" }}</div>
                 </div>
-                <div class="gp-proto__history-meta">{{ item.get("timestamp_label") or "-" }}</div>
+                <div class="gp-v4__history-meta">{{ item.get("timestamp_label") or "-" }}</div>
               </div>
             {% endfor %}
           {% else %}
-            <div class="gp-proto__empty gp-proto__empty--tight">Sem histórico recente.</div>
+            <div class="gp-v4__empty gp-v4__empty--tight">Sem histórico recente.</div>
           {% endif %}
         </div>
       </article>
 
-      <article class="gp-proto__panel gp-proto__panel--ops">
-        <div class="gp-proto__panel-head">
-          <h2 class="gp-proto__panel-title">{{ icon("bolt") }} <span>Usage • Intents • Insights</span></h2>
+      <article class="gp-v4__panel">
+        <div class="gp-v4__panel-head">
+          <h2 class="gp-v4__panel-title">{{ icon("bolt") }} <span>Usage • Intents • Insights</span></h2>
         </div>
 
-        <div class="gp-proto__ops-box">
-          <div class="gp-proto__ops-tabs">
-            <button class="gp-proto__ops-tab {% if signals_mode == 'usage' %}is-active{% endif %}" type="button">Usage</button>
-            <button class="gp-proto__ops-tab {% if signals_mode == 'intents' %}is-active{% endif %}" type="button">Intents</button>
-            <button class="gp-proto__ops-tab {% if signals_mode == 'insights' %}is-active{% endif %}" type="button">Insights</button>
+        <div class="gp-v4__ops-box">
+          <div class="gp-v4__ops-tabs">
+            <button class="gp-v4__ops-tab {% if signals_mode == 'usage' %}is-active{% endif %}" type="button">Usage</button>
+            <button class="gp-v4__ops-tab {% if signals_mode == 'intents' %}is-active{% endif %}" type="button">Intents</button>
+            <button class="gp-v4__ops-tab {% if signals_mode == 'insights' %}is-active{% endif %}" type="button">Insights</button>
           </div>
 
-          <div class="gp-proto__ops-list">
+          <div class="gp-v4__ops-list">
             {% if signals_mode == 'usage' and display_usage %}
               {% for item in display_usage %}
-                <div class="gp-proto__ops-row">
-                  <div class="gp-proto__ops-main">
-                    <div class="gp-proto__ops-head">{{ item.get("topic") or "-" }}</div>
-                    <div class="gp-proto__ops-text">{{ item.get("user_text") or "-" }}</div>
+                <div class="gp-v4__ops-row">
+                  <div class="gp-v4__ops-main">
+                    <div class="gp-v4__ops-head">{{ item.get("topic") or "-" }}</div>
+                    <div class="gp-v4__ops-text">{{ item.get("user_text") or "-" }}</div>
                   </div>
-
-                  <div class="gp-proto__ops-side">
-                    <div class="gp-proto__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
-                    <div class="gp-proto__ops-info">{% if item.get("used_followup") %}follow-up{% else %}info{% endif %}</div>
+                  <div class="gp-v4__ops-side">
+                    <div class="gp-v4__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
+                    <div class="gp-v4__ops-info">{% if item.get("used_followup") %}follow-up{% else %}info{% endif %}</div>
                   </div>
                 </div>
               {% endfor %}
             {% elif signals_mode == 'intents' and display_intents %}
               {% for item in display_intents %}
-                <div class="gp-proto__ops-row">
-                  <div class="gp-proto__ops-main">
-                    <div class="gp-proto__ops-head">{{ item.get("intent") or "-" }}</div>
-                    <div class="gp-proto__ops-text">{{ item.get("topic") or "-" }}</div>
+                <div class="gp-v4__ops-row">
+                  <div class="gp-v4__ops-main">
+                    <div class="gp-v4__ops-head">{{ item.get("intent") or "-" }}</div>
+                    <div class="gp-v4__ops-text">{{ item.get("topic") or "-" }}</div>
                   </div>
-
-                  <div class="gp-proto__ops-side">
-                    <div class="gp-proto__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
-                    <div class="gp-proto__ops-info">intent</div>
+                  <div class="gp-v4__ops-side">
+                    <div class="gp-v4__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
+                    <div class="gp-v4__ops-info">intent</div>
                   </div>
                 </div>
               {% endfor %}
             {% elif signals_mode == 'insights' and display_insights %}
               {% for item in display_insights %}
-                <div class="gp-proto__ops-row">
-                  <div class="gp-proto__ops-main">
-                    <div class="gp-proto__ops-head">{{ item.get("insight_key") or "-" }}</div>
-                    <div class="gp-proto__ops-text">{{ item.get("source_message") or "-" }}</div>
+                <div class="gp-v4__ops-row">
+                  <div class="gp-v4__ops-main">
+                    <div class="gp-v4__ops-head">{{ item.get("insight_key") or "-" }}</div>
+                    <div class="gp-v4__ops-text">{{ item.get("source_message") or "-" }}</div>
                   </div>
-
-                  <div class="gp-proto__ops-side">
-                    <div class="gp-proto__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
-                    <div class="gp-proto__ops-info">info</div>
+                  <div class="gp-v4__ops-side">
+                    <div class="gp-v4__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
+                    <div class="gp-v4__ops-info">info</div>
                   </div>
                 </div>
               {% endfor %}
             {% else %}
-              <div class="gp-proto__empty">Nenhum sinal recente disponível.</div>
+              <div class="gp-v4__empty">Nenhum sinal recente disponível.</div>
             {% endif %}
           </div>
         </div>
 
-        <div class="gp-proto__shortcut-box">
-          <a href="/admin/guests?token={{ token }}" class="gp-proto__shortcut-tile">
-            <span class="gp-proto__shortcut-icon gp-proto__shortcut-icon--guest">{{ icon("user") }}</span>
-            <span class="gp-proto__shortcut-label">Guests</span>
+        <div class="gp-v4__shortcut-box">
+          <a href="/admin/guests?token={{ token }}" class="gp-v4__shortcut-tile">
+            <span class="gp-v4__shortcut-icon gp-v4__shortcut-icon--guest">{{ icon("user") }}</span>
+            <span class="gp-v4__shortcut-label">Guests</span>
           </a>
 
-          <a href="/admin/sessions?token={{ token }}" class="gp-proto__shortcut-tile">
-            <span class="gp-proto__shortcut-icon gp-proto__shortcut-icon--stay">{{ icon("stack") }}</span>
-            <span class="gp-proto__shortcut-label">Sessions</span>
+          <a href="/admin/sessions?token={{ token }}" class="gp-v4__shortcut-tile">
+            <span class="gp-v4__shortcut-icon gp-v4__shortcut-icon--stay">{{ icon("stack") }}</span>
+            <span class="gp-v4__shortcut-label">Sessions</span>
           </a>
 
-          <a href="/admin/conversations?token={{ token }}" class="gp-proto__shortcut-tile">
-            <span class="gp-proto__shortcut-icon gp-proto__shortcut-icon--ops">{{ icon("chat") }}</span>
-            <span class="gp-proto__shortcut-label">Conversations</span>
+          <a href="/admin/conversations?token={{ token }}" class="gp-v4__shortcut-tile">
+            <span class="gp-v4__shortcut-icon gp-v4__shortcut-icon--ops">{{ icon("chat") }}</span>
+            <span class="gp-v4__shortcut-label">Conversations</span>
           </a>
 
-          <a href="/admin/incidents?token={{ token }}" class="gp-proto__shortcut-tile">
-            <span class="gp-proto__shortcut-icon gp-proto__shortcut-icon--alert">{{ icon("alert") }}</span>
-            <span class="gp-proto__shortcut-label">Incidents</span>
+          <a href="/admin/incidents?token={{ token }}" class="gp-v4__shortcut-tile">
+            <span class="gp-v4__shortcut-icon gp-v4__shortcut-icon--alert">{{ icon("alert") }}</span>
+            <span class="gp-v4__shortcut-label">Incidents</span>
           </a>
         </div>
       </article>
+    </section>
+
+    <section class="gp-v4__footer-strip">
+      <div class="gp-v4__footer-sync {% if db_status == 'conectado' %}is-ok{% elif db_status == 'erro' %}is-error{% endif %}">
+        {{ icon("database") }}
+        <span>{{ sync_label }}</span>
+      </div>
     </section>
   </main>
 </div>
