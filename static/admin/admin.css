@@ -2884,3 +2884,135 @@ body.admin-body {
     font-size: 8px;
     line-height: 1.02;
   }
+
+  /* =========================
+   FAIXA 2 — CORREÇÃO PÁGINA ÚNICA
+   mantém o novo molde, mas devolve a current para 1 tela
+   ========================= */
+
+.gc1__band--middle {
+  align-items: stretch;
+}
+
+.gc1__panel--stay,
+.gc1__panel--conversation {
+  align-self: stretch;
+  min-height: 0;
+}
+
+/* hosp. ativa: mantém o recuo, mas baixa a altura útil */
+.gc1__stay-shell {
+  grid-template-columns: minmax(0, 0.74fr) minmax(245px, 0.80fr);
+  gap: 10px;
+  align-items: stretch;
+  flex: 1 1 auto;
+}
+
+.gc1__stay-main {
+  min-height: 0;
+}
+
+.gc1__stay-sheet {
+  padding: 10px 10px 8px;
+}
+
+.gc1__stay-sheet-block {
+  gap: 5px;
+}
+
+.gc1__stay-sheet-label {
+  font-size: 9px;
+}
+
+.gc1__stay-sheet-value {
+  font-size: 11px;
+  line-height: 1.28;
+}
+
+.gc1__stay-sheet-value--name {
+  font-size: 19px;
+  line-height: 1.02;
+}
+
+.gc1__stay-sheet-value--notes {
+  font-size: 10px;
+  line-height: 1.28;
+}
+
+.gc1__stay-sheet-divider {
+  margin: 8px 0;
+}
+
+.gc1__stay-sheet-line {
+  min-height: 24px;
+}
+
+.gc1__stay-sheet-inline-label,
+.gc1__stay-sheet-inline-value {
+  font-size: 11px;
+}
+
+/* bloco 2 da hospedagem baixa um pouco */
+.gc1__stay-focus {
+  width: min(100%, 332px);
+}
+
+.gc1__focus-line {
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+.gc1__focus-line--wrap {
+  padding: 6px 10px;
+}
+
+.gc1__focus-key {
+  font-size: 10px;
+}
+
+.gc1__focus-value {
+  font-size: 11px;
+}
+
+.gc1__focus-value--multiline {
+  line-height: 1.18;
+}
+
+/* conversa recente: continua com mais presença,
+   mas sem empurrar a página para fora */
+.gc1__conversation-box {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.gc1__message-row {
+  min-height: 58px;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 9px;
+  padding: 8px 9px;
+}
+
+.gc1__message-avatar {
+  width: 30px;
+  height: 30px;
+  font-size: 11px;
+}
+
+.gc1__message-top {
+  margin-bottom: 3px;
+}
+
+.gc1__message-name {
+  font-size: 11px;
+}
+
+.gc1__message-time {
+  font-size: 9px;
+}
+
+.gc1__message-text {
+  font-size: 10px;
+  line-height: 1.24;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
