@@ -9987,3 +9987,91 @@ body.admin-body {
   display: block;
   box-sizing: border-box;
 }
+
+/* =========================
+   GEPETTO — CURRENT V6.6
+   neutraliza over-expansion da gp-v6
+   e deixa a base estrutural segurar o viewport
+   append no final
+   ========================= */
+
+   html,
+   body {
+     margin: 0;
+     padding: 0;
+     min-height: 100dvh;
+   }
+   
+   body.admin-body {
+     margin: 0;
+     padding: 0;
+     min-height: 100dvh;
+   }
+   
+   /* a base segura a página inteira */
+   .admin-shell:has(.gp-v6) {
+     width: 100%;
+     max-width: none;
+     min-height: 100dvh;
+     margin: 0;
+     padding: 0;
+     display: block;
+     box-sizing: border-box;
+     overflow: hidden;
+   }
+   
+   /* aqui está a correção principal:
+      gp-v6 para de "escapar" com calc + margin negativa */
+   .gp-v6 {
+     width: 100%;
+     margin: 0;
+     min-height: 100dvh;
+     border-radius: 0;
+     border-left: 0;
+     border-right: 0;
+     box-sizing: border-box;
+   }
+   
+   /* shell interna com um acabamento mínimo */
+   .gp-v6__sidebar {
+     padding: 8px 7px 8px;
+   }
+   
+   .gp-v6__main {
+     padding: 6px 7px 6px;
+     gap: 5px;
+   }
+   
+   /* rodapé estrutural da shell */
+   .gp-v6__footer-strip {
+     position: absolute;
+     left: 8px;
+     bottom: 6px;
+     z-index: 5;
+     margin: 0;
+     padding: 0;
+     pointer-events: none;
+   }
+   
+   .gp-v6__footer-sync {
+     min-height: 16px;
+     padding: 0 6px;
+     font-size: 8px;
+     border-radius: 4px;
+   }
+   
+   /* telas menores voltam ao fluxo normal */
+   @media (max-width: 1180px) {
+     .admin-shell:has(.gp-v6) {
+       overflow: visible;
+     }
+   
+     .gp-v6 {
+       min-height: auto;
+     }
+   
+     .gp-v6__footer-strip {
+       position: static;
+       pointer-events: auto;
+     }
+   }
