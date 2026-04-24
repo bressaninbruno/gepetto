@@ -50,8 +50,6 @@
     <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 5 13h6l-1 9 9-12h-6l0-8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% elif name == "database" %}
     <svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="6" rx="7" ry="3" stroke="currentColor" stroke-width="1.8"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6m-14 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-  {% elif name == "arrow_right" %}
-    <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% elif name == "chevron_right" %}
     <svg viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   {% endif %}
@@ -150,7 +148,7 @@
 
           {% if pending_incident %}
             <article class="gc1__status-card gc1__status-card--danger">
-              <div class="gc1__status-head">{{ icon("alert") }} Incidente pendente</div>
+              <div class="gc1__status-head">{{ icon("alert") }} Incidente ok</div>
               <div class="gc1__status-value">{{ recent_incidents|length }} aberto{{ "" if recent_incidents|length == 1 else "s" }}</div>
             </article>
           {% else %}
@@ -207,7 +205,7 @@
     {% endif %}
 
     <section class="gc1__band gc1__band--middle">
-      <article class="gc1__panel">
+      <article class="gc1__panel gc1__panel--stay">
         <div class="gc1__panel-head">
           <h2 class="gc1__panel-title">{{ icon("user") }} <span>Hospedagem ativa</span></h2>
         </div>
@@ -219,19 +217,9 @@
               <span class="gc1__stay-row-value">{{ guest_name or "-" }}</span>
             </div>
 
-            <div class="gc1__stay-row">
-              <span class="gc1__stay-row-label">Grupo</span>
-              <span class="gc1__stay-row-value">{{ guest_group or "-" }}</span>
-            </div>
-
-            <div class="gc1__stay-row">
-              <span class="gc1__stay-row-label">Perfil</span>
-              <span class="gc1__stay-row-value">{{ guest_profile or "-" }}</span>
-            </div>
-
-            <div class="gc1__stay-row">
-              <span class="gc1__stay-row-label">Idioma</span>
-              <span class="gc1__stay-row-value">{{ guest_idioma or "-" }}</span>
+            <div class="gc1__stay-row gc1__stay-row--triple">
+              <span class="gc1__stay-row-label">Grupo / Perfil / Idioma</span>
+              <span class="gc1__stay-row-value">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</span>
             </div>
 
             <div class="gc1__stay-row">
@@ -249,9 +237,9 @@
               <span class="gc1__stay-row-value">{{ guest_checkout_time or "-" }}</span>
             </div>
 
-            <div class="gc1__stay-note">
-              <div class="gc1__stay-note-label">Observações</div>
-              <div class="gc1__stay-note-value">{{ guest_observacoes or "-" }}</div>
+            <div class="gc1__stay-row gc1__stay-row--obs">
+              <span class="gc1__stay-row-label">Observações</span>
+              <span class="gc1__stay-row-value">{{ guest_observacoes or "-" }}</span>
             </div>
           </div>
 
@@ -279,7 +267,7 @@
         </div>
       </article>
 
-      <article class="gc1__panel">
+      <article class="gc1__panel gc1__panel--conversation">
         <div class="gc1__panel-head">
           <h2 class="gc1__panel-title">{{ icon("chat") }} <span>Conversa recente</span></h2>
           <a href="/admin/conversations?token={{ token }}" class="gc1__panel-link">Ver todas</a>
@@ -409,7 +397,7 @@
         </div>
       </article>
 
-      <article class="gc1__panel">
+      <article class="gc1__panel gc1__panel--ops">
         <div class="gc1__panel-head gc1__panel-head--ops">
           <div class="gc1__ops-tabs">
             <span class="gc1__ops-tab {% if signals_mode == 'usage' %}is-active{% endif %}">Usage</span>
