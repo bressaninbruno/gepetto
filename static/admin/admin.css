@@ -2410,3 +2410,63 @@ body.admin-body {
     justify-content: center;
   }
 }
+
+/* =========================
+   AJUSTE CIRÚRGICO — FAIXA 2
+   ========================= */
+
+/* deixa a faixa 2 menos “esticada” verticalmente */
+.gc1__band--middle {
+    align-items: start;
+  }
+  
+  /* bloco 2 da hospedagem ativa um pouco menor,
+     mais centralizado, mais “post-it” */
+  .gc1__stay-shell {
+    grid-template-columns: minmax(0, 0.96fr) minmax(320px, 0.78fr);
+    gap: 10px;
+    align-items: start;
+  }
+  
+  .gc1__stay-focus {
+    max-width: 400px;
+    justify-self: center;
+  }
+  
+  /* ficha esquerda mais enxuta */
+  .gc1__stay-row {
+    min-height: 31px;
+  }
+  
+  /* grupo/perfil/idioma em duas linhas controladas */
+  .gc1__stay-row--stack {
+    min-height: auto;
+    padding: 8px 10px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .gc1__stay-row-value--stack {
+    width: 100%;
+    text-align: left;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.25;
+  }
+  
+  /* observações sem altura sobrando */
+  .gc1__stay-row--obs {
+    min-height: 28px;
+  }
+  
+  /* conversa recente acompanha melhor a redução da faixa 2 */
+  .gc1__panel--conversation,
+  .gc1__panel--stay {
+    align-self: start;
+  }
+  
+  .gc1__conversation-box {
+    flex: 0 0 auto;
+  }

@@ -217,9 +217,9 @@
               <span class="gc1__stay-row-value">{{ guest_name or "-" }}</span>
             </div>
 
-            <div class="gc1__stay-row gc1__stay-row--triple">
-              <span class="gc1__stay-row-label">Grupo / Perfil / Idioma</span>
-              <span class="gc1__stay-row-value">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</span>
+            <div class="gc1__stay-row gc1__stay-row--stack">
+                <span class="gc1__stay-row-label">Grupo / Perfil / Idioma</span>
+                <span class="gc1__stay-row-value gc1__stay-row-value--stack">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</span>
             </div>
 
             <div class="gc1__stay-row">
