@@ -2518,3 +2518,127 @@ body.admin-body {
   .gc1__conversation-box {
     flex: 0 0 auto;
   }
+
+  /* =========================
+   FAIXA 3 — REDISTRIBUIÇÃO
+   ========================= */
+
+.gc1__band--bottom {
+    grid-template-columns: 245px 255px minmax(360px, 1fr);
+    gap: 8px;
+    align-items: start;
+  }
+  
+  /* estado da conversa ganha um pouco mais de área e leitura */
+  .gc1__state-box {
+    padding: 9px 11px;
+  }
+  
+  .gc1__state-line {
+    min-height: 34px;
+  }
+  
+  .gc1__state-key,
+  .gc1__state-value {
+    font-size: 11px;
+  }
+  
+  /* pendências encurta e fica menos "bloco esticado" */
+  .gc1__alerts-box {
+    gap: 5px;
+  }
+  
+  .gc1__alert-row {
+    grid-template-columns: minmax(0, 1fr) 62px;
+    gap: 6px;
+    padding: 7px 8px;
+  }
+  
+  .gc1__alert-title {
+    font-size: 10px;
+  }
+  
+  .gc1__alert-text {
+    font-size: 9px;
+    line-height: 1.22;
+  }
+  
+  .gc1__alert-meta {
+    font-size: 8px;
+  }
+  
+  .gc1__history-row {
+    grid-template-columns: 16px minmax(0, 1fr) 62px;
+    gap: 6px;
+  }
+  
+  .gc1__history-head {
+    font-size: 9px;
+  }
+  
+  .gc1__history-text,
+  .gc1__history-meta {
+    font-size: 8px;
+  }
+  
+  /* usage ganha mais protagonismo e abas mais tipo fichamento */
+  .gc1__panel-head--ops {
+    margin-bottom: 4px;
+  }
+  
+  .gc1__ops-tabs {
+    gap: 6px;
+    align-items: end;
+  }
+  
+  .gc1__ops-tab {
+    min-height: 28px;
+    padding: 0 12px;
+    border-radius: 8px 8px 0 0;
+    background: #efe7da;
+    border-color: #d9cdbd;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  
+  .gc1__ops-tab.is-active {
+    background: #ffffff;
+    color: var(--text);
+  }
+  
+  .gc1__ops-box {
+    border-top-left-radius: 0;
+  }
+  
+  .gc1__ops-row {
+    grid-template-columns: minmax(0, 1fr) 64px;
+    gap: 7px;
+    padding: 7px 8px;
+  }
+  
+  .gc1__ops-head {
+    font-size: 11px;
+  }
+  
+  .gc1__ops-text {
+    font-size: 10px;
+    line-height: 1.22;
+  }
+  
+  .gc1__ops-time {
+    font-size: 9px;
+  }
+  
+  .gc1__ops-info {
+    min-height: 16px;
+    font-size: 8px;
+  }
+  
+  /* atalhos continuam em uma linha, mas um pouco mais firmes */
+  .gc1__shortcut-box {
+    gap: 5px;
+  }
+  
+  .gc1__shortcut-tile {
+    min-height: 54px;
+  }
