@@ -2532,10 +2532,10 @@ body.admin-body {
 
 .gc1__band--bottom {
     grid-template-columns:
-      minmax(24px, 1fr)      /* espaço morto controlado à esquerda */
-      minmax(170px, 1fr)     /* estado = metade do bloco 1 */
-      minmax(290px, 1.51fr)  /* pendências = bloco 2 hospedagem */
-      minmax(360px, 2.24fr); /* usage = conversa recente */
+      minmax(14px, 0.6fr)      /* espaço morto menor à esquerda */
+      minmax(238px, 1.4fr)     /* estado ~40% mais comprido */
+      minmax(290px, 1.51fr)    /* pendências travado */
+      minmax(360px, 2.24fr);   /* usage travado */
     gap: 10px;
     align-items: stretch;
   }
