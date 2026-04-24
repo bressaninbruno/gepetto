@@ -2470,3 +2470,51 @@ body.admin-body {
   .gc1__conversation-box {
     flex: 0 0 auto;
   }
+
+
+/* =========================
+   AJUSTE CIRÚRGICO — BLOCO 2 HOSPEDAGEM ATIVA
+   ========================= */
+
+   .gc1__stay-shell {
+    grid-template-columns: minmax(0, 0.98fr) minmax(300px, 0.74fr);
+    gap: 10px;
+    align-items: start;
+  }
+  
+  .gc1__stay-main {
+    align-self: start;
+  }
+  
+  .gc1__stay-focus {
+    width: min(100%, 360px);
+    justify-self: center;
+    align-self: start;
+    height: auto;
+    min-height: 0;
+  }
+  
+  .gc1__focus-line {
+    min-height: 40px;
+    padding: 0 12px;
+  }
+  
+  .gc1__focus-line--wrap {
+    min-height: auto;
+    padding: 8px 12px;
+    align-items: start;
+  }
+  
+  .gc1__focus-value--multiline {
+    line-height: 1.22;
+  }
+  
+  /* conversa acompanha melhor o novo desenho da faixa 2 */
+  .gc1__panel--stay,
+  .gc1__panel--conversation {
+    align-self: start;
+  }
+  
+  .gc1__conversation-box {
+    flex: 0 0 auto;
+  }
