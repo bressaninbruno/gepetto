@@ -62,6 +62,59 @@ def current_local_hour():
     return now_local().hour
 
 
+def format_relative_time_br(value, tz_name="America/Sao_Paulo"):
+    if not value or value == "-":
+        return "-"
+
+    try:
+        now_local = datetime.now(ZoneInfo(tz_name))
+
+        if isinstance(value, datetime):
+            dt = value
+        else:
+            text = str(value).strip()
+
+            # ISO com Z
+            if text.endswith("Z"):
+                text = text.replace("Z", "+00:00")
+
+            # tenta ISO
+            try:
+                dt = datetime.fromisoformat(text)
+            except Exception:
+                # tenta formato brasileiro comum
+                try:
+                    dt = datetime.strptime(text, "%d/%m/%Y %H:%M:%S")
+                    dt = dt.replace(tzinfo=ZoneInfo(tz_name))
+                except Exception:
+                    return "-"
+
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=ZoneInfo(tz_name))
+        else:
+            dt = dt.astimezone(ZoneInfo(tz_name))
+
+        delta = now_local - dt
+        seconds = max(0, int(delta.total_seconds()))
+
+        if seconds < 60:
+            return "agora"
+
+        minutes = seconds // 60
+        if minutes < 60:
+            return f"há {minutes} min"
+
+        hours = minutes // 60
+        if hours < 24:
+            return f"há {hours} h"
+
+        days = hours // 24
+        return f"há {days} d"
+
+    except Exception:
+        return "-"    
+
+
 def has_database():
     return bool(DATABASE_URL)
 
@@ -9199,6 +9252,7 @@ def admin_dashboard_current():
         item["timestamp_label"] = fmt_dt(item.get("timestamp"))
 
     last_updated = session_updated_at if session_updated_at != "-" else guest_updated_at
+    last_updated_relative = format_relative_time_br(last_updated)
     db_status = "conectado" if has_database() and not db_error else ("erro" if db_error else "não configurado")
 
     return render_template(
@@ -9208,6 +9262,7 @@ def admin_dashboard_current():
         db_status=db_status,
         now_local=now_iso(),
         last_updated=last_updated,
+        last_updated_relative=last_updated_relative,
         guest_name=guest_name,
         guest_group=guest_group,
         guest_profile=guest_profile,
