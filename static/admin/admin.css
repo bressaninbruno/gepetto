@@ -9851,3 +9851,110 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* =========================
+   GEPETTO — CURRENT V6.5
+   fechamento final da shell
+   append após V6.4
+   ========================= */
+
+.gp-v6 {
+    position: relative;
+    grid-template-columns: 118px minmax(0, 1fr);
+    width: calc(100% + 44px);
+    margin: -22px;
+    min-height: calc(100vh + 16px);
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+  
+  .gp-v6__sidebar {
+    padding: 8px 7px 8px;
+    border-right: 1px solid var(--line);
+  }
+  
+  .gp-v6__main {
+    position: relative;
+    padding: 5px 6px 4px;
+    gap: 5px;
+    min-width: 0;
+  }
+  
+  /* reduz a sensação de quadro dentro da página */
+  .gp-v6__hero-shell,
+  .gp-v6__panel {
+    border-radius: 5px;
+  }
+  
+  /* shell mais colada e contínua */
+  .gp-v6__top-actions {
+    margin-top: 1px;
+  }
+  
+  .gp-v6__hero-top {
+    padding: 7px 7px 6px;
+  }
+  
+  .gp-v6__summary-band {
+    padding: 5px 7px 7px;
+  }
+  
+  /* rodapé estrutural da shell */
+  .gp-v6__footer-strip {
+    position: absolute;
+    left: 10px;
+    bottom: 8px;
+    z-index: 5;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+  }
+  
+  .gp-v6__footer-sync {
+    min-height: 16px;
+    padding: 0 6px;
+    font-size: 8px;
+    border-radius: 4px;
+    opacity: 0.96;
+  }
+  
+  /* card do Bruno mais estrutural e menos "card solto" */
+  .gp-v6__sidebar-foot {
+    margin-top: auto;
+    padding-top: 2px;
+  }
+  
+  .gp-v6__sidebar-card {
+    border-radius: 5px;
+    padding: 7px;
+  }
+  
+  /* mantém legibilidade da sidebar */
+  .gp-v6__nav-link {
+    min-height: 28px;
+    padding: 0 7px;
+    font-size: 10px;
+  }
+  
+  .gp-v6__nav-link span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* em telas menores, volta ao fluxo normal */
+  @media (max-width: 1180px) {
+    .gp-v6 {
+      width: 100%;
+      margin: 0;
+      min-height: auto;
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+    }
+  
+    .gp-v6__footer-strip {
+      position: static;
+      pointer-events: auto;
+    }
+  }
