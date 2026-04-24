@@ -2412,91 +2412,159 @@ body.admin-body {
 }
 
 /* =========================
-   AJUSTE CIRÚRGICO — FAIXA 2
+   FAIXA 2 — ESTRUTURA TRAVADA
+   - conversa recente iguala a altura da hospedagem ativa
+   - bloco hospedagem ativa recua para abrir espaço futuro à esquerda
+   - caixa 1 vira ficha
    ========================= */
 
-/* deixa a faixa 2 menos “esticada” verticalmente */
-.gc1__band--middle {
-    align-items: start;
-  }
-  
-  /* bloco 2 da hospedagem ativa um pouco menor,
-     mais centralizado, mais “post-it” */
-  .gc1__stay-shell {
-    grid-template-columns: minmax(0, 0.96fr) minmax(320px, 0.78fr);
+   .gc1__band--middle {
+    grid-template-columns:
+      minmax(34px, 0.22fr)   /* respiro futuro da sidebar */
+      minmax(0, 1.02fr)      /* hospedagem ativa */
+      minmax(310px, 0.78fr); /* conversa recente */
     gap: 10px;
-    align-items: start;
+    align-items: stretch;
   }
   
-  .gc1__stay-focus {
-    max-width: 400px;
-    justify-self: center;
-  }
-  
-  /* ficha esquerda mais enxuta */
-  .gc1__stay-row {
-    min-height: 31px;
-  }
-  
-  /* grupo/perfil/idioma em duas linhas controladas */
-  .gc1__stay-row--stack {
-    min-height: auto;
-    padding: 8px 10px;
-    align-items: flex-start;
+  .gc1__band--middle > .gc1__panel:nth-child(1) {
+    grid-column: 2;
+    display: flex;
     flex-direction: column;
-    gap: 4px;
+    align-self: stretch;
   }
   
-  .gc1__stay-row-value--stack {
-    width: 100%;
-    text-align: left;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    line-height: 1.25;
+  .gc1__band--middle > .gc1__panel:nth-child(2) {
+    grid-column: 3;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
   }
   
-  /* observações sem altura sobrando */
-  .gc1__stay-row--obs {
-    min-height: 28px;
-  }
+  /* -------------------------
+     HOSPEDAGEM ATIVA
+     ------------------------- */
   
-  /* conversa recente acompanha melhor a redução da faixa 2 */
-  .gc1__panel--conversation,
   .gc1__panel--stay {
-    align-self: start;
+    align-self: stretch;
   }
   
-  .gc1__conversation-box {
-    flex: 0 0 auto;
-  }
-
-
-/* =========================
-   AJUSTE CIRÚRGICO — BLOCO 2 HOSPEDAGEM ATIVA
-   ========================= */
-
-   .gc1__stay-shell {
-    grid-template-columns: minmax(0, 0.98fr) minmax(300px, 0.74fr);
+  .gc1__stay-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(260px, 0.82fr);
     gap: 10px;
-    align-items: start;
+    align-items: stretch;
+    flex: 1 1 auto;
   }
   
   .gc1__stay-main {
-    align-self: start;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    min-height: 0;
+  }
+  
+  .gc1__stay-sheet {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    height: 100%;
+    padding: 12px 12px 10px;
+  }
+  
+  .gc1__stay-sheet-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .gc1__stay-sheet-label {
+    font-size: 10px;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 800;
+  }
+  
+  .gc1__stay-sheet-value {
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--text);
+    font-weight: 700;
+  }
+  
+  .gc1__stay-sheet-value--name {
+    font-size: 22px;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+  }
+  
+  .gc1__stay-sheet-value--notes {
+    color: var(--text-soft);
+    font-weight: 600;
+    white-space: normal;
+  }
+  
+  .gc1__stay-sheet-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 10px 0;
+  }
+  
+  .gc1__stay-sheet-line {
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+  .gc1__stay-sheet-inline-label {
+    font-size: 11px;
+    line-height: 1.2;
+    color: var(--text-soft);
+    font-weight: 700;
+  }
+  
+  .gc1__stay-sheet-inline-value {
+    text-align: right;
+    font-size: 11px;
+    line-height: 1.2;
+    color: var(--text);
+    font-weight: 800;
   }
   
   .gc1__stay-focus {
     width: min(100%, 360px);
     justify-self: center;
-    align-self: start;
-    height: auto;
+    align-self: stretch;
     min-height: 0;
+    background: #f1ebe1;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    display: grid;
+    gap: 0;
   }
   
   .gc1__focus-line {
     min-height: 40px;
     padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid #ddd3c6;
+  }
+  
+  .gc1__focus-line:first-child {
+    border-top: 0;
   }
   
   .gc1__focus-line--wrap {
@@ -2509,14 +2577,74 @@ body.admin-body {
     line-height: 1.22;
   }
   
-  /* conversa acompanha melhor o novo desenho da faixa 2 */
-  .gc1__panel--stay,
+  /* -------------------------
+     CONVERSA RECENTE
+     ------------------------- */
+  
   .gc1__panel--conversation {
-    align-self: start;
+    align-self: stretch;
   }
   
   .gc1__conversation-box {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .gc1__message-row {
+    flex: 1 1 0;
+    min-height: 78px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px 10px;
+    border-top: 1px solid var(--line);
+  }
+  
+  .gc1__message-row:first-child {
+    border-top: 0;
+  }
+  
+  .gc1__message-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 800;
+  }
+  
+  .gc1__message-top {
+    margin-bottom: 4px;
+  }
+  
+  .gc1__message-name {
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+  
+  .gc1__message-time {
+    font-size: 10px;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+  
+  .gc1__message-text {
+    font-size: 10px;
+    line-height: 1.32;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   /* =========================

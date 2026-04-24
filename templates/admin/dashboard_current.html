@@ -212,34 +212,42 @@
 
         <div class="gc1__stay-shell">
           <div class="gc1__stay-main">
-            <div class="gc1__stay-row">
-              <span class="gc1__stay-row-label">Nome</span>
-              <span class="gc1__stay-row-value">{{ guest_name or "-" }}</span>
-            </div>
-
-            <div class="gc1__stay-row gc1__stay-row--stack">
-                <span class="gc1__stay-row-label">Grupo / Perfil / Idioma</span>
-                <span class="gc1__stay-row-value gc1__stay-row-value--stack">{{ guest_group or "-" }} • {{ guest_profile or "-" }} • {{ guest_idioma or "-" }}</span>
-            </div>
-
-            <div class="gc1__stay-row">
-              <span class="gc1__stay-row-label">Check-in</span>
-              <span class="gc1__stay-row-value">{{ guest_checkin or "-" }}</span>
-            </div>
-
-            <div class="gc1__stay-row">
-              <span class="gc1__stay-row-label">Check-out</span>
-              <span class="gc1__stay-row-value">{{ guest_checkout or "-" }}</span>
-            </div>
-
-            <div class="gc1__stay-row">
-              <span class="gc1__stay-row-label">Saída</span>
-              <span class="gc1__stay-row-value">{{ guest_checkout_time or "-" }}</span>
-            </div>
-
-            <div class="gc1__stay-row gc1__stay-row--obs">
-              <span class="gc1__stay-row-label">Observações</span>
-              <span class="gc1__stay-row-value">{{ guest_observacoes or "-" }}</span>
+            <div class="gc1__stay-sheet">
+              <div class="gc1__stay-sheet-block">
+                <div class="gc1__stay-sheet-label">Nome</div>
+                <div class="gc1__stay-sheet-value gc1__stay-sheet-value--name">{{ guest_name or "-" }}</div>
+              </div>
+          
+              <div class="gc1__stay-sheet-divider"></div>
+          
+              <div class="gc1__stay-sheet-block">
+                <div class="gc1__stay-sheet-label">Grupo / Perfil / Idioma</div>
+                <div class="gc1__stay-sheet-value">{{ guest_group or "-" }}  —  {{ guest_profile or "-" }}  —  {{ guest_idioma or "-" }}</div>
+              </div>
+          
+              <div class="gc1__stay-sheet-divider"></div>
+          
+              <div class="gc1__stay-sheet-block">
+                <div class="gc1__stay-sheet-line">
+                  <span class="gc1__stay-sheet-inline-label">Check-in</span>
+                  <span class="gc1__stay-sheet-inline-value">{{ guest_checkin or "-" }}</span>
+                </div>
+                <div class="gc1__stay-sheet-line">
+                  <span class="gc1__stay-sheet-inline-label">Check-out</span>
+                  <span class="gc1__stay-sheet-inline-value">{{ guest_checkout or "-" }}</span>
+                </div>
+                <div class="gc1__stay-sheet-line">
+                  <span class="gc1__stay-sheet-inline-label">Saída</span>
+                  <span class="gc1__stay-sheet-inline-value">{{ guest_checkout_time or "-" }}</span>
+                </div>
+              </div>
+          
+              <div class="gc1__stay-sheet-divider"></div>
+          
+              <div class="gc1__stay-sheet-block">
+                <div class="gc1__stay-sheet-label">Observações</div>
+                <div class="gc1__stay-sheet-value gc1__stay-sheet-value--notes">{{ guest_observacoes or "-" }}</div>
+              </div>
             </div>
           </div>
 
