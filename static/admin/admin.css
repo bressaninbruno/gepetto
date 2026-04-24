@@ -2520,164 +2520,73 @@ body.admin-body {
   }
 
   /* =========================
-   FAIXA 3 — REDISTRIBUIÇÃO
+   FAIXA 3 — AJUSTE LIMPO FINAL
+   usage + atalhos = referência
+   faixa desloca para a direita
+   espaço morto permitido na esquerda
    ========================= */
 
 .gc1__band--bottom {
-    grid-template-columns: 245px 255px minmax(360px, 1fr);
-    gap: 8px;
-    align-items: start;
-  }
-  
-  /* estado da conversa ganha um pouco mais de área e leitura */
-  .gc1__state-box {
-    padding: 9px 11px;
-  }
-  
-  .gc1__state-line {
-    min-height: 34px;
-  }
-  
-  .gc1__state-key,
-  .gc1__state-value {
-    font-size: 11px;
-  }
-  
-  /* pendências encurta e fica menos "bloco esticado" */
-  .gc1__alerts-box {
-    gap: 5px;
-  }
-  
-  .gc1__alert-row {
-    grid-template-columns: minmax(0, 1fr) 62px;
-    gap: 6px;
-    padding: 7px 8px;
-  }
-  
-  .gc1__alert-title {
-    font-size: 10px;
-  }
-  
-  .gc1__alert-text {
-    font-size: 9px;
-    line-height: 1.22;
-  }
-  
-  .gc1__alert-meta {
-    font-size: 8px;
-  }
-  
-  .gc1__history-row {
-    grid-template-columns: 16px minmax(0, 1fr) 62px;
-    gap: 6px;
-  }
-  
-  .gc1__history-head {
-    font-size: 9px;
-  }
-  
-  .gc1__history-text,
-  .gc1__history-meta {
-    font-size: 8px;
-  }
-  
-  /* usage ganha mais protagonismo e abas mais tipo fichamento */
-  .gc1__panel-head--ops {
-    margin-bottom: 4px;
-  }
-  
-  .gc1__ops-tabs {
-    gap: 6px;
-    align-items: end;
-  }
-  
-  .gc1__ops-tab {
-    min-height: 28px;
-    padding: 0 12px;
-    border-radius: 8px 8px 0 0;
-    background: #efe7da;
-    border-color: #d9cdbd;
-    font-size: 10px;
-    font-weight: 800;
-  }
-  
-  .gc1__ops-tab.is-active {
-    background: #ffffff;
-    color: var(--text);
-  }
-  
-  .gc1__ops-box {
-    border-top-left-radius: 0;
-  }
-  
-  .gc1__ops-row {
-    grid-template-columns: minmax(0, 1fr) 64px;
-    gap: 7px;
-    padding: 7px 8px;
-  }
-  
-  .gc1__ops-head {
-    font-size: 11px;
-  }
-  
-  .gc1__ops-text {
-    font-size: 10px;
-    line-height: 1.22;
-  }
-  
-  .gc1__ops-time {
-    font-size: 9px;
-  }
-  
-  .gc1__ops-info {
-    min-height: 16px;
-    font-size: 8px;
-  }
-  
-  /* atalhos continuam em uma linha, mas um pouco mais firmes */
-  .gc1__shortcut-box {
-    gap: 5px;
-  }
-  
-  .gc1__shortcut-tile {
-    min-height: 54px;
-  }
-
-  /* =========================
-   FAIXA 3 — CORREÇÃO DA REDISTRIBUIÇÃO
-   ========================= */
-
-.gc1__band--bottom {
-    grid-template-columns: 270px minmax(370px, 1fr) 435px;
+    grid-template-columns: 305px 350px 410px;
     gap: 10px;
-    align-items: start;
+    justify-content: end;
+    align-items: stretch;
   }
   
-  /* estado da conversa ganha um pouco mais de espaço */
-  .gc1__state-box {
-    padding: 10px 12px;
+  /* os 3 painéis terminam na mesma altura */
+  .gc1__band--bottom > .gc1__panel {
+    height: 100%;
   }
   
-  .gc1__state-line {
-    min-height: 36px;
-  }
+  /* =========================
+     ESTADO DA CONVERSA
+     cresce um pouco e acompanha a faixa para a direita
+     a caixa interna fica em cima
+     o painel branco desce até a altura do usage
+     ========================= */
   
-  .gc1__state-key,
-  .gc1__state-value {
-    font-size: 11px;
-  }
-  
-  /* pendências fica mais central e um pouco mais nobre */
-  .gc1__band--bottom > .gc1__panel:nth-child(2) {
+  .gc1__band--bottom > .gc1__panel:nth-child(1) {
+    display: flex;
+    flex-direction: column;
     align-self: stretch;
   }
   
+  .gc1__state-box {
+    padding: 9px 11px;
+    align-self: start;
+  }
+  
+  .gc1__state-line {
+    min-height: 33px;
+  }
+  
+  .gc1__state-key,
+  .gc1__state-value {
+    font-size: 10px;
+  }
+  
+  /* =========================
+     PENDÊNCIAS & ALERTAS
+     mais central
+     mesma altura total do macrobloco da direita
+     sem branco morto embaixo:
+     histórico ganha mais corpo e linhas mais altas
+     ========================= */
+  
+  .gc1__band--bottom > .gc1__panel:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    justify-self: center;
+  }
+  
   .gc1__alerts-box {
     gap: 6px;
+    margin-bottom: 8px;
   }
   
   .gc1__alert-row {
-    grid-template-columns: minmax(0, 1fr) 64px;
+    grid-template-columns: minmax(0, 1fr) 60px;
     gap: 6px;
     padding: 8px 9px;
   }
@@ -2696,33 +2605,74 @@ body.admin-body {
     font-size: 8px;
   }
   
+  .gc1__history-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+  }
+  
+  .gc1__history-title {
+    margin-bottom: 6px;
+    font-size: 10px;
+    line-height: 1.2;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 800;
+  }
+  
   .gc1__history-row {
-    grid-template-columns: 16px minmax(0, 1fr) 64px;
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) 60px;
     gap: 6px;
+    align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid #ece3d8;
+  }
+  
+  .gc1__history-row:first-of-type {
+    border-top: 0;
+    padding-top: 2px;
   }
   
   .gc1__history-head {
     font-size: 9px;
+    line-height: 1.2;
   }
   
-  .gc1__history-text,
+  .gc1__history-text {
+    font-size: 8px;
+    line-height: 1.22;
+  }
+  
   .gc1__history-meta {
     font-size: 8px;
   }
   
-  /* usage deixa de ficar tão esticado */
+  /* =========================
+     MACROBLOCO DIREITO
+     usage + atalhos é a referência
+     NÃO mexer no tamanho macro
+     ========================= */
+  
   .gc1__panel--ops {
     width: 100%;
-    max-width: 435px;
+    max-width: 410px;
     justify-self: end;
-    align-self: start;
-    padding-top: 6px;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    padding-top: 5px;
   }
   
   .gc1__panel-head--ops {
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
   
+  /* estética interna do usage sem mexer no tamanho macro */
   .gc1__ops-tabs {
     gap: 3px;
     align-items: end;
@@ -2730,8 +2680,8 @@ body.admin-body {
   }
   
   .gc1__ops-tab {
-    min-height: 28px;
-    padding: 0 12px;
+    min-height: 26px;
+    padding: 0 10px;
     border-radius: 8px 8px 0 0;
     background: transparent;
     border: 0;
@@ -2750,151 +2700,7 @@ body.admin-body {
   .gc1__ops-box {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-  }
-  
-  .gc1__ops-row {
-    grid-template-columns: minmax(0, 1fr) 66px;
-    gap: 7px;
-    padding: 8px 9px;
-  }
-  
-  .gc1__ops-head {
-    font-size: 11px;
-  }
-  
-  .gc1__ops-text {
-    font-size: 10px;
-    line-height: 1.22;
-  }
-  
-  .gc1__ops-time {
-    font-size: 9px;
-  }
-  
-  .gc1__ops-info {
-    min-height: 17px;
-    padding: 0 6px;
-    font-size: 8px;
-  }
-  
-  /* atalhos acompanham o usage menor */
-  .gc1__shortcut-box {
-    margin-top: 8px;
-    gap: 5px;
-  }
-  
-  .gc1__shortcut-tile {
-    min-height: 50px;
-    padding: 6px 4px;
-  }
-
-  /* =========================
-   FAIXA 3 — AJUSTE FINO
-   usage mantém tamanho
-   pendências encurta ~20%
-   faixa 3 reduz altura total
-   ========================= */
-
-.gc1__band--bottom {
-    grid-template-columns: 275px 305px 410px;
-    gap: 8px;
-    align-items: start;
-  }
-  
-  /* estado da conversa ganha um pouco mais de área */
-  .gc1__state-box {
-    padding: 8px 10px;
-  }
-  
-  .gc1__state-line {
-    min-height: 31px;
-  }
-  
-  .gc1__state-key,
-  .gc1__state-value {
-    font-size: 10px;
-  }
-  
-  /* pendências encurta e fica menos "bloco esticado" */
-  .gc1__band--bottom > .gc1__panel:nth-child(2) {
-    width: 100%;
-    max-width: 305px;
-    justify-self: center;
-    align-self: start;
-  }
-  
-  .gc1__alerts-box {
-    gap: 5px;
-    margin-bottom: 6px;
-  }
-  
-  .gc1__alert-row {
-    grid-template-columns: minmax(0, 1fr) 58px;
-    gap: 6px;
-    padding: 7px 8px;
-  }
-  
-  .gc1__alert-title {
-    font-size: 10px;
-    margin-bottom: 1px;
-  }
-  
-  .gc1__alert-text {
-    font-size: 9px;
-    line-height: 1.18;
-  }
-  
-  .gc1__alert-meta {
-    font-size: 8px;
-  }
-  
-  .gc1__history-box {
-    padding-top: 6px;
-  }
-  
-  .gc1__history-title {
-    margin-bottom: 4px;
-  }
-  
-  .gc1__history-row {
-    grid-template-columns: 15px minmax(0, 1fr) 58px;
-    gap: 6px;
-    padding: 4px 0;
-  }
-  
-  .gc1__history-head {
-    font-size: 9px;
-  }
-  
-  .gc1__history-text,
-  .gc1__history-meta {
-    font-size: 8px;
-  }
-  
-  /* usage mantém largura atual, só baixa um pouco a altura total */
-  .gc1__panel--ops {
-    width: 100%;
-    max-width: 410px;
-    justify-self: end;
-    align-self: start;
-    padding-top: 5px;
-  }
-  
-  .gc1__panel-head--ops {
-    margin-bottom: 3px;
-  }
-  
-  .gc1__ops-tabs {
-    gap: 3px;
-    align-items: end;
-    border-bottom: 1px solid var(--line);
-  }
-  
-  .gc1__ops-tab {
-    min-height: 25px;
-    padding: 0 10px;
-    border-radius: 8px 8px 0 0;
-    font-size: 10px;
+    flex: 1 0 auto;
   }
   
   .gc1__ops-row {
@@ -2922,163 +2728,7 @@ body.admin-body {
     font-size: 8px;
   }
   
-  /* atalhos menores para ajudar a reduzir a altura da faixa 3 */
-  .gc1__shortcut-box {
-    margin-top: 6px;
-    gap: 5px;
-  }
-  
-  .gc1__shortcut-tile {
-    min-height: 42px;
-    padding: 4px 4px;
-    gap: 3px;
-  }
-  
-  .gc1__shortcut-icon {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .gc1__shortcut-label {
-    font-size: 8px;
-    line-height: 1.02;
-  }
-
-  /* =========================
-   FAIXA 3 — AJUSTE CONSENSUAL
-   usage mantém tamanho
-   pendências ajusta sem sobrar vazio
-   estado ganha um pouco mais de área
-   ========================= */
-
-.gc1__band--bottom {
-    grid-template-columns: 290px 345px 410px;
-    gap: 8px;
-    align-items: start;
-  }
-  
-  /* estado da conversa cresce um pouco */
-  .gc1__state-box {
-    padding: 8px 10px;
-  }
-  
-  .gc1__state-line {
-    min-height: 31px;
-  }
-  
-  .gc1__state-key,
-  .gc1__state-value {
-    font-size: 10px;
-  }
-  
-  /* pendências reduz sem virar bloco pequeno demais */
-  .gc1__band--bottom > .gc1__panel:nth-child(2) {
-    width: 100%;
-    max-width: 345px;
-    justify-self: center;
-    align-self: start;
-  }
-  
-  .gc1__alerts-box {
-    gap: 5px;
-    margin-bottom: 6px;
-  }
-  
-  .gc1__alert-row {
-    grid-template-columns: minmax(0, 1fr) 58px;
-    gap: 6px;
-    padding: 7px 8px;
-  }
-  
-  .gc1__alert-title {
-    font-size: 10px;
-    margin-bottom: 1px;
-  }
-  
-  .gc1__alert-text {
-    font-size: 9px;
-    line-height: 1.18;
-  }
-  
-  .gc1__alert-meta {
-    font-size: 8px;
-  }
-  
-  .gc1__history-box {
-    padding-top: 6px;
-  }
-  
-  .gc1__history-title {
-    margin-bottom: 4px;
-  }
-  
-  .gc1__history-row {
-    grid-template-columns: 15px minmax(0, 1fr) 58px;
-    gap: 6px;
-    padding: 4px 0;
-  }
-  
-  .gc1__history-head {
-    font-size: 9px;
-  }
-  
-  .gc1__history-text,
-  .gc1__history-meta {
-    font-size: 8px;
-  }
-  
-  /* usage mantém a largura atual */
-  .gc1__panel--ops {
-    width: 100%;
-    max-width: 410px;
-    justify-self: end;
-    align-self: start;
-    padding-top: 5px;
-  }
-  
-  .gc1__panel-head--ops {
-    margin-bottom: 3px;
-  }
-  
-  .gc1__ops-tabs {
-    gap: 3px;
-    align-items: end;
-    border-bottom: 1px solid var(--line);
-  }
-  
-  .gc1__ops-tab {
-    min-height: 25px;
-    padding: 0 10px;
-    border-radius: 8px 8px 0 0;
-    font-size: 10px;
-  }
-  
-  .gc1__ops-row {
-    grid-template-columns: minmax(0, 1fr) 64px;
-    gap: 7px;
-    padding: 7px 8px;
-  }
-  
-  .gc1__ops-head {
-    font-size: 10px;
-  }
-  
-  .gc1__ops-text {
-    font-size: 9px;
-    line-height: 1.16;
-  }
-  
-  .gc1__ops-time {
-    font-size: 8px;
-  }
-  
-  .gc1__ops-info {
-    min-height: 15px;
-    padding: 0 5px;
-    font-size: 8px;
-  }
-  
-  /* atalhos um pouco menores para ajudar a baixar a faixa 3 */
+  /* atalhos continuam fazendo parte do macrobloco da direita */
   .gc1__shortcut-box {
     margin-top: 6px;
     gap: 5px;
