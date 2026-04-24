@@ -9280,3 +9280,390 @@
       grid-template-columns: 1fr 1fr 1fr;
     }
   }
+
+  /* =========================
+   GEPETTO — CURRENT V6.3
+   shell mais encaixada + usage menos largo
+   append após V6/V6.2
+   ========================= */
+
+.gp-v6 {
+    position: relative;
+    grid-template-columns: 112px minmax(0, 1fr);
+    width: calc(100% + 36px);
+    margin: -18px;
+    min-height: calc(100vh + 8px);
+    border-radius: 6px;
+  }
+  
+  .gp-v6__sidebar {
+    padding: 8px 7px 7px;
+  }
+  
+  .gp-v6__nav-link {
+    min-height: 28px;
+    padding: 0 7px;
+    font-size: 10px;
+  }
+  
+  .gp-v6__main {
+    padding: 5px 6px 5px;
+    gap: 5px;
+  }
+  
+  .gp-v6__top-actions {
+    gap: 5px;
+  }
+  
+  .gp-v6__action-btn {
+    min-height: 27px;
+    padding: 0 8px;
+    font-size: 10px;
+  }
+  
+  .gp-v6__hero-top {
+    padding: 7px;
+    gap: 7px;
+    grid-template-columns: minmax(0, 1.18fr) minmax(290px, 0.82fr);
+  }
+  
+  .gp-v6__guest-name {
+    font-size: 22px;
+  }
+  
+  .gp-v6__hero-meta,
+  .gp-v6__stay-line {
+    font-size: 11px;
+  }
+  
+  .gp-v6__status-card {
+    min-height: 54px;
+    padding: 7px 8px;
+  }
+  
+  .gp-v6__status-head {
+    font-size: 10px;
+  }
+  
+  .gp-v6__status-value {
+    font-size: 11px;
+  }
+  
+  .gp-v6__summary-band {
+    gap: 5px;
+    padding: 6px 7px 7px;
+  }
+  
+  .gp-v6__summary-card {
+    min-height: 39px;
+    padding: 5px 7px;
+  }
+  
+  .gp-v6__summary-label {
+    margin-bottom: 2px;
+  }
+  
+  .gp-v6__summary-value {
+    font-size: 10px;
+    line-height: 1.05;
+  }
+  
+  /* middle band */
+  .gp-v6__band {
+    gap: 5px;
+  }
+  
+  .gp-v6__band--middle {
+    grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.8fr);
+  }
+  
+  /* bottom band:
+     menos largura para Usage
+     mais espaço para Estado + Pendências */
+  .gp-v6__band--bottom {
+    grid-template-columns: 205px 285px minmax(0, 1fr);
+    gap: 5px;
+    align-items: start;
+  }
+  
+  .gp-v6__panel {
+    padding: 5px;
+    border-radius: 6px;
+  }
+  
+  .gp-v6__panel-head {
+    margin-bottom: 4px;
+  }
+  
+  .gp-v6__panel-title {
+    font-size: 12px;
+  }
+  
+  /* hospedagem ativa mantém boa leitura */
+  .gp-v6__stay-shell {
+    grid-template-columns: minmax(0, 1fr) 178px;
+    gap: 5px;
+  }
+  
+  .gp-v6__stay-section {
+    padding: 5px 6px;
+  }
+  
+  .gp-v6__field-value {
+    font-size: 11px;
+    line-height: 1.22;
+  }
+  
+  .gp-v6__stay-line-row {
+    min-height: 23px;
+    padding: 0 6px;
+  }
+  
+  .gp-v6__stay-line-k,
+  .gp-v6__stay-line-v {
+    font-size: 10px;
+  }
+  
+  .gp-v6__stay-focus {
+    padding: 5px 6px;
+    gap: 5px;
+  }
+  
+  .gp-v6__focus-row {
+    gap: 2px;
+    padding-bottom: 4px;
+  }
+  
+  .gp-v6__focus-v {
+    font-size: 10px;
+  }
+  
+  .gp-v6__focus-note {
+    font-size: 9px;
+    max-height: 48px;
+  }
+  
+  /* conversa mais compacta, sem perder leitura */
+  .gp-v6__message-row {
+    grid-template-columns: 21px minmax(0, 1fr);
+    gap: 6px;
+    padding: 4px 5px;
+  }
+  
+  .gp-v6__message-avatar {
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
+  }
+  
+  .gp-v6__message-name {
+    font-size: 10px;
+  }
+  
+  .gp-v6__message-time {
+    font-size: 8px;
+  }
+  
+  .gp-v6__message-text {
+    font-size: 9px;
+    line-height: 1.14;
+  }
+  
+  /* estado da conversa: mais ficha, um pouco mais largo */
+  .gp-v6__state-box {
+    padding: 5px 6px;
+  }
+  
+  .gp-v6__state-row {
+    padding: 4px 0;
+    gap: 2px;
+  }
+  
+  .gp-v6__state-v {
+    font-size: 10px;
+    line-height: 1.16;
+  }
+  
+  /* pendências ganha um pouco mais de respiro útil */
+  .gp-v6__alerts-box {
+    gap: 4px;
+    margin-bottom: 5px;
+  }
+  
+  .gp-v6__alert-row {
+    grid-template-columns: minmax(0, 1fr) 58px;
+    gap: 5px;
+    padding: 5px 6px;
+  }
+  
+  .gp-v6__alert-title {
+    font-size: 10px;
+    margin-bottom: 1px;
+  }
+  
+  .gp-v6__alert-text {
+    font-size: 9px;
+    line-height: 1.18;
+  }
+  
+  .gp-v6__alert-meta {
+    font-size: 8px;
+  }
+  
+  .gp-v6__history-box {
+    padding-top: 5px;
+  }
+  
+  .gp-v6__history-title {
+    margin-bottom: 4px;
+  }
+  
+  .gp-v6__history-row {
+    grid-template-columns: 14px minmax(0, 1fr) 58px;
+    gap: 5px;
+    padding: 4px 0;
+  }
+  
+  .gp-v6__history-head,
+  .gp-v6__history-text,
+  .gp-v6__history-meta {
+    font-size: 8px;
+  }
+  
+  /* usage menos largo na percepção:
+     linhas menores, área mais seca, tabs menores */
+  .gp-v6__ops-box {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 5px;
+  }
+  
+  .gp-v6__ops-tabs {
+    gap: 3px;
+    margin: 0;
+    padding: 4px 5px;
+    border-bottom: 1px solid var(--line);
+  }
+  
+  .gp-v6__ops-tab {
+    min-height: 18px;
+    padding: 0 5px;
+    font-size: 8px;
+  }
+  
+  .gp-v6__ops-list {
+    gap: 0;
+  }
+  
+  .gp-v6__ops-row {
+    grid-template-columns: minmax(0, 1fr) 56px;
+    gap: 5px;
+    padding: 4px 5px;
+    border-radius: 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+    background: transparent;
+  }
+  
+  .gp-v6__ops-row:first-child {
+    border-top: 0;
+  }
+  
+  .gp-v6__ops-head {
+    font-size: 9px;
+    margin-bottom: 1px;
+  }
+  
+  .gp-v6__ops-text {
+    font-size: 8px;
+    line-height: 1.12;
+  }
+  
+  .gp-v6__ops-side {
+    gap: 2px;
+  }
+  
+  .gp-v6__ops-time,
+  .gp-v6__ops-info {
+    font-size: 8px;
+  }
+  
+  .gp-v6__ops-info {
+    min-height: 14px;
+    padding: 0 4px;
+  }
+  
+  /* atalhos continuam, mas mais proporcionais */
+  .gp-v6__shortcut-box {
+    gap: 4px;
+  }
+  
+  .gp-v6__shortcut-tile {
+    min-height: 38px;
+    padding: 4px;
+    gap: 2px;
+  }
+  
+  .gp-v6__shortcut-icon {
+    width: 17px;
+    height: 17px;
+  }
+  
+  .gp-v6__shortcut-label {
+    font-size: 8px;
+    line-height: 1;
+  }
+  
+  /* sincronizado continua discreto na shell */
+  .gp-v6__footer-strip {
+    position: absolute;
+    left: 7px;
+    bottom: 5px;
+    z-index: 3;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+  }
+  
+  .gp-v6__footer-sync {
+    min-height: 17px;
+    padding: 0 6px;
+    font-size: 8px;
+    border-radius: 4px;
+  }
+  
+  /* responsivo */
+  @media (max-width: 1400px) {
+    .gp-v6 {
+      grid-template-columns: 108px minmax(0, 1fr);
+    }
+  
+    .gp-v6__band--bottom {
+      grid-template-columns: 190px 270px minmax(0, 1fr);
+    }
+  }
+  
+  @media (max-width: 1180px) {
+    .gp-v6 {
+      width: 100%;
+      margin: 0;
+      grid-template-columns: 1fr;
+    }
+  
+    .gp-v6__footer-strip {
+      position: static;
+      pointer-events: auto;
+    }
+  
+    .gp-v6__hero-top,
+    .gp-v6__band--middle,
+    .gp-v6__band--bottom,
+    .gp-v6__stay-shell {
+      grid-template-columns: 1fr;
+    }
+  
+    .gp-v6__status-cards,
+    .gp-v6__summary-band {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
