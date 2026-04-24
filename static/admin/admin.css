@@ -3016,3 +3016,102 @@ body.admin-body {
   -webkit-line-clamp: 2;
   line-clamp: 2;
 }
+
+/* =========================
+   FAIXA 1 — RECUO E COMPRESSÃO HORIZONTAL
+   - abre espaço à esquerda para a futura sidebar
+   - comprime hero + status + síntese
+   - não mexe nas outras faixas
+   ========================= */
+
+   @media (min-width: 1181px) {
+    /* recuo estrutural da faixa 1 */
+    .gc1__masthead,
+    .gc1__hero-shell {
+      width: calc(100% - 34px);
+      justify-self: end;
+    }
+  
+    /* masthead acompanha o recuo sem ganhar altura */
+    .gc1__masthead {
+      gap: 8px;
+    }
+  
+    .gc1__masthead-title {
+      font-size: 12px;
+    }
+  
+    .gc1__masthead-actions {
+      gap: 5px;
+    }
+  
+    .gc1__mini-action {
+      min-height: 22px;
+      padding: 0 7px;
+      font-size: 9px;
+    }
+  
+    /* hero mais compacto horizontalmente */
+    .gc1__hero-top {
+      grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+      gap: 8px;
+      padding: 10px 10px 8px;
+    }
+  
+    .gc1__hero-main {
+      gap: 7px;
+    }
+  
+    .gc1__guest-name {
+      font-size: 26px;
+    }
+  
+    .gc1__stay-badge {
+      min-height: 27px;
+      padding: 0 10px;
+      font-size: 11px;
+    }
+  
+    .gc1__hero-meta-line {
+      gap: 7px 10px;
+      font-size: 10px;
+    }
+  
+    /* cards de status comprimem horizontalmente */
+    .gc1__hero-status {
+      gap: 6px;
+    }
+  
+    .gc1__status-card {
+      min-height: 68px;
+      padding: 7px 8px;
+    }
+  
+    .gc1__status-head {
+      font-size: 10px;
+    }
+  
+    .gc1__status-value {
+      font-size: 12px;
+    }
+  
+    /* banda de síntese acompanha a compressão */
+    .gc1__summary-band {
+      grid-template-columns: 0.96fr 0.96fr 1.08fr 0.74fr 0.74fr 0.74fr;
+      gap: 6px;
+      padding: 8px 10px 10px;
+    }
+  
+    .gc1__summary-card {
+      min-height: 54px;
+      padding: 7px 8px;
+    }
+  
+    .gc1__summary-label {
+      margin-bottom: 4px;
+    }
+  
+    .gc1__summary-value {
+      font-size: 13px;
+    }
+  }
