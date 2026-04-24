@@ -74,20 +74,42 @@ def format_relative_time_br(value, tz_name="America/Sao_Paulo"):
         else:
             text = str(value).strip()
 
-            # ISO com Z
             if text.endswith("Z"):
                 text = text.replace("Z", "+00:00")
 
-            # tenta ISO
             try:
                 dt = datetime.fromisoformat(text)
             except Exception:
-                # tenta formato brasileiro comum
                 try:
                     dt = datetime.strptime(text, "%d/%m/%Y %H:%M:%S")
                     dt = dt.replace(tzinfo=ZoneInfo(tz_name))
                 except Exception:
                     return "-"
+
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=ZoneInfo(tz_name))
+        else:
+            dt = dt.astimezone(ZoneInfo(tz_name))
+
+        delta = now_local - dt
+        seconds = max(0, int(delta.total_seconds()))
+
+        if seconds < 60:
+            return "agora"
+
+        minutes = seconds // 60
+        if minutes < 60:
+            return f"há {minutes} min"
+
+        hours = minutes // 60
+        if hours < 24:
+            return f"há {hours} h"
+
+        days = hours // 24
+        return f"há {days} dia" if days == 1 else f"há {days} dias"
+
+    except Exception:
+        return "-"
 
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=ZoneInfo(tz_name))
