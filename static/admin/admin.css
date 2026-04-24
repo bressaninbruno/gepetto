@@ -2532,10 +2532,10 @@ body.admin-body {
 
 .gc1__band--bottom {
     grid-template-columns:
-      minmax(0, 0.49fr)   /* espaço morto à esquerda */
-      minmax(190px, 0.49fr) /* estado da conversa */
-      minmax(300px, 0.74fr) /* pendências = bloco 2 hospedagem */
-      minmax(280px, 0.78fr); /* usage = conversa recente */
+      minmax(24px, 1fr)      /* espaço morto controlado à esquerda */
+      minmax(170px, 1fr)     /* estado = metade do bloco 1 */
+      minmax(290px, 1.51fr)  /* pendências = bloco 2 hospedagem */
+      minmax(360px, 2.24fr); /* usage = conversa recente */
     gap: 10px;
     align-items: stretch;
   }
@@ -2663,8 +2663,7 @@ body.admin-body {
   /* =========================
      USAGE + ATALHOS
      não muda altura;
-     não fixa largura em px extra;
-     a largura agora vem da coluna da grid
+     largura vem da coluna da grid
      ========================= */
   
   .gc1__panel--ops {
