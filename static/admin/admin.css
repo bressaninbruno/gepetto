@@ -3123,6 +3123,6 @@ body.admin-body {
 
 @media (min-width: 1181px) {
   .gc1 {
-    grid-template-columns: 182px minmax(0, 1fr);
+    grid-template-columns: 193px minmax(0, 1fr);
   }
 }
