@@ -3115,3 +3115,14 @@ body.admin-body {
       font-size: 13px;
     }
   }
+
+  /* =========================
+   SIDEBAR — EXPANSÃO ESTRUTURAL
+   só largura da shell
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1 {
+    grid-template-columns: 182px minmax(0, 1fr);
+  }
+}
