@@ -3126,3 +3126,44 @@ body.admin-body {
     grid-template-columns: 193px minmax(0, 1fr);
   }
 }
+
+/* =========================
+   SIDEBAR BRAND — VERSÃO 1
+   Marcellus + Manrope
+   ========================= */
+   @import url('https://fonts.googleapis.com/css2?family=Marcellus&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+   .gc1__brand {
+     align-items: center;
+     gap: 12px;
+   }
+   
+   .gc1__brand-mark {
+     width: 40px;
+     height: 40px;
+     border-radius: 11px;
+     font-size: 18px;
+     font-weight: 700;
+     background: linear-gradient(180deg, #ddcfb5 0%, #d4c09d 100%);
+     color: #5f4d30;
+   }
+   
+   .gc1__brand-title {
+     font-family: "Marcellus", serif;
+     font-size: 20px;
+     line-height: 1;
+     letter-spacing: 0.03em;
+     font-weight: 400;
+     color: var(--text);
+   }
+   
+   .gc1__brand-subtitle {
+     margin-top: 4px;
+     font-family: "Manrope", sans-serif;
+     font-size: 9px;
+     line-height: 1.2;
+     letter-spacing: 0.14em;
+     text-transform: uppercase;
+     font-weight: 700;
+     color: var(--text-muted);
+   }
