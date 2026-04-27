@@ -3128,10 +3128,10 @@ body.admin-body {
 }
 
 /* =========================
-   SIDEBAR BRAND — VERSÃO 1
-   Marcellus + Manrope
+   SIDEBAR BRAND — VERSÃO 2
+   Cormorant Garamond + Manrope
    ========================= */
-   @import url('https://fonts.googleapis.com/css2?family=Marcellus&family=Manrope:wght@400;500;600;700;800&display=swap');
+   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Manrope:wght@400;500;600;700;800&display=swap');
 
    .gc1__brand {
      align-items: center;
@@ -3149,11 +3149,11 @@ body.admin-body {
    }
    
    .gc1__brand-title {
-     font-family: "Marcellus", serif;
-     font-size: 20px;
-     line-height: 1;
-     letter-spacing: 0.03em;
-     font-weight: 400;
+     font-family: "Cormorant Garamond", serif;
+     font-size: 24px;
+     line-height: 0.92;
+     letter-spacing: 0.02em;
+     font-weight: 600;
      color: var(--text);
    }
    
