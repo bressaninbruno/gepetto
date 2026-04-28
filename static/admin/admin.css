@@ -3788,3 +3788,74 @@ body.admin-body {
       min-height: 0;
     }
   }
+
+  /* =========================
+   FAIXA 2 — MICROFIX FINAL
+   - elimina o scroll residual
+   - iguala visualmente a altura da conversa com hospedagem ativa
+   - reduz levemente a altura útil da hospedagem ativa
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__band--middle {
+    align-items: stretch;
+  }
+
+  .gc1__band--middle > .gc1__panel:nth-child(1),
+  .gc1__band--middle > .gc1__panel:nth-child(2) {
+    align-self: stretch;
+  }
+
+  .gc1__panel--stay,
+  .gc1__panel--conversation {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gc1__stay-shell {
+    align-items: stretch;
+  }
+
+  /* conversa recente passa a acompanhar a altura do bloco da esquerda,
+     sem inflar artificialmente as mensagens */
+  .gc1__conversation-box {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .gc1__message-row {
+    flex: 0 0 auto;
+    min-height: 56px;
+  }
+
+  /* microredução da altura útil da hospedagem ativa */
+  .gc1__panel--stay .gc1__panel-head,
+  .gc1__panel--conversation .gc1__panel-head {
+    margin-bottom: 6px;
+  }
+
+  .gc1__stay-sheet {
+    padding: 10px 12px 8px;
+  }
+
+  .gc1__stay-sheet-value--name {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .gc1__stay-sheet-divider {
+    margin: 8px 0;
+  }
+
+  .gc1__stay-sheet-line {
+    min-height: 26px;
+  }
+
+  .gc1__stay-focus .gc1__focus-line {
+    min-height: 38px;
+  }
+
+  .gc1__stay-focus .gc1__focus-line--wrap {
+    padding: 7px 12px;
+  }
+}
