@@ -3861,11 +3861,11 @@ body.admin-body {
 }
 
 /* =========================
-   CONVERSA RECENTE — REFINO INTERNO
-   - sem mexer na macroestrutura
-   - aumenta presença das mensagens
+   CONVERSA RECENTE — REFINO INTERNO OUSADO
+   - aproxima mais do mockup técnico
    - ocupa melhor a altura útil
-   - destaca avatar / nome / hora
+   - aumenta presença de avatar, nome, hora e texto
+   - sem mexer na macroestrutura
    ========================= */
 
    @media (min-width: 1181px) {
@@ -3880,26 +3880,24 @@ body.admin-body {
       min-height: 0;
       display: flex;
       flex-direction: column;
-      background: var(--bg-soft);
+      background: #fbf8f4;
       border: 1px solid var(--line);
       border-radius: 8px;
       overflow: hidden;
     }
   
-    /* quando houver exatamente 4 mensagens,
-       elas passam a ocupar melhor a altura do bloco */
     .gc1__conversation-box:has(> .gc1__message-row:nth-child(4):last-child) > .gc1__message-row {
       flex: 1 1 0;
     }
   
     .gc1__message-row {
-      min-height: 68px;
+      min-height: 74px;
       display: grid;
-      grid-template-columns: 36px minmax(0, 1fr);
-      gap: 12px;
-      padding: 12px 12px 11px;
-      align-items: start;
-      border-top: 1px solid var(--line);
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 13px;
+      padding: 13px 14px 12px;
+      align-items: center;
+      border-top: 1px solid #e6ddd1;
     }
   
     .gc1__message-row:first-child {
@@ -3907,42 +3905,44 @@ body.admin-body {
     }
   
     .gc1__message-row--guest {
-      background: #fcf8f3;
+      background: #fffaf4;
     }
   
     .gc1__message-row--assistant {
-      background: #f6f8f2;
+      background: #f5f8ef;
     }
   
     .gc1__message-row--admin {
-      background: #fbf3e8;
+      background: #fbf0e2;
     }
   
     .gc1__message-avatar {
-      width: 36px;
-      height: 36px;
+      width: 42px;
+      height: 42px;
       border-radius: 999px;
       display: grid;
       place-items: center;
-      font-size: 13px;
+      font-size: 15px;
       line-height: 1;
       font-weight: 800;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.36),
+        0 1px 2px rgba(31, 31, 27, 0.06);
     }
   
     .gc1__message-row--guest .gc1__message-avatar {
-      background: #eadfce;
-      color: #5d5443;
+      background: linear-gradient(180deg, #efe4d3 0%, #e2d2bb 100%);
+      color: #544b3f;
     }
   
     .gc1__message-row--assistant .gc1__message-avatar {
-      background: #dde7d0;
-      color: #566341;
+      background: linear-gradient(180deg, #1f211f 0%, #111312 100%);
+      color: #d7b77c;
     }
   
     .gc1__message-row--admin .gc1__message-avatar {
-      background: #e8cfaf;
-      color: #7d5624;
+      background: linear-gradient(180deg, #e8c99f 0%, #dab684 100%);
+      color: #76501f;
     }
   
     .gc1__message-body {
@@ -3956,31 +3956,31 @@ body.admin-body {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 5px;
+      gap: 12px;
+      margin-bottom: 6px;
     }
   
     .gc1__message-name {
-      font-size: 12px;
-      line-height: 1.14;
-      letter-spacing: -0.01em;
+      font-size: 13px;
+      line-height: 1.12;
+      letter-spacing: -0.015em;
       color: var(--text);
       font-weight: 800;
     }
   
     .gc1__message-row--assistant .gc1__message-name {
-      color: #4f5d3a;
+      color: #20231f;
     }
   
     .gc1__message-row--admin .gc1__message-name {
-      color: #714d23;
+      color: #69471f;
     }
   
     .gc1__message-time {
       flex: 0 0 auto;
-      font-size: 10px;
-      line-height: 1.14;
-      color: #7f786e;
+      font-size: 11px;
+      line-height: 1.12;
+      color: #5f5a52;
       font-weight: 800;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
@@ -3988,13 +3988,22 @@ body.admin-body {
     }
   
     .gc1__message-text {
-      font-size: 11px;
-      line-height: 1.36;
-      color: #4f4942;
+      font-size: 11.5px;
+      line-height: 1.38;
+      color: #3f3a34;
+      font-weight: 500;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+  
+    .gc1__message-row--assistant .gc1__message-text {
+      color: #34382f;
+    }
+  
+    .gc1__message-row--admin .gc1__message-text {
+      color: #493a29;
     }
   }
