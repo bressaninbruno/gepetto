@@ -3028,7 +3028,7 @@ body.admin-body {
     /* recuo estrutural da faixa 1 */
     .gc1__masthead,
     .gc1__hero-shell {
-      width: calc(100% - 6px);
+      width: 100%;
       justify-self: end;
     }
   
