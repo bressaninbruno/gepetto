@@ -3595,3 +3595,189 @@ body.admin-body {
     font-size: 8px;
     line-height: 1.02;
   }
+
+  /* =========================
+   FAIXA 2 — OCUPAÇÃO FINAL
+   - conversa recente fica travada no tamanho atual
+   - hospedagem ativa ocupa todo o espaço disponível à esquerda
+   - caixas internas ganham mais respiro dentro do bloco
+   - altura da faixa 2 não muda
+   ========================= */
+
+@media (min-width: 1181px) {
+  /* faixa 2 como conjunto */
+  .gc1__band--middle {
+    grid-template-columns: minmax(0, 1fr) minmax(310px, 0.78fr);
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .gc1__band--middle > .gc1__panel:nth-child(1),
+  .gc1__band--middle > .gc1__panel:nth-child(2) {
+    align-self: stretch;
+    min-height: 0;
+  }
+
+  /* hospedagem ativa cresce e ocupa o lado esquerdo */
+  .gc1__panel--stay {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+  }
+
+  .gc1__stay-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 0.84fr) minmax(300px, 0.78fr);
+    gap: 14px;
+    flex: 1 1 auto;
+    align-items: stretch;
+    min-height: 0;
+  }
+
+  /* caixas “flutuam” melhor dentro do macrobloco */
+  .gc1__stay-main,
+  .gc1__stay-focus {
+    align-self: stretch;
+    min-height: 0;
+  }
+
+  /* ficha principal ganha mais margem branca */
+  .gc1__stay-main {
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gc1__stay-sheet {
+    height: 100%;
+    padding: 14px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .gc1__stay-sheet-block {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .gc1__stay-sheet-label {
+    font-size: 10px;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 800;
+  }
+
+  .gc1__stay-sheet-value {
+    font-size: 12px;
+    line-height: 1.34;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .gc1__stay-sheet-value--name {
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+  }
+
+  .gc1__stay-sheet-value--notes {
+    color: var(--text-soft);
+    font-weight: 600;
+    line-height: 1.34;
+  }
+
+  .gc1__stay-sheet-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 12px 0;
+  }
+
+  .gc1__stay-sheet-line {
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .gc1__stay-sheet-inline-label {
+    font-size: 11px;
+    line-height: 1.2;
+    color: var(--text-soft);
+    font-weight: 700;
+  }
+
+  .gc1__stay-sheet-inline-value {
+    text-align: right;
+    font-size: 11px;
+    line-height: 1.2;
+    color: var(--text);
+    font-weight: 800;
+  }
+
+  /* bloco 2 continua de apoio, sem competir com a ficha */
+  .gc1__stay-focus {
+    width: min(100%, 370px);
+    justify-self: center;
+    background: #f1ebe1;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    display: grid;
+    gap: 0;
+  }
+
+  .gc1__focus-line {
+    min-height: 42px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid #ddd3c6;
+  }
+
+  .gc1__focus-line:first-child {
+    border-top: 0;
+  }
+
+  .gc1__focus-line--wrap {
+    min-height: auto;
+    padding: 9px 12px;
+    align-items: start;
+  }
+
+  .gc1__focus-key {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .gc1__focus-value {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .gc1__focus-value--multiline {
+    line-height: 1.25;
+  }
+
+  /* conversa recente permanece como base já aprovada */
+  .gc1__panel--conversation {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+  }
+
+  .gc1__conversation-box {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
