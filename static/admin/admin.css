@@ -3724,3 +3724,67 @@ body.admin-body {
     min-height: 0;
   }
 }
+
+/* =========================
+   FAIXA 2 — FIX REAL
+   corrige o conflito de grid-column herdado
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__band--middle {
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.82fr);
+      gap: 12px;
+      align-items: start;
+    }
+  
+    /* remove a herança da faixa 2 antiga que jogava os painéis
+       para colunas 2 e 3 */
+    .gc1__band--middle > .gc1__panel:nth-child(1) {
+      grid-column: 1;
+      align-self: start;
+    }
+  
+    .gc1__band--middle > .gc1__panel:nth-child(2) {
+      grid-column: 2;
+      align-self: start;
+    }
+  
+    /* hospedagem ativa ocupa toda a esquerda */
+    .gc1__panel--stay {
+      width: 100%;
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+  
+    .gc1__stay-shell {
+      grid-template-columns: minmax(0, 0.90fr) minmax(285px, 0.78fr);
+      gap: 14px;
+      width: 100%;
+      margin: 0;
+      align-items: start;
+    }
+  
+    .gc1__stay-main,
+    .gc1__stay-focus {
+      align-self: start;
+      min-width: 0;
+      min-height: 0;
+    }
+  
+    .gc1__stay-focus {
+      width: min(100%, 360px);
+      max-width: 360px;
+      justify-self: center;
+    }
+  
+    /* conversa recente continua travada */
+    .gc1__panel--conversation {
+      display: flex;
+      flex-direction: column;
+    }
+  
+    .gc1__conversation-box {
+      flex: 0 0 auto;
+      min-height: 0;
+    }
+  }
