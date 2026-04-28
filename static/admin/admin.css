@@ -3257,3 +3257,34 @@ body.admin-body {
       height: 15px;
     }
   }
+
+  /* =========================
+   SIDEBAR NAV — MICROREFINO 2
+   mais presença + desce a navegação
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__sidebar-top {
+    gap: 24px;
+  }
+
+  .gc1__nav {
+    gap: 11px;
+    margin-top: 8px;
+  }
+
+  .gc1__nav-link {
+    min-height: 42px;
+    padding: 0 13px;
+    border-radius: 10px;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .gc1__nav-link .gc1__icon,
+  .gc1__nav-link .gc1__icon svg {
+    width: 28px;
+    height: 28px;
+  }
+}
