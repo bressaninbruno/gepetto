@@ -303,10 +303,22 @@
                 <div class="gc1__message-avatar">{{ agent_initial }}</div>
 
                 <div class="gc1__message-body">
+                  {% set timestamp_label = item.get("timestamp_label") or "-" %}
+                  {% set timestamp_parts = timestamp_label.split(" ") %}
+
                   <div class="gc1__message-top">
                     <div class="gc1__message-name">{{ agent_name }}</div>
-                    <div class="gc1__message-time">{{ item.get("timestamp_label") or "-" }}</div>
-                  </div>
+
+                    <div class="gc1__message-time">
+                      {% if timestamp_parts|length >= 2 %}
+                        <span class="gc1__message-date">{{ timestamp_parts[0] }}</span>
+                        <span class="gc1__message-time-separator">•</span>
+                        <span class="gc1__message-hour">{{ timestamp_parts[1] }}</span>
+                     {% else %}
+                        <span class="gc1__message-hour">{{ timestamp_label }}</span>
+                     {% endif %}
+                    </div>
+                 </div>
 
                   <div class="gc1__message-text">{{ item.get("text") or "-" }}</div>
                 </div>

@@ -4040,3 +4040,46 @@ body.admin-body {
     opacity: 0.5;
   }
 }
+
+/* =========================
+   CONVERSA RECENTE — DATA/HORA REFINADA
+   - depende do ajuste HTML/Jinja
+   - separa data e hora visualmente
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__message-time::before {
+      content: none;
+    }
+  
+    .gc1__message-time {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 5px;
+      font-size: 10px;
+      line-height: 1.1;
+      color: #716a60;
+      font-weight: 600;
+      white-space: nowrap;
+      letter-spacing: 0;
+      font-variant-numeric: tabular-nums;
+      opacity: 1;
+    }
+  
+    .gc1__message-date {
+      color: #8b8378;
+      font-weight: 600;
+    }
+  
+    .gc1__message-time-separator {
+      color: #b0a698;
+      font-weight: 700;
+      transform: translateY(-0.5px);
+    }
+  
+    .gc1__message-hour {
+      color: #5f584f;
+      font-weight: 700;
+    }
+  }
