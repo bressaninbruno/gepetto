@@ -3350,3 +3350,14 @@ body.admin-body {
       line-height: 1.22;
     }
   }
+
+  /* =========================
+   SIDEBAR TOP — DESCE 24px
+   marca + navegação
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__sidebar-top {
+    padding-top: 24px;
+  }
+}
