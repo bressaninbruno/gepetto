@@ -3230,3 +3230,30 @@ body.admin-body {
     color: var(--text-muted);
   }
 }
+
+/* =========================
+   SIDEBAR NAV — MICROREFINO
+   mais respiro vertical
+   fonte um pouco maior
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__nav {
+      gap: 9px;
+    }
+  
+    .gc1__nav-link {
+      min-height: 40px;
+      padding: 0 12px;
+      border-radius: 10px;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+  
+    .gc1__nav-link .gc1__icon,
+    .gc1__nav-link .gc1__icon svg {
+      width: 15px;
+      height: 15px;
+    }
+  }
