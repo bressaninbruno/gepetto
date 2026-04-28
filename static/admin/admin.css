@@ -3167,3 +3167,66 @@ body.admin-body {
      font-weight: 700;
      color: var(--text-muted);
    }
+
+   /* =========================
+   SIDEBAR BRAND — FINAL
+   Marcellus + Manrope
+   pensado para 193px
+   ========================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Marcellus&display=swap');
+
+@media (min-width: 1181px) {
+  .gc1__sidebar {
+    padding: 12px 12px 12px;
+    gap: 16px;
+  }
+
+  .gc1__sidebar-top {
+    gap: 18px;
+  }
+
+  .gc1__brand {
+    align-items: center;
+    gap: 12px;
+  }
+
+  .gc1__brand-mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(180deg, #ddd1ba 0%, #d2c09f 100%);
+    color: #5d4c31;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  }
+
+  .gc1__brand-copy {
+    min-width: 0;
+  }
+
+  .gc1__brand-title {
+    font-family: "Marcellus", serif;
+    font-size: 20px;
+    line-height: 0.98;
+    letter-spacing: 0.03em;
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  .gc1__brand-subtitle {
+    margin-top: 5px;
+    font-family: "Manrope", sans-serif;
+    font-size: 9px;
+    line-height: 1.2;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+}
