@@ -3188,18 +3188,18 @@ body.admin-body {
 
   .gc1__brand {
     align-items: center;
-    gap: 12px;
+    gap: 14px;
   }
 
   .gc1__brand-mark {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
     display: grid;
     place-items: center;
     background: linear-gradient(180deg, #ddd1ba 0%, #d2c09f 100%);
     color: #5d4c31;
-    font-size: 18px;
+    font-size: 21px;
     line-height: 1;
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -3212,15 +3212,15 @@ body.admin-body {
 
   .gc1__brand-title {
     font-family: "Marcellus", serif;
-    font-size: 20px;
-    line-height: 0.98;
+    font-size: 23px;
+    line-height: 0.96;
     letter-spacing: 0.03em;
     font-weight: 400;
     color: var(--text);
   }
 
   .gc1__brand-subtitle {
-    margin-top: 5px;
+    margin-top: 4px;
     font-family: "Manrope", sans-serif;
     font-size: 9px;
     line-height: 1.2;
