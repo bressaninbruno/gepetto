@@ -3361,3 +3361,237 @@ body.admin-body {
     padding-top: 24px;
   }
 }
+
+/* =========================
+   FAIXA 3 — REDISTRIBUIÇÃO FINAL
+   - sem espaço morto à esquerda
+   - altura travada
+   - usage travado
+   - espaço útil restante dividido entre
+     estado da conversa e pendências
+   ========================= */
+
+   .gc1__band--bottom {
+    grid-template-columns:
+      minmax(238px, 1.5fr)   /* estado da conversa */
+      minmax(340px, 2.01fr)  /* pendências */
+      minmax(360px, 2.24fr); /* usage = travado */
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  /* posicionamento real dos 3 blocos */
+  .gc1__band--bottom > .gc1__panel:nth-child(1) {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+  }
+  
+  .gc1__band--bottom > .gc1__panel:nth-child(2) {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+  }
+  
+  .gc1__band--bottom > .gc1__panel:nth-child(3) {
+    grid-column: 3;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+  }
+  
+  /* =========================
+     ESTADO DA CONVERSA
+     mantém a caixa de info no topo;
+     só o painel branco acompanha a altura
+     ========================= */
+  
+  .gc1__state-box {
+    padding: 9px 11px;
+    align-self: stretch;
+  }
+  
+  .gc1__state-line {
+    min-height: 33px;
+  }
+  
+  .gc1__state-key,
+  .gc1__state-value {
+    font-size: 10px;
+  }
+  
+  /* =========================
+     PENDÊNCIAS & ALERTAS
+     mesma altura total do usage;
+     histórico ganha mais corpo
+     ========================= */
+  
+  .gc1__alerts-box {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  
+  .gc1__alert-row {
+    grid-template-columns: minmax(0, 1fr) 60px;
+    gap: 6px;
+    padding: 8px 9px;
+  }
+  
+  .gc1__alert-title {
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+  
+  .gc1__alert-text {
+    font-size: 9px;
+    line-height: 1.22;
+  }
+  
+  .gc1__alert-meta {
+    font-size: 8px;
+  }
+  
+  .gc1__history-box {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+  }
+  
+  .gc1__history-title {
+    margin-bottom: 6px;
+    font-size: 10px;
+    line-height: 1.2;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 800;
+  }
+  
+  .gc1__history-row {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) 60px;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid #ece3d8;
+  }
+  
+  .gc1__history-row:first-of-type {
+    border-top: 0;
+    padding-top: 2px;
+  }
+  
+  .gc1__history-head {
+    font-size: 9px;
+    line-height: 1.2;
+  }
+  
+  .gc1__history-text {
+    font-size: 8px;
+    line-height: 1.22;
+  }
+  
+  .gc1__history-meta {
+    font-size: 8px;
+  }
+  
+  /* =========================
+     USAGE + ATALHOS
+     não muda altura;
+     largura travada
+     ========================= */
+  
+  .gc1__panel--ops {
+    width: auto;
+    max-width: none;
+    justify-self: stretch;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    padding-top: 5px;
+  }
+  
+  .gc1__panel-head--ops {
+    margin-bottom: 3px;
+  }
+  
+  .gc1__ops-tabs {
+    gap: 3px;
+    align-items: end;
+    border-bottom: 1px solid var(--line);
+  }
+  
+  .gc1__ops-tab {
+    min-height: 26px;
+    padding: 0 10px;
+    border-radius: 8px 8px 0 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-soft);
+  }
+  
+  .gc1__ops-tab.is-active {
+    background: #fffdf9;
+    color: var(--text);
+    border-bottom-color: #c98b33;
+  }
+  
+  .gc1__ops-box {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    flex: 1 1 auto;
+  }
+  
+  .gc1__ops-row {
+    grid-template-columns: minmax(0, 1fr) 64px;
+    gap: 7px;
+    padding: 7px 8px;
+  }
+  
+  .gc1__ops-head {
+    font-size: 10px;
+  }
+  
+  .gc1__ops-text {
+    font-size: 9px;
+    line-height: 1.16;
+  }
+  
+  .gc1__ops-time {
+    font-size: 8px;
+  }
+  
+  .gc1__ops-info {
+    min-height: 15px;
+    padding: 0 5px;
+    font-size: 8px;
+  }
+  
+  .gc1__shortcut-box {
+    margin-top: 6px;
+    gap: 5px;
+  }
+  
+  .gc1__shortcut-tile {
+    min-height: 42px;
+    padding: 4px 4px;
+    gap: 3px;
+  }
+  
+  .gc1__shortcut-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .gc1__shortcut-label {
+    font-size: 8px;
+    line-height: 1.02;
+  }
