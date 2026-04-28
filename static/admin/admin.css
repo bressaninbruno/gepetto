@@ -3596,12 +3596,11 @@ body.admin-body {
     line-height: 1.02;
   }
 
-  /* =========================
-   FAIXA 2 — OCUPAÇÃO CONSERVADORA
-   - conversa recente travada
-   - altura travada
-   - hospedagem ativa ocupa melhor a esquerda
-   - caixas internas com margem branca mais grossa
+ /* =========================
+   FAIXA 2 — OCUPAÇÃO AJUSTADA
+   - conversa recente permanece no tamanho atual
+   - hospedagem ativa ocupa todo o espaço útil da esquerda
+   - o “branco” nobre vem do padding do painel, não de width artificial
    - sem estourar a página
    ========================= */
 
@@ -3618,27 +3617,30 @@ body.admin-body {
     min-height: 0;
   }
 
-  /* macrobloco da hospedagem ocupa o lado esquerdo */
+  /* macrobloco da hospedagem ocupa toda a esquerda */
   .gc1__panel--stay {
     display: flex;
     flex-direction: column;
     width: 100%;
+    padding-left: 14px;
+    padding-right: 14px;
   }
 
-  /* as caixas internas respiram dentro do bloco maior */
+  /* caixas internas respiram dentro do macrobloco */
   .gc1__stay-shell {
     display: grid;
-    grid-template-columns: minmax(0, 0.88fr) minmax(300px, 0.80fr);
+    grid-template-columns: minmax(0, 0.90fr) minmax(285px, 0.78fr);
     gap: 14px;
-    width: calc(100% - 28px);
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
     align-items: start;
   }
 
-  /* ficha principal permanece estável */
+  /* ficha principal */
   .gc1__stay-main {
     align-self: start;
     min-width: 0;
+    min-height: 0;
   }
 
   .gc1__stay-sheet {
@@ -3681,9 +3683,10 @@ body.admin-body {
     font-size: 11px;
   }
 
-  /* bloco 2 como apoio, sem dominar o macrobloco */
+  /* bloco 2 como apoio, sem dominar o conjunto */
   .gc1__stay-focus {
     width: min(100%, 360px);
+    max-width: 360px;
     justify-self: center;
     align-self: start;
     min-height: 0;
@@ -3710,7 +3713,7 @@ body.admin-body {
     line-height: 1.22;
   }
 
-  /* conversa recente permanece como base aprovada */
+  /* conversa recente fica exatamente como base aprovada */
   .gc1__panel--conversation {
     display: flex;
     flex-direction: column;
