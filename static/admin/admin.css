@@ -3859,3 +3859,142 @@ body.admin-body {
     padding: 7px 12px;
   }
 }
+
+/* =========================
+   CONVERSA RECENTE — REFINO INTERNO
+   - sem mexer na macroestrutura
+   - aumenta presença das mensagens
+   - ocupa melhor a altura útil
+   - destaca avatar / nome / hora
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__panel--conversation {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+  
+    .gc1__conversation-box {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+  
+    /* quando houver exatamente 4 mensagens,
+       elas passam a ocupar melhor a altura do bloco */
+    .gc1__conversation-box:has(> .gc1__message-row:nth-child(4):last-child) > .gc1__message-row {
+      flex: 1 1 0;
+    }
+  
+    .gc1__message-row {
+      min-height: 68px;
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 12px;
+      padding: 12px 12px 11px;
+      align-items: start;
+      border-top: 1px solid var(--line);
+    }
+  
+    .gc1__message-row:first-child {
+      border-top: 0;
+    }
+  
+    .gc1__message-row--guest {
+      background: #fcf8f3;
+    }
+  
+    .gc1__message-row--assistant {
+      background: #f6f8f2;
+    }
+  
+    .gc1__message-row--admin {
+      background: #fbf3e8;
+    }
+  
+    .gc1__message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      line-height: 1;
+      font-weight: 800;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    }
+  
+    .gc1__message-row--guest .gc1__message-avatar {
+      background: #eadfce;
+      color: #5d5443;
+    }
+  
+    .gc1__message-row--assistant .gc1__message-avatar {
+      background: #dde7d0;
+      color: #566341;
+    }
+  
+    .gc1__message-row--admin .gc1__message-avatar {
+      background: #e8cfaf;
+      color: #7d5624;
+    }
+  
+    .gc1__message-body {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  
+    .gc1__message-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+  
+    .gc1__message-name {
+      font-size: 12px;
+      line-height: 1.14;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      font-weight: 800;
+    }
+  
+    .gc1__message-row--assistant .gc1__message-name {
+      color: #4f5d3a;
+    }
+  
+    .gc1__message-row--admin .gc1__message-name {
+      color: #714d23;
+    }
+  
+    .gc1__message-time {
+      flex: 0 0 auto;
+      font-size: 10px;
+      line-height: 1.14;
+      color: #7f786e;
+      font-weight: 800;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
+    }
+  
+    .gc1__message-text {
+      font-size: 11px;
+      line-height: 1.36;
+      color: #4f4942;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
