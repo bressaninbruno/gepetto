@@ -3028,7 +3028,7 @@ body.admin-body {
     /* recuo estrutural da faixa 1 */
     .gc1__masthead,
     .gc1__hero-shell {
-      width: calc(100% - 64px);
+      width: calc(100% - 46px);
       justify-self: end;
     }
   
@@ -3053,7 +3053,7 @@ body.admin-body {
   
     /* hero mais compacto horizontalmente */
     .gc1__hero-top {
-      grid-template-columns: minmax(0, 0.98fr) minmax(296px, 0.90fr);
+      grid-template-columns: minmax(0, 1.02fr) minmax(304px, 0.92fr);
       gap: 8px;
       padding: 10px 10px 8px;
     }
@@ -3097,7 +3097,7 @@ body.admin-body {
   
     /* banda de síntese acompanha a compressão */
     .gc1__summary-band {
-      grid-template-columns: 0.88fr 0.88fr 1fr 0.66fr 0.66fr 0.66fr;
+      grid-template-columns: 0.92fr 0.92fr 1.04fr 0.70fr 0.70fr 0.70fr;
       gap: 6px;
       padding: 8px 10px 10px;
     }
