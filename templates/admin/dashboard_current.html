@@ -305,20 +305,38 @@
                 <div class="gc1__message-body">
                   {% set timestamp_label = item.get("timestamp_label") or "-" %}
                   {% set timestamp_parts = timestamp_label.split(" ") %}
+                  {% set date_label = timestamp_parts[0] if timestamp_parts|length >= 2 else timestamp_label %}
+                  {% set hour_label = timestamp_parts[1] if timestamp_parts|length >= 2 else "" %}
+                  {% set date_parts = date_label.split("/") %}
+                  {% set hour_parts = hour_label.split(":") %}
 
                   <div class="gc1__message-top">
                     <div class="gc1__message-name">{{ agent_name }}</div>
 
                     <div class="gc1__message-time">
                       {% if timestamp_parts|length >= 2 %}
-                        <span class="gc1__message-date">{{ timestamp_parts[0] }}</span>
-                        <span class="gc1__message-time-separator">•</span>
-                        <span class="gc1__message-hour">{{ timestamp_parts[1] }}</span>
-                     {% else %}
-                        <span class="gc1__message-hour">{{ timestamp_label }}</span>
-                     {% endif %}
+                        <span class="gc1__message-date">
+                          {% if date_parts|length >= 2 %}
+                            {{ date_parts[0] }}/{{ date_parts[1] }}
+                          {% else %}
+                            {{ date_label }}
+                          {% endif %}
+                        </span>
+
+                        <span class="gc1__message-time-separator">·</span>
+
+                        <span class="gc1__message-hour">
+                          {% if hour_parts|length >= 3 %}
+                            <span class="gc1__message-hour-main">{{ hour_parts[0] }}:{{ hour_parts[1] }}</span><span class="gc1__message-hour-seconds">:{{ hour_parts[2] }}</span>
+                          {% else %}
+                            <span class="gc1__message-hour-main">{{ hour_label }}</span>
+                          {% endif %}
+                        </span>
+                      {% else %}
+                        <span class="gc1__message-hour-main">{{ timestamp_label }}</span>
+                      {% endif %}
                     </div>
-                 </div>
+                  </div>
 
                   <div class="gc1__message-text">{{ item.get("text") or "-" }}</div>
                 </div>

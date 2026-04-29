@@ -4211,3 +4211,62 @@ body.admin-body {
         0 1px 2px rgba(31, 31, 27, 0.08);
     }
   }
+
+  /* =========================
+   CONVERSA RECENTE — DATA/HORA PREMIUM
+   - data curta
+   - hora principal
+   - segundos presentes com menor peso visual
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__message-time::before {
+    content: none;
+  }
+
+  .gc1__message-time {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 5px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    opacity: 1;
+  }
+
+  .gc1__message-date {
+    font-size: 9.5px;
+    line-height: 1;
+    color: #91887b;
+    font-weight: 600;
+  }
+
+  .gc1__message-time-separator {
+    font-size: 10px;
+    line-height: 1;
+    color: #b4aa9b;
+    font-weight: 700;
+  }
+
+  .gc1__message-hour {
+    display: inline-flex;
+    align-items: baseline;
+    line-height: 1;
+  }
+
+  .gc1__message-hour-main {
+    font-size: 10.5px;
+    line-height: 1;
+    color: #504940;
+    font-weight: 800;
+  }
+
+  .gc1__message-hour-seconds {
+    font-size: 9.5px;
+    line-height: 1;
+    color: #7d7468;
+    font-weight: 600;
+    margin-left: 1px;
+  }
+}
