@@ -4161,3 +4161,46 @@ body.admin-body {
     font-weight: 500;
   }
 }
+
+/* =========================
+   CONVERSA RECENTE — AVATARES HÓSPEDE + ADMIN
+   - complementa o avatar-marca do Gepetto
+   - aumenta presença sem competir com ele
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__message-row--guest .gc1__message-avatar {
+      background: linear-gradient(180deg, #f0e4d2 0%, #dfcfb8 100%);
+      color: #574d3f;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.32),
+        inset 0 -1px 0 rgba(94, 78, 54, 0.08),
+        0 1px 2px rgba(31, 31, 27, 0.06);
+    }
+  
+    .gc1__message-row--admin .gc1__message-avatar {
+      background: linear-gradient(180deg, #e8c99e 0%, #d8b27d 100%);
+      color: #70491c;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        inset 0 -1px 0 rgba(98, 61, 20, 0.10),
+        0 1px 2px rgba(31, 31, 27, 0.07);
+    }
+  }
+  
+  /* =========================
+   CONVERSA RECENTE — FONTE AVATARES HÓSPEDE + ADMIN
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__message-row--guest .gc1__message-avatar,
+  .gc1__message-row--admin .gc1__message-avatar {
+    font-family: "Manrope", sans-serif;
+  }
+}
