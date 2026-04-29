@@ -4083,3 +4083,26 @@ body.admin-body {
       font-weight: 700;
     }
   }
+
+  /* =========================
+   CONVERSA RECENTE — AVATAR GEPETTO REFINADO
+   - marca tipográfica provisória
+   - sem alterar HTML
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__message-row--assistant .gc1__message-avatar {
+    background: radial-gradient(circle at 35% 28%, #2a2d28 0%, #171916 54%, #0f110f 100%);
+    color: #d9b978;
+    font-family: "Marcellus", serif;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.10),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+      0 1px 2px rgba(31, 31, 27, 0.10);
+  }
+}
