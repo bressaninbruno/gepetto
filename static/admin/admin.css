@@ -4106,3 +4106,32 @@ body.admin-body {
       0 1px 2px rgba(31, 31, 27, 0.10);
   }
 }
+
+/* =========================
+   CONVERSA RECENTE — TEXTO MAIS VIVO
+   - reduz sensação de bloco empacotado
+   - melhora textura tipográfica
+   - mantém clamp e macroestrutura
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__message-text {
+      font-size: 11.25px;
+      line-height: 1.46;
+      font-weight: 400;
+      letter-spacing: 0.002em;
+      color: #453f38;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+  
+    .gc1__message-row--assistant .gc1__message-text {
+      color: #31362e;
+      font-weight: 400;
+    }
+  
+    .gc1__message-row--admin .gc1__message-text {
+      color: #493a29;
+      font-weight: 400;
+    }
+  }
