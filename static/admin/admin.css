@@ -4325,18 +4325,26 @@ body.admin-body {
   }
 
   /* =========================
-   HOSPEDAGEM ATIVA — DATAS REFINO DISTRIBUÍDO AJUSTADO
-   - corrige corte dos dias da semana
-   - data próxima ao label
-   - ponto central como divisor
+   HOSPEDAGEM ATIVA — DATAS REFINO DISTRIBUÍDO FINAL
+   - aproxima dados do label
+   - ponto central entre data e dia
+   - evita corte do dia da semana
    ========================= */
 
 @media (min-width: 1181px) {
+  .gc1__stay-sheet-line--date {
+    display: grid;
+    grid-template-columns: 98px 1fr;
+    align-items: center;
+    column-gap: 10px;
+  }
+
   .gc1__stay-date-value {
     display: grid;
-    grid-template-columns: 92px 34px 104px;
+    grid-template-columns: 86px 24px auto;
     align-items: center;
-    column-gap: 0;
+    width: fit-content;
+    max-width: 100%;
     min-width: 0;
   }
 
@@ -4345,6 +4353,7 @@ body.admin-body {
     font-weight: 800;
     color: #201d19;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
 
   .gc1__stay-date-dot {
@@ -4352,7 +4361,8 @@ body.admin-body {
     font-size: 10px;
     font-weight: 800;
     text-align: center;
-    opacity: 0.82;
+    opacity: 0.78;
+    line-height: 1;
   }
 
   .gc1__stay-date-weekday {
@@ -4364,6 +4374,6 @@ body.admin-body {
   }
 
   .gc1__stay-date-value--time {
-    grid-template-columns: 92px;
+    grid-template-columns: 86px;
   }
 }
