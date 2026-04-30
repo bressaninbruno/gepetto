@@ -228,17 +228,33 @@
               <div class="gc1__stay-sheet-divider"></div>
           
               <div class="gc1__stay-sheet-block">
-                <div class="gc1__stay-sheet-line">
+                <div class="gc1__stay-sheet-line gc1__stay-sheet-line--date">
                   <span class="gc1__stay-sheet-inline-label">Check-in</span>
-                  <span class="gc1__stay-sheet-inline-value">{{ guest_checkin or "-" }}</span>
+                  <span class="gc1__stay-date-value">
+                    <span class="gc1__stay-date-main">{{ guest_checkin or "-" }}</span>
+                    {% if guest_checkin_weekday %}
+                      <span class="gc1__stay-date-dot">•</span>
+                      <span class="gc1__stay-date-weekday">{{ guest_checkin_weekday }}</span>
+                    {% endif %}
+                  </span>
                 </div>
-                <div class="gc1__stay-sheet-line">
+                
+                <div class="gc1__stay-sheet-line gc1__stay-sheet-line--date">
                   <span class="gc1__stay-sheet-inline-label">Check-out</span>
-                  <span class="gc1__stay-sheet-inline-value">{{ guest_checkout or "-" }}</span>
+                  <span class="gc1__stay-date-value">
+                    <span class="gc1__stay-date-main">{{ guest_checkout or "-" }}</span>
+                    {% if guest_checkout_weekday %}
+                      <span class="gc1__stay-date-dot">•</span>
+                      <span class="gc1__stay-date-weekday">{{ guest_checkout_weekday }}</span>
+                    {% endif %}
+                  </span>
                 </div>
-                <div class="gc1__stay-sheet-line">
+                
+                <div class="gc1__stay-sheet-line gc1__stay-sheet-line--date">
                   <span class="gc1__stay-sheet-inline-label">Saída</span>
-                  <span class="gc1__stay-sheet-inline-value">{{ guest_checkout_time or "-" }}</span>
+                  <span class="gc1__stay-date-value gc1__stay-date-value--time">
+                    <span class="gc1__stay-date-main">{{ guest_checkout_time or "-" }}</span>
+                  </span>
                 </div>
               </div>
           

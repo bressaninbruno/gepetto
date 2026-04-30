@@ -9194,6 +9194,29 @@ def admin_dashboard_current():
         except Exception:
             return str(value)
 
+    def fmt_weekday(value):
+        if not value:
+            return ""
+
+        weekdays = {
+            0: "Segunda-feira",
+            1: "Terça-feira",
+            2: "Quarta-feira",
+            3: "Quinta-feira",
+            4: "Sexta-feira",
+            5: "Sábado",
+            6: "Domingo",
+        }
+
+        try:
+            return weekdays.get(value.weekday(), "")
+        except Exception:
+            try:
+                dt = datetime.fromisoformat(str(value))
+                return weekdays.get(dt.weekday(), "")
+            except Exception:
+                return ""        
+
     def fmt_time(value):
         if not value:
             return "-"
@@ -9207,7 +9230,9 @@ def admin_dashboard_current():
     guest_profile = "-"
     guest_idioma = "-"
     guest_checkin = "-"
+    guest_checkin_weekday = ""
     guest_checkout = "-"
+    guest_checkout_weekday = ""
     guest_checkout_time = "-"
     guest_updated_at = "-"
     guest_observacoes = "-"
@@ -9218,8 +9243,15 @@ def admin_dashboard_current():
         guest_group = current_guest.get("grupo") or "-"
         guest_profile = current_guest.get("perfil_hospede") or "-"
         guest_idioma = current_guest.get("idioma") or "-"
-        guest_checkin = fmt_date(current_guest.get("checkin_date"))
-        guest_checkout = fmt_date(current_guest.get("checkout_date"))
+        guest_checkin_raw = current_guest.get("checkin_date")
+        guest_checkout_raw = current_guest.get("checkout_date")
+
+        guest_checkin = fmt_date(guest_checkin_raw)
+        guest_checkin_weekday = fmt_weekday(guest_checkin_raw)
+
+        guest_checkout = fmt_date(guest_checkout_raw)
+        guest_checkout_weekday = fmt_weekday(guest_checkout_raw)
+
         guest_checkout_time = fmt_time(current_guest.get("checkout_time"))
         guest_updated_at = fmt_dt(current_guest.get("updated_at"))
         guest_observacoes = current_guest.get("observacoes") or "-"
@@ -9290,7 +9322,9 @@ def admin_dashboard_current():
         guest_profile=guest_profile,
         guest_idioma=guest_idioma,
         guest_checkin=guest_checkin,
+        guest_checkin_weekday=guest_checkin_weekday,
         guest_checkout=guest_checkout,
+        guest_checkout_weekday=guest_checkout_weekday,
         guest_checkout_time=guest_checkout_time,
         guest_observacoes=guest_observacoes,
         preferencias_html=preferencias_html,

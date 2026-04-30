@@ -4270,3 +4270,56 @@ body.admin-body {
     margin-left: 1px;
   }
 }
+
+/* =========================
+   HOSPEDAGEM ATIVA — DATAS COM DIA DA SEMANA
+   - refino interno
+   - não altera macroestrutura da faixa 2
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__stay-sheet-line--date {
+      display: grid;
+      grid-template-columns: 118px minmax(0, 1fr);
+      align-items: center;
+      column-gap: 16px;
+    }
+  
+    .gc1__stay-date-value {
+      display: grid;
+      grid-template-columns: minmax(92px, 0.72fr) 14px minmax(100px, 0.90fr);
+      align-items: center;
+      min-width: 0;
+    }
+  
+    .gc1__stay-date-main {
+      color: var(--text);
+      font-size: 11.5px;
+      font-weight: 800;
+      line-height: 1.2;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+  
+    .gc1__stay-date-dot {
+      color: #b49468;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
+      text-align: center;
+      opacity: 0.82;
+      transform: translateY(-0.5px);
+    }
+  
+    .gc1__stay-date-weekday {
+      color: #7a6f60;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+  
+    .gc1__stay-date-value--time {
+      grid-template-columns: minmax(92px, 0.72fr);
+    }
+  }
