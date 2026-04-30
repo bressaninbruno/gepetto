@@ -4323,3 +4323,41 @@ body.admin-body {
       grid-template-columns: minmax(92px, 0.72fr);
     }
   }
+
+  /* =========================
+   HOSPEDAGEM ATIVA — DATAS REFINO DISTRIBUÍDO
+   - data mais próxima do label
+   - ponto como divisor central
+   - dia da semana mais visível
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__stay-date-value {
+    grid-template-columns: minmax(86px, 0.56fr) minmax(18px, 0.20fr) minmax(108px, 0.72fr);
+    column-gap: 8px;
+  }
+
+  .gc1__stay-date-main {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #201d19;
+  }
+
+  .gc1__stay-date-dot {
+    color: #a8895d;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: center;
+    opacity: 0.82;
+  }
+
+  .gc1__stay-date-weekday {
+    font-size: 11px;
+    font-weight: 600;
+    color: #3f3932;
+  }
+
+  .gc1__stay-date-value--time {
+    grid-template-columns: minmax(86px, 0.56fr);
+  }
+}
