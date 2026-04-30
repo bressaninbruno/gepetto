@@ -4325,22 +4325,26 @@ body.admin-body {
   }
 
   /* =========================
-   HOSPEDAGEM ATIVA — DATAS REFINO DISTRIBUÍDO
-   - data mais próxima do label
-   - ponto como divisor central
-   - dia da semana mais visível
+   HOSPEDAGEM ATIVA — DATAS REFINO DISTRIBUÍDO AJUSTADO
+   - corrige corte dos dias da semana
+   - data próxima ao label
+   - ponto central como divisor
    ========================= */
 
 @media (min-width: 1181px) {
   .gc1__stay-date-value {
-    grid-template-columns: minmax(86px, 0.56fr) minmax(18px, 0.20fr) minmax(108px, 0.72fr);
-    column-gap: 8px;
+    display: grid;
+    grid-template-columns: 92px 34px 104px;
+    align-items: center;
+    column-gap: 0;
+    min-width: 0;
   }
 
   .gc1__stay-date-main {
     font-size: 11.5px;
     font-weight: 800;
     color: #201d19;
+    white-space: nowrap;
   }
 
   .gc1__stay-date-dot {
@@ -4352,12 +4356,14 @@ body.admin-body {
   }
 
   .gc1__stay-date-weekday {
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 600;
     color: #3f3932;
+    white-space: nowrap;
+    overflow: visible;
   }
 
   .gc1__stay-date-value--time {
-    grid-template-columns: minmax(86px, 0.56fr);
+    grid-template-columns: 92px;
   }
 }
