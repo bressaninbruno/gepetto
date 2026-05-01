@@ -4405,3 +4405,22 @@ body.admin-body {
       transform: translateY(-0.5px);
     }
   }
+
+  /* =========================
+   HOSPEDAGEM ATIVA — OBSERVAÇÕES
+   - mantém consistência com grupo/perfil/idioma
+   - texto alinhado à cor dos dias da semana
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__stay-sheet-label:last-of-type {
+    color: #1f1f1b;
+    letter-spacing: 0.06em;
+  }
+
+  .gc1__stay-sheet-label:last-of-type + .gc1__stay-sheet-value {
+    color: #3f3932;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+}
