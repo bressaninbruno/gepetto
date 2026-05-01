@@ -4430,9 +4430,9 @@ body.admin-body {
 
    @media (min-width: 1181px) {
     .gc1__stay-sheet-name {
-      font-size: 17px;
+      font-size: 14px;
       font-weight: 600;
-      letter-spacing: 0.025em;
+      letter-spacing: 0.050em;
       text-transform: none;
       color: #14120f;
       line-height: 1.12;
