@@ -9185,6 +9185,37 @@ def admin_dashboard_current():
             return str(value)
         except Exception:
             return str(value)
+        
+    def display_group(value):
+        mapping = {
+            "familia": "Família",
+            "casal": "Casal",
+            "amigos": "Amigos",
+            "grupo": "Grupo",
+            "neutro": "Neutro",
+        }
+        key = normalize_text(value).replace(" ", "_")
+        return mapping.get(key, (value or "-").strip() or "-")
+
+    def display_profile(value):
+        mapping = {
+            "familia_com_criancas": "Família com crianças",
+            "familia_sem_criancas": "Família sem crianças",
+            "casal": "Casal",
+            "amigos": "Amigos",
+            "grupo": "Grupo",
+            "neutro": "Neutro",
+        }
+        key = normalize_text(value).replace(" ", "_")
+        return mapping.get(key, (value or "-").replace("_", " ").capitalize())
+
+    def display_language(value):
+        key = normalize_text(value)
+        if key.startswith("pt"):
+            return "PT"
+        if key.startswith("en"):
+            return "EN"
+        return (value or "-").upper()    
 
     def fmt_date(value):
         if not value:
@@ -9240,9 +9271,9 @@ def admin_dashboard_current():
 
     if current_guest:
         guest_name = current_guest.get("nome") or "-"
-        guest_group = current_guest.get("grupo") or "-"
-        guest_profile = current_guest.get("perfil_hospede") or "-"
-        guest_idioma = current_guest.get("idioma") or "-"
+        guest_group = display_group(current_guest.get("grupo"))
+        guest_profile = display_profile(current_guest.get("perfil_hospede"))
+        guest_idioma = display_language(current_guest.get("idioma"))
         guest_checkin_raw = current_guest.get("checkin_date")
         guest_checkout_raw = current_guest.get("checkout_date")
 

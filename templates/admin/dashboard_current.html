@@ -222,7 +222,13 @@
           
               <div class="gc1__stay-sheet-block">
                 <div class="gc1__stay-sheet-label">Grupo / Perfil / Idioma</div>
-                <div class="gc1__stay-sheet-value">{{ guest_group or "-" }}  —  {{ guest_profile or "-" }}  —  {{ guest_idioma or "-" }}</div>
+                <div class="gc1__stay-sheet-value gc1__stay-profile-line">
+                  <span>{{ guest_group or "-" }}</span>
+                  <span class="gc1__stay-profile-dot">•</span>
+                  <span>{{ guest_profile or "-" }}</span>
+                  <span class="gc1__stay-profile-dot">•</span>
+                  <span>{{ guest_idioma or "-" }}</span>
+                </div>
               </div>
           
               <div class="gc1__stay-sheet-divider"></div>
