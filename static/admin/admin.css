@@ -4422,3 +4422,19 @@ body.admin-body {
     letter-spacing: -0.005em;
   }
 }
+
+/* =========================
+   HOSPEDAGEM ATIVA — NOME NA FICHA
+   - destaque elegante sem negrito pesado
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__stay-sheet-name {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      text-transform: none;
+      color: #14120f;
+      line-height: 1.12;
+    }
+  }
