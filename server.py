@@ -9215,7 +9215,25 @@ def admin_dashboard_current():
             return "PT"
         if key.startswith("en"):
             return "EN"
-        return (value or "-").upper()    
+        return (value or "-").upper()
+
+    def display_label(value):
+        if not value:
+            return "-"
+
+        text = str(value).strip().replace("_", " ")
+
+        small_words = {"da", "de", "do", "das", "dos", "e", "em", "na", "no"}
+
+        parts = []
+        for i, word in enumerate(text.split()):
+            lower = word.lower()
+            if i > 0 and lower in small_words:
+                parts.append(lower)
+            else:
+                parts.append(lower.capitalize())
+
+        return " ".join(parts)        
 
     def fmt_date(value):
         if not value:
@@ -9302,6 +9320,9 @@ def admin_dashboard_current():
     pending_bruno = False
     pending_incident = False
     session_updated_at = "-"
+    last_topic_display = "-"
+    last_intent_display = "-"
+    current_active_name_display = "-"
 
     if current_session:
         last_topic = current_session.get("last_topic") or "-"
@@ -9312,6 +9333,9 @@ def admin_dashboard_current():
         pending_bruno = bool(current_session.get("pending_bruno_contact"))
         pending_incident = bool(current_session.get("pending_incident_context"))
         session_updated_at = fmt_dt(current_session.get("updated_at"))
+        last_topic_display = display_label(last_topic)
+        last_intent_display = display_label(last_intent)
+        
 
         active_options = current_session.get("active_recommendation_options_json")
         if not isinstance(active_options, list):
@@ -9320,6 +9344,8 @@ def admin_dashboard_current():
         idx = current_session.get("active_recommendation_index", 0)
         if active_options and isinstance(idx, int) and 0 <= idx < len(active_options):
             current_active_name = str(active_options[idx])
+
+        current_active_name_display = display_label(current_active_name)    
 
     for item in recent_messages:
         item["timestamp_label"] = fmt_dt(item.get("timestamp"))
@@ -9372,6 +9398,9 @@ def admin_dashboard_current():
         recent_intents=recent_intents,
         recent_insights=recent_insights,
         recent_usage=recent_usage,
+        last_topic_display=last_topic_display,
+        last_intent_display=last_intent_display,
+        current_active_name_display=current_active_name_display,
     )    
 
 @app.route("/admin/conversations", methods=["GET"])

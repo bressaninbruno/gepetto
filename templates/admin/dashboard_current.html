@@ -276,17 +276,17 @@
           <div class="gc1__stay-focus">
             <div class="gc1__focus-line">
               <span class="gc1__focus-key">{{ icon("chevron_right") }} Último tópico</span>
-              <span class="gc1__focus-value">{{ last_topic or "-" }}</span>
+              <span class="gc1__focus-value">{{ last_topic_display or "-" }}</span>
             </div>
 
             <div class="gc1__focus-line">
               <span class="gc1__focus-key">{{ icon("chevron_right") }} Última intent</span>
-              <span class="gc1__focus-value">{{ last_intent or "-" }}</span>
+              <span class="gc1__focus-value">{{ last_intent_display or "-" }}</span>
             </div>
 
             <div class="gc1__focus-line">
               <span class="gc1__focus-key">{{ icon("chevron_right") }} Contexto atual</span>
-              <span class="gc1__focus-value">{{ summary_context }}</span>
+              <span class="gc1__focus-value">{{ current_active_name_display or "-" }}</span>
             </div>
 
             <div class="gc1__focus-line gc1__focus-line--wrap">
