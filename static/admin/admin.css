@@ -4431,10 +4431,10 @@ body.admin-body {
    @media (min-width: 1181px) {
     .gc1__stay-sheet-value--name {
       font-size: 16px;
-      font-weight: 500;
-      letter-spacing: 0.035em;
+      font-weight: 650;
+      letter-spacing: 0.018em;
       text-transform: none;
-      color: #14120f;
+      color: #11100d;
       line-height: 1.14;
     }
   }
