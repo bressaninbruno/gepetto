@@ -4775,3 +4775,94 @@ body.admin-body {
     white-space: nowrap;
   }
 }
+
+/* =========================
+   FAIXA 3 — PENDÊNCIAS & ALERTAS REFINO V1
+   - tipografia maior
+   - leitura operacional mais clara
+   - complemento mais suave que incidente
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__alert-row {
+      grid-template-columns: minmax(0, 1fr) 58px;
+      gap: 10px;
+      padding: 10px 11px;
+      align-items: center;
+    }
+  
+    .gc1__alert-title {
+      font-size: 11.4px;
+      line-height: 1.18;
+      font-weight: 900;
+      color: #14120f;
+      margin-bottom: 4px;
+      letter-spacing: -0.004em;
+    }
+  
+    .gc1__alert-text {
+      font-size: 10.3px;
+      line-height: 1.24;
+      font-weight: 600;
+      color: #3f3932;
+    }
+  
+    .gc1__alert-date,
+    .gc1__alert-hour {
+      font-size: 9.8px;
+      line-height: 1.05;
+      font-weight: 900;
+      color: #3f3932;
+    }
+  
+    .gc1__alert-row--incident-note {
+      background: #f8f3eb;
+      border-color: #e3d6c6;
+    }
+  
+    .gc1__alert-row--incident-note .gc1__alert-title {
+      color: #3f3932;
+      font-weight: 850;
+    }
+  
+    .gc1__alert-row--incident-note .gc1__alert-text {
+      color: #5a5147;
+    }
+  
+    .gc1__history-title {
+      font-size: 10.5px;
+      color: #8b8378;
+      letter-spacing: 0.07em;
+    }
+  
+    .gc1__history-row {
+      grid-template-columns: 18px minmax(0, 1fr) 58px;
+      gap: 8px;
+      padding: 8px 0;
+    }
+  
+    .gc1__history-icon {
+      width: 18px;
+      height: 18px;
+    }
+  
+    .gc1__history-head {
+      font-size: 10.2px;
+      line-height: 1.18;
+      font-weight: 850;
+    }
+  
+    .gc1__history-text {
+      font-size: 9.4px;
+      line-height: 1.22;
+      font-weight: 600;
+    }
+  
+    .gc1__history-date,
+    .gc1__history-hour {
+      font-size: 9.2px;
+      line-height: 1.05;
+      font-weight: 850;
+      color: #3f3932;
+    }
+  }
