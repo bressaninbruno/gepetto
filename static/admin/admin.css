@@ -4649,3 +4649,44 @@ body.admin-body {
     flex: 0 0 auto;
   }
 }
+
+/* =========================
+   FAIXA 3 — OPS FOLLOW-UP FIX REAL
+   - coluna direita cresce conforme a tag
+   - data/hora não são comidas pelo follow-up
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__ops-row {
+      grid-template-columns: minmax(0, 1fr) max-content;
+    }
+  
+    .gc1__ops-side {
+      display: grid;
+      grid-template-columns: 68px auto;
+      align-items: center;
+      justify-content: end;
+      gap: 8px;
+      width: max-content;
+    }
+  
+    .gc1__ops-time {
+      width: 68px;
+      min-width: 68px;
+      display: grid;
+      gap: 2px;
+      justify-items: end;
+      text-align: right;
+    }
+  
+    .gc1__ops-date,
+    .gc1__ops-hour {
+      white-space: nowrap;
+    }
+  
+    .gc1__ops-info {
+      min-width: 34px;
+      max-width: none;
+      white-space: nowrap;
+    }
+  }
