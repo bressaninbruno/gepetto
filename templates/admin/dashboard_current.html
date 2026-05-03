@@ -469,10 +469,26 @@
         <div class="gc1__ops-box">
           {% if signals_mode == 'usage' and display_usage %}
             {% for item in display_usage %}
+              {% set raw_topic = item.get("topic") or "-" %}
+              {% set raw_text = item.get("user_text") or "-" %}
+              {% set topic_label = raw_topic.replace("_", " ").capitalize() %}
+        
+              {% if raw_text.startswith("admin set observacoes") %}
+                {% set text_label = "Observações da hospedagem atualizadas" %}
+              {% elif raw_text.startswith("admin nome") %}
+                {% set text_label = "Nome do hóspede atualizado" %}
+              {% elif raw_text.startswith("admin checkout") %}
+                {% set text_label = "Dados de check-out atualizados" %}
+              {% elif raw_text.startswith("admin") %}
+                {% set text_label = "Atualização administrativa registrada" %}
+              {% else %}
+                {% set text_label = raw_text %}
+              {% endif %}
+        
               <div class="gc1__ops-row">
                 <div class="gc1__ops-main">
-                  <div class="gc1__ops-head">{{ item.get("topic") or "-" }}</div>
-                  <div class="gc1__ops-text">{{ item.get("user_text") or "-" }}</div>
+                  <div class="gc1__ops-head">{{ topic_label }}</div>
+                  <div class="gc1__ops-text">{{ text_label }}</div>
                 </div>
                 <div class="gc1__ops-side">
                   <div class="gc1__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
@@ -480,12 +496,16 @@
                 </div>
               </div>
             {% endfor %}
+        
           {% elif signals_mode == 'intents' and display_intents %}
             {% for item in display_intents %}
+              {% set intent_label = (item.get("intent") or "-").replace("_", " ").capitalize() %}
+              {% set topic_label = (item.get("topic") or "-").replace("_", " ").capitalize() %}
+        
               <div class="gc1__ops-row">
                 <div class="gc1__ops-main">
-                  <div class="gc1__ops-head">{{ item.get("intent") or "-" }}</div>
-                  <div class="gc1__ops-text">{{ item.get("topic") or "-" }}</div>
+                  <div class="gc1__ops-head">{{ intent_label }}</div>
+                  <div class="gc1__ops-text">Intenção registrada em {{ topic_label }}</div>
                 </div>
                 <div class="gc1__ops-side">
                   <div class="gc1__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
@@ -493,12 +513,16 @@
                 </div>
               </div>
             {% endfor %}
+        
           {% elif signals_mode == 'insights' and display_insights %}
             {% for item in display_insights %}
+              {% set insight_label = (item.get("insight_key") or "-").replace("_", " ").capitalize() %}
+              {% set source_text = item.get("source_message") or "Sinal comportamental registrado" %}
+        
               <div class="gc1__ops-row">
                 <div class="gc1__ops-main">
-                  <div class="gc1__ops-head">{{ item.get("insight_key") or "-" }}</div>
-                  <div class="gc1__ops-text">{{ item.get("source_message") or "-" }}</div>
+                  <div class="gc1__ops-head">{{ insight_label }}</div>
+                  <div class="gc1__ops-text">{{ source_text }}</div>
                 </div>
                 <div class="gc1__ops-side">
                   <div class="gc1__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
@@ -506,6 +530,7 @@
                 </div>
               </div>
             {% endfor %}
+        
           {% else %}
             <div class="gc1__empty">Nenhum sinal recente disponível.</div>
           {% endif %}
