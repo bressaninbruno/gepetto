@@ -4909,3 +4909,53 @@ body.admin-body {
     margin-top: 5px;
   }
 }
+
+/* =========================
+   FAIXA 1 — HERO V1 PREMIUM
+   - nome com presença sem peso bruto
+   - badge mais vivo e menos pill
+   - sem alterar macroestrutura
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__hero-title-row {
+      gap: 14px;
+      align-items: center;
+    }
+  
+    .gc1__guest-name {
+      font-family: "Marcellus", serif;
+      font-size: 31px;
+      line-height: 0.98;
+      font-weight: 400;
+      letter-spacing: 0.018em;
+      color: #15130f;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+  
+    .gc1__stay-badge {
+      min-height: 27px;
+      padding: 0 11px;
+      border-radius: 7px;
+      border: 1px solid #bfcfb1;
+      background: linear-gradient(180deg, #edf7e3 0%, #dfeccd 100%);
+      color: #405b2f;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.42),
+        0 1px 2px rgba(31, 31, 27, 0.04);
+    }
+  
+    .gc1__stay-badge span:not(.gc1__icon) {
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 750;
+      letter-spacing: 0.015em;
+    }
+  
+    .gc1__stay-badge .gc1__icon,
+    .gc1__stay-badge .gc1__icon svg {
+      width: 13px;
+      height: 13px;
+    }
+  }
