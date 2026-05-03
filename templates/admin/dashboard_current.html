@@ -407,23 +407,48 @@
 
         <div class="gc1__alerts-box">
           {% if pending_bruno %}
-            <div class="gc1__alert-row gc1__alert-row--warning">
+            <div class="gc1__alert-row gc1__alert-row--warning gc1__alert-row--bruno">
               <div class="gc1__alert-main">
-                <div class="gc1__alert-title">Bruno precisa revisar</div>
-                <div class="gc1__alert-text">A hospedagem atual exige acompanhamento manual.</div>
+                <div class="gc1__alert-title">Alerta para Bruno</div>
+                <div class="gc1__alert-text">Hóspede solicitou atenção direta do anfitrião.</div>
               </div>
-              <div class="gc1__alert-meta">agora</div>
+        
+              <div class="gc1__alert-meta">
+                <span class="gc1__alert-date">agora</span>
+                <span class="gc1__alert-hour">pendente</span>
+              </div>
             </div>
           {% endif %}
-
+        
           {% if display_incidents %}
             {% for item in display_incidents %}
-              <div class="gc1__alert-row gc1__alert-row--danger">
+              {% set raw_tipo = item.get("tipo") or "incidente" %}
+              {% set tipo_n = raw_tipo|lower %}
+              {% set timestamp_label = item.get("timestamp_label") or "-" %}
+              {% set timestamp_parts = timestamp_label.split(" ") %}
+              {% set raw_date = timestamp_parts[0] if timestamp_parts|length >= 2 else timestamp_label %}
+              {% set raw_hour = timestamp_parts[1] if timestamp_parts|length >= 2 else "" %}
+              {% set date_parts = raw_date.split("/") %}
+              {% set short_date = date_parts[0] ~ "/" ~ date_parts[1] if date_parts|length >= 2 else raw_date %}
+        
+              {% if "complemento" in tipo_n %}
+                {% set alert_title = "Informação complementar" %}
+                {% set alert_class = "gc1__alert-row--warning" %}
+              {% else %}
+                {% set alert_title = "Incidente em acompanhamento" %}
+                {% set alert_class = "gc1__alert-row--danger" %}
+              {% endif %}
+        
+              <div class="gc1__alert-row {{ alert_class }}">
                 <div class="gc1__alert-main">
-                  <div class="gc1__alert-title">{{ item.get("tipo") or "Incidente" }}</div>
+                  <div class="gc1__alert-title">{{ alert_title }}</div>
                   <div class="gc1__alert-text">{{ item.get("mensagem") or "-" }}</div>
                 </div>
-                <div class="gc1__alert-meta">{{ item.get("timestamp_label") or "-" }}</div>
+        
+                <div class="gc1__alert-meta">
+                  <span class="gc1__alert-date">{{ short_date }}</span>
+                  <span class="gc1__alert-hour">{{ raw_hour or "-" }}</span>
+                </div>
               </div>
             {% endfor %}
           {% elif not pending_bruno %}
@@ -432,23 +457,49 @@
                 <div class="gc1__alert-title">Sem pendências críticas</div>
                 <div class="gc1__alert-text">O estado operacional está estável neste momento.</div>
               </div>
-              <div class="gc1__alert-meta">ok</div>
+        
+              <div class="gc1__alert-meta">
+                <span class="gc1__alert-date">ok</span>
+                <span class="gc1__alert-hour">estável</span>
+              </div>
             </div>
           {% endif %}
         </div>
-
+        
         <div class="gc1__history-box">
-          <div class="gc1__history-title">Histórico complementar</div>
-
+          <div class="gc1__history-title">Histórico operacional</div>
+        
           {% if display_incident_history %}
             {% for item in display_incident_history %}
+              {% set raw_tipo = item.get("tipo") or "evento" %}
+              {% set tipo_n = raw_tipo|lower %}
+              {% set timestamp_label = item.get("timestamp_label") or "-" %}
+              {% set timestamp_parts = timestamp_label.split(" ") %}
+              {% set raw_date = timestamp_parts[0] if timestamp_parts|length >= 2 else timestamp_label %}
+              {% set raw_hour = timestamp_parts[1] if timestamp_parts|length >= 2 else "" %}
+              {% set date_parts = raw_date.split("/") %}
+              {% set short_date = date_parts[0] ~ "/" ~ date_parts[1] if date_parts|length >= 2 else raw_date %}
+        
+              {% if "complemento" in tipo_n %}
+                {% set history_title = "Informação complementar" %}
+              {% elif "incidente" in tipo_n %}
+                {% set history_title = "Incidente registrado" %}
+              {% else %}
+                {% set history_title = raw_tipo.replace("_", " ").capitalize() %}
+              {% endif %}
+        
               <div class="gc1__history-row">
                 <div class="gc1__history-icon">{{ icon("alert") }}</div>
+        
                 <div class="gc1__history-main">
-                  <div class="gc1__history-head">{{ item.get("tipo") or "Evento" }}</div>
+                  <div class="gc1__history-head">{{ history_title }}</div>
                   <div class="gc1__history-text">{{ item.get("mensagem") or "-" }}</div>
                 </div>
-                <div class="gc1__history-meta">{{ item.get("timestamp_label") or "-" }}</div>
+        
+                <div class="gc1__history-meta">
+                  <span class="gc1__history-date">{{ short_date }}</span>
+                  <span class="gc1__history-hour">{{ raw_hour or "-" }}</span>
+                </div>
               </div>
             {% endfor %}
           {% else %}
