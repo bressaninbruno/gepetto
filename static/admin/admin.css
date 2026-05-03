@@ -4919,8 +4919,8 @@ body.admin-body {
 
    @media (min-width: 1181px) {
     .gc1__hero-title-row {
-      gap: 14px;
-      align-items: center;
+      gap: 18px;
+      align-items: baseline;
     }
   
     .gc1__guest-name {
