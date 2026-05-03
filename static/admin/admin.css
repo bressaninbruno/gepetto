@@ -4690,3 +4690,29 @@ body.admin-body {
       white-space: nowrap;
     }
   }
+
+  /* =========================
+   FAIXA 3 — ESTADO DA CONVERSA REFINO V1
+   - mais presença nos labels e valores
+   - alinhado à lógica da hospedagem ativa
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__state-line {
+    min-height: 34px;
+  }
+
+  .gc1__state-key {
+    font-size: 11px;
+    line-height: 1.2;
+    color: #6f5432;
+    font-weight: 800;
+  }
+
+  .gc1__state-value {
+    font-size: 11px;
+    line-height: 1.2;
+    color: #171511;
+    font-weight: 850;
+  }
+}
