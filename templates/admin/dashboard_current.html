@@ -491,7 +491,16 @@
                   <div class="gc1__ops-text">{{ text_label }}</div>
                 </div>
                 <div class="gc1__ops-side">
-                  <div class="gc1__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
+                  {% set ops_timestamp = item.get("timestamp_label") or "-" %}
+                  {% set ops_parts = ops_timestamp.split(" ") %}
+                  <div class="gc1__ops-time">
+                    {% if ops_parts|length >= 2 %}
+                      <span class="gc1__ops-date">{{ ops_parts[0] }}</span>
+                      <span class="gc1__ops-hour">{{ ops_parts[1] }}</span>
+                    {% else %}
+                      <span class="gc1__ops-date">{{ ops_timestamp }}</span>
+                    {% endif %}
+                  </div>
                   <div class="gc1__ops-info">{% if item.get("used_followup") %}follow-up{% else %}info{% endif %}</div>
                 </div>
               </div>
@@ -508,7 +517,16 @@
                   <div class="gc1__ops-text">Intenção registrada em {{ topic_label }}</div>
                 </div>
                 <div class="gc1__ops-side">
-                  <div class="gc1__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
+                  {% set ops_timestamp = item.get("timestamp_label") or "-" %}
+                  {% set ops_parts = ops_timestamp.split(" ") %}
+                  <div class="gc1__ops-time">
+                    {% if ops_parts|length >= 2 %}
+                      <span class="gc1__ops-date">{{ ops_parts[0] }}</span>
+                      <span class="gc1__ops-hour">{{ ops_parts[1] }}</span>
+                    {% else %}
+                      <span class="gc1__ops-date">{{ ops_timestamp }}</span>
+                    {% endif %}
+                  </div>
                   <div class="gc1__ops-info">intent</div>
                 </div>
               </div>
@@ -525,7 +543,16 @@
                   <div class="gc1__ops-text">{{ source_text }}</div>
                 </div>
                 <div class="gc1__ops-side">
-                  <div class="gc1__ops-time">{{ item.get("timestamp_label") or "-" }}</div>
+                  {% set ops_timestamp = item.get("timestamp_label") or "-" %}
+                  {% set ops_parts = ops_timestamp.split(" ") %}
+                  <div class="gc1__ops-time">
+                    {% if ops_parts|length >= 2 %}
+                      <span class="gc1__ops-date">{{ ops_parts[0] }}</span>
+                      <span class="gc1__ops-hour">{{ ops_parts[1] }}</span>
+                    {% else %}
+                      <span class="gc1__ops-date">{{ ops_timestamp }}</span>
+                    {% endif %}
+                  </div>
                   <div class="gc1__ops-info">info</div>
                 </div>
               </div>
