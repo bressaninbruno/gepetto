@@ -4440,51 +4440,29 @@ body.admin-body {
   }
 
   /* =========================
-   FAIXA 3 — SINAIS OPERACIONAIS REFINO V1
-   - transforma usage/intents/insights em feed compacto
-   - sem alterar macroestrutura
-   - sem mexer nos atalhos
+   FAIXA 3 — SINAIS OPERACIONAIS REFINO V1.1
+   - corrige corte de data/info
+   - equaliza altura das linhas
+   - mantém feed compacto
    ========================= */
 
 @media (min-width: 1181px) {
-  .gc1__ops-tabs {
-    gap: 2px;
-    align-items: end;
-    border-bottom: 1px solid #ded4c7;
-  }
-
-  .gc1__ops-tab {
-    min-height: 24px;
-    padding: 0 11px;
-    border-radius: 7px 7px 0 0;
-    background: transparent;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    color: #7a7165;
-    font-size: 9.5px;
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: 0.01em;
-  }
-
-  .gc1__ops-tab.is-active {
-    background: #fffdf9;
-    color: #181612;
-    border-bottom-color: #b98a4d;
-  }
-
   .gc1__ops-box {
     background: #f4efe8;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     overflow: hidden;
+    display: grid;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
   }
 
   .gc1__ops-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 70px;
+    grid-template-columns: minmax(0, 1fr) 92px;
     gap: 8px;
-    padding: 8px 9px;
+    min-height: 0;
+    padding: 7px 9px;
+    align-items: center;
     border-top: 1px solid #e1d7ca;
   }
 
@@ -4492,25 +4470,19 @@ body.admin-body {
     border-top: 0;
   }
 
-  .gc1__ops-main {
-    min-width: 0;
-  }
-
   .gc1__ops-head {
-    margin-bottom: 3px;
+    margin-bottom: 2px;
     color: #171511;
     font-size: 10.5px;
-    line-height: 1.18;
+    line-height: 1.15;
     font-weight: 800;
-    letter-spacing: 0.005em;
   }
 
   .gc1__ops-text {
     color: #4a433b;
-    font-size: 9.4px;
-    line-height: 1.28;
+    font-size: 9.2px;
+    line-height: 1.22;
     font-weight: 600;
-    letter-spacing: 0.002em;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -4521,17 +4493,19 @@ body.admin-body {
   .gc1__ops-side {
     display: grid;
     justify-items: end;
-    align-content: start;
-    gap: 5px;
+    align-content: center;
+    gap: 4px;
+    min-width: 0;
   }
 
   .gc1__ops-time {
+    max-width: 92px;
     text-align: right;
     color: #8f8679;
-    font-size: 8.5px;
+    font-size: 8px;
     line-height: 1.15;
     font-weight: 700;
-    white-space: nowrap;
+    white-space: normal;
     font-variant-numeric: tabular-nums;
   }
 
@@ -4541,12 +4515,10 @@ body.admin-body {
     border-radius: 999px;
     border: 1px solid #ded4c7;
     background: #fffdf9;
-    display: inline-flex;
-    align-items: center;
     color: #6f6559;
     font-size: 7.8px;
     line-height: 1;
     font-weight: 800;
-    letter-spacing: 0.015em;
+    white-space: nowrap;
   }
 }
