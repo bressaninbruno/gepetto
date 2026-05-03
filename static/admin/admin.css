@@ -4959,3 +4959,50 @@ body.admin-body {
       height: 13px;
     }
   }
+
+  /* =========================
+   FAIXA 1 — HERO V1.1
+   - nome com mais presença e respiro
+   - badge flat com ponto verde
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__hero-top {
+    padding-left: 14px;
+  }
+
+  .gc1__guest-name {
+    font-size: 33px;
+    letter-spacing: 0.02em;
+  }
+
+  .gc1__stay-badge {
+    min-height: 28px;
+    padding: 0 13px;
+    gap: 7px;
+    border-radius: 6px;
+    border: 1px solid #bfd0b4;
+    background: #eef6e7;
+    color: #35592d;
+    box-shadow: none;
+  }
+
+  .gc1__stay-badge .gc1__icon {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #4f9a3d;
+    color: transparent;
+    flex: 0 0 auto;
+  }
+
+  .gc1__stay-badge .gc1__icon svg {
+    display: none;
+  }
+
+  .gc1__stay-badge span:not(.gc1__icon) {
+    font-size: 11.2px;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+  }
+}
