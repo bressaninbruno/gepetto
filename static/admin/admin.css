@@ -4539,3 +4539,27 @@ body.admin-body {
     justify-content: center;
   }
 }
+
+/* =========================
+   FAIXA 3 — SINAIS OPERACIONAIS MICROREFINO V1.4
+   - hora mais legível
+   - info com mais presença
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__ops-hour {
+      color: #50483f;
+      font-size: 9.6px;
+      font-weight: 800;
+    }
+  
+    .gc1__ops-info {
+      min-height: 20px;
+      min-width: 34px;
+      padding: 0 7px;
+      font-size: 8.9px;
+      font-weight: 850;
+      color: #3f3932;
+      border-color: #d2c5b3;
+    }
+  }
