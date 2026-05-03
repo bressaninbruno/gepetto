@@ -5018,3 +5018,37 @@ body.admin-body {
     transform: translateY(-1px);
   }
 }
+
+/* =========================
+   FAIXA 1 — METADADOS V1
+   - mais presença
+   - mais respiro
+   - leitura escaneável
+   ========================= */
+
+   @media (min-width: 1181px) {
+    .gc1__hero-meta {
+      margin-top: 6px;
+      gap: 14px;
+    }
+  
+    .gc1__meta-item {
+      gap: 6px;
+      font-size: 12.2px;
+      line-height: 1.25;
+      font-weight: 600;
+      color: #2f2a24;
+    }
+  
+    .gc1__meta-item .gc1__icon,
+    .gc1__meta-item .gc1__icon svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.85;
+    }
+  
+    .gc1__meta-item strong {
+      font-weight: 750;
+      color: #14120f;
+    }
+  }
