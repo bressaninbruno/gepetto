@@ -4866,3 +4866,46 @@ body.admin-body {
       color: #3f3932;
     }
   }
+
+  /* =========================
+   FAIXA 3 — MICROFIT PÁGINA ÚNICA
+   - recupera poucos pixels sem reduzir tipografia
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__band--bottom .gc1__panel {
+    padding-top: 7px;
+    padding-bottom: 6px;
+  }
+
+  .gc1__band--bottom .gc1__panel-head {
+    margin-bottom: 6px;
+  }
+
+  .gc1__alerts-box {
+    gap: 5px;
+    margin-bottom: 6px;
+  }
+
+  .gc1__alert-row {
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
+
+  .gc1__history-box {
+    padding-top: 6px;
+  }
+
+  .gc1__history-title {
+    margin-bottom: 5px;
+  }
+
+  .gc1__history-row {
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+
+  .gc1__shortcut-box {
+    margin-top: 5px;
+  }
+}
