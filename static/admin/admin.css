@@ -4624,3 +4624,28 @@ body.admin-body {
       gap: 22px;
     }
   }
+
+  /* =========================
+   FAIXA 3 — OPS TAG FLEXÍVEL
+   - follow-up não invade data/hora
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__ops-side {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  .gc1__ops-time {
+    min-width: 0;
+    flex: 1 1 auto;
+    justify-items: end;
+  }
+
+  .gc1__ops-info {
+    flex: 0 0 auto;
+  }
+}
