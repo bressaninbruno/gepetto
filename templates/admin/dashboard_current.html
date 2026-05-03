@@ -421,7 +421,7 @@
           {% endif %}
         
           {% if display_incidents %}
-            {% for item in display_incidents %}
+            {% for item in display_incidents|reverse %}
               {% set raw_tipo = item.get("tipo") or "incidente" %}
               {% set tipo_n = raw_tipo|lower %}
               {% set timestamp_label = item.get("timestamp_label") or "-" %}
@@ -432,8 +432,8 @@
               {% set short_date = date_parts[0] ~ "/" ~ date_parts[1] if date_parts|length >= 2 else raw_date %}
         
               {% if "complemento" in tipo_n %}
-                {% set alert_title = "Informação complementar" %}
-                {% set alert_class = "gc1__alert-row--warning" %}
+                {% set alert_title = "Complemento do incidente" %}
+                {% set alert_class = "gc1__alert-row--incident-note" %}
               {% else %}
                 {% set alert_title = "Incidente em acompanhamento" %}
                 {% set alert_class = "gc1__alert-row--danger" %}
@@ -481,7 +481,7 @@
               {% set short_date = date_parts[0] ~ "/" ~ date_parts[1] if date_parts|length >= 2 else raw_date %}
         
               {% if "complemento" in tipo_n %}
-                {% set history_title = "Informação complementar" %}
+                {% set history_title = "Complemento do incidente" %}
               {% elif "incidente" in tipo_n %}
                 {% set history_title = "Incidente registrado" %}
               {% else %}

@@ -4742,3 +4742,36 @@ body.admin-body {
       letter-spacing: 0.002em;
     }
   }
+
+  /* =========================
+   FAIXA 3 — PENDÊNCIAS DATA/HORA EMPILHADAS
+   ========================= */
+
+@media (min-width: 1181px) {
+  .gc1__alert-meta,
+  .gc1__history-meta {
+    display: grid;
+    gap: 2px;
+    justify-items: end;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .gc1__alert-date,
+  .gc1__history-date {
+    color: #4f473e;
+    font-size: 9.4px;
+    line-height: 1;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+
+  .gc1__alert-hour,
+  .gc1__history-hour {
+    color: #50483f;
+    font-size: 9.6px;
+    line-height: 1;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+}
