@@ -5006,3 +5006,15 @@ body.admin-body {
     letter-spacing: 0.025em;
   }
 }
+
+/* FAIXA 1 — HERO BADGE ALINHAMENTO FINO */
+@media (min-width: 1181px) {
+  .gc1__hero-title-row {
+    align-items: center;
+    gap: 18px;
+  }
+
+  .gc1__stay-badge {
+    transform: translateY(-2px);
+  }
+}
