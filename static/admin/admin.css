@@ -4440,10 +4440,10 @@ body.admin-body {
   }
 
   /* =========================
-   FAIXA 3 — SINAIS OPERACIONAIS REFINO V1.1
-   - corrige corte de data/info
-   - equaliza altura das linhas
-   - mantém feed compacto
+   FAIXA 3 — SINAIS OPERACIONAIS REFINO V1.2
+   - aumenta presença visual do feed
+   - melhora leitura de data/hora e status
+   - mantém 3 linhas equilibradas
    ========================= */
 
 @media (min-width: 1181px) {
@@ -4458,10 +4458,10 @@ body.admin-body {
 
   .gc1__ops-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 92px;
-    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) 108px;
+    gap: 10px;
     min-height: 0;
-    padding: 7px 9px;
+    padding: 8px 10px;
     align-items: center;
     border-top: 1px solid #e1d7ca;
   }
@@ -4471,18 +4471,20 @@ body.admin-body {
   }
 
   .gc1__ops-head {
-    margin-bottom: 2px;
-    color: #171511;
-    font-size: 10.5px;
-    line-height: 1.15;
-    font-weight: 800;
+    margin-bottom: 3px;
+    color: #14120f;
+    font-size: 11.2px;
+    line-height: 1.16;
+    font-weight: 850;
+    letter-spacing: 0.002em;
   }
 
   .gc1__ops-text {
-    color: #4a433b;
-    font-size: 9.2px;
-    line-height: 1.22;
+    color: #3f3932;
+    font-size: 10.2px;
+    line-height: 1.28;
     font-weight: 600;
+    letter-spacing: 0.002em;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -4494,31 +4496,31 @@ body.admin-body {
     display: grid;
     justify-items: end;
     align-content: center;
-    gap: 4px;
+    gap: 5px;
     min-width: 0;
   }
 
   .gc1__ops-time {
-    max-width: 92px;
+    max-width: 108px;
     text-align: right;
-    color: #8f8679;
-    font-size: 8px;
-    line-height: 1.15;
-    font-weight: 700;
+    color: #62594f;
+    font-size: 9.4px;
+    line-height: 1.18;
+    font-weight: 750;
     white-space: normal;
     font-variant-numeric: tabular-nums;
   }
 
   .gc1__ops-info {
-    min-height: 15px;
-    padding: 0 6px;
+    min-height: 17px;
+    padding: 0 7px;
     border-radius: 999px;
-    border: 1px solid #ded4c7;
+    border: 1px solid #d9cebf;
     background: #fffdf9;
-    color: #6f6559;
-    font-size: 7.8px;
+    color: #5d5348;
+    font-size: 8.6px;
     line-height: 1;
-    font-weight: 800;
+    font-weight: 850;
     white-space: nowrap;
   }
 }
