@@ -137,42 +137,58 @@
 
           {% if pending_bruno %}
             <article class="gc1__status-card gc1__status-card--warning">
-              <div class="gc1__status-icon">{{ icon("alert") }}</div>
-              <div class="gc1__status-title">Bruno</div>
+              <div class="gc1__status-head">
+                <span class="gc1__status-icon">{{ icon("alert") }}</span>
+                <span class="gc1__status-title">Bruno</span>
+              </div>
               <div class="gc1__status-value">
                 {{ pending_bruno }} ação{{ "" if pending_bruno == 1 else "ões" }}
               </div>
             </article>
           {% else %}
             <article class="gc1__status-card gc1__status-card--success">
-              <div class="gc1__status-icon">{{ icon("alert") }}</div>
-              <div class="gc1__status-title">Bruno</div>
-              <div class="gc1__status-value">Sem acionamento direto</div>
+              <div class="gc1__status-head">
+                <span class="gc1__status-icon">{{ icon("alert") }}</span>
+                <span class="gc1__status-title">Bruno</span>
+              </div>
+              <div class="gc1__status-value">
+                Sem acionamento direto
+              </div>
             </article>
           {% endif %}
         
         
           {% if pending_incident %}
             <article class="gc1__status-card gc1__status-card--danger">
-              <div class="gc1__status-icon">{{ icon("alert") }}</div>
-              <div class="gc1__status-title">Incidentes</div>
+              <div class="gc1__status-head">
+                <span class="gc1__status-icon">{{ icon("alert") }}</span>
+                <span class="gc1__status-title">Incidentes</span>
+              </div>
               <div class="gc1__status-value">
                 {{ recent_incidents|length }} aberto{{ "" if recent_incidents|length == 1 else "s" }}
               </div>
             </article>
           {% else %}
             <article class="gc1__status-card gc1__status-card--success">
-              <div class="gc1__status-icon">{{ icon("alert") }}</div>
-              <div class="gc1__status-title">Incidentes</div>
-              <div class="gc1__status-value">Operação estável</div>
+              <div class="gc1__status-head">
+                <span class="gc1__status-icon">{{ icon("alert") }}</span>
+                <span class="gc1__status-title">Incidentes</span>
+              </div>
+              <div class="gc1__status-value">
+                Operação estável
+              </div>
             </article>
           {% endif %}
         
         
           <article class="gc1__status-card gc1__status-card--neutral">
-            <div class="gc1__status-icon">{{ icon("clock") }}</div>
-            <div class="gc1__status-title">Última interação</div>
-            <div class="gc1__status-value">{{ activity_value }}</div>
+            <div class="gc1__status-head">
+              <span class="gc1__status-icon">{{ icon("clock") }}</span>
+              <span class="gc1__status-title">Última interação</span>
+            </div>
+            <div class="gc1__status-value">
+              {{ activity_value }}
+            </div>
           </article>
         
         </div>

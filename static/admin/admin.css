@@ -5054,47 +5054,74 @@ body.admin-body {
   }
 
   /* =========================
-   FAIXA 1 — STATUS CARDS V2
-   - centralizado
-   - elegante
-   - menos balão
+   FAIXA 1 — STATUS CARDS V3 (final consolidado)
+   - compacto
+   - horizontal no head
+   - leitura rápida
+   - com estados visuais
    ========================= */
 
-@media (min-width: 1181px) {
+.gc1__status-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
-  .gc1__status-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  padding: 10px 12px;
+  border-radius: 6px;
 
-    padding: 16px 14px;
-    border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.05);
+  background: #f6f3ef;
 
-    background: #f6f3ef;
-    border: 1px solid rgba(0,0,0,0.05);
+  min-height: 64px;
+}
 
-    text-align: center;
-    gap: 6px;
-  }
+/* HEAD (ícone + título) */
+.gc1__status-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 
-  .gc1__status-icon {
-    font-size: 16px;
-    line-height: 1;
-    opacity: 0.8;
-  }
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #3a342e;
+}
 
-  .gc1__status-title {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-    color: #2f2a24;
-  }
+/* ÍCONE */
+.gc1__status-icon svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.85;
+}
 
-  .gc1__status-value {
-    font-size: 13.5px;
-    font-weight: 650;
-    color: #14120f;
-  }
+/* TÍTULO */
+.gc1__status-title {
+  letter-spacing: 0.2px;
+}
 
+/* VALOR */
+.gc1__status-value {
+  margin-top: 2px;
+
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1c1916;
+}
+
+/* =========================
+   ESTADOS VISUAIS
+   ========================= */
+
+.gc1__status-card--success {
+  background: #eef6ee;
+  border-color: #cfe3cf;
+}
+
+.gc1__status-card--warning {
+  background: #fdf6e9;
+  border-color: #f0d9a7;
+}
+
+.gc1__status-card--danger {
+  background: #fbeeee;
+  border-color: #e7c2c2;
 }
