@@ -5249,3 +5249,74 @@ body.admin-body {
 .gc1__status-card:not(:last-child) {
   margin-top: 1px;
 }
+
+/* ===== HERO LAYOUT REFINO FINAL ===== */
+
+/* Faz o topo usar melhor o espaço horizontal */
+.gc1__hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+/* Empurra os status cards para a direita e organiza melhor */
+.gc1__hero-status {
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  gap: 12px;
+  margin-left: auto;
+  min-width: fit-content;
+}
+
+/* Dá proporção melhor entre os cards */
+.gc1__status-card {
+  min-width: 150px;
+  max-width: 180px;
+}
+
+/* Último card (Última interação) um pouco mais compacto */
+.gc1__status-card:last-child {
+  min-width: 130px;
+  max-width: 150px;
+}
+
+
+/* ===== METADADOS — MAIS PRESENÇA VISUAL ===== */
+
+.gc1__hero-meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  font-size: 13.5px; /* leve aumento */
+  color: #5f5a53;
+}
+
+.gc1__hero-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* Ícones dos metadados mais visíveis */
+.gc1__hero-meta svg {
+  width: 15px;
+  height: 15px;
+  opacity: 0.75;
+}
+
+
+/* ===== AJUSTE FINO DE RESPIRO GERAL ===== */
+
+.gc1__hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gc1__hero-title {
+  margin-bottom: 2px;
+}
