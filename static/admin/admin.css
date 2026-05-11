@@ -5286,15 +5286,19 @@ body.admin-body {
 /* ===== METADADOS — MAIS PRESENÇA VISUAL ===== */
 
 .gc1__hero-meta {
-  margin-top: 14px; /* aumenta o respiro abaixo do nome/badge */
+  margin-top: 20px; /* aumenta o afastamento do nome */
+
   display: flex;
   flex-wrap: wrap;
-  gap: 16px 20px;
 
-  font-size: 14.5px; /* aumento elegante */
-  line-height: 1.4;
+  gap: 14px 24px; /* mais respiro horizontal */
+
+  font-size: 14.5px;
+  line-height: 1.5;
 
   color: #5f5a53;
+
+  max-width: 720px; /* <- chave do comportamento */
 }
 
 .gc1__hero-meta span {
