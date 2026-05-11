@@ -5286,25 +5286,28 @@ body.admin-body {
 /* ===== METADADOS — MAIS PRESENÇA VISUAL ===== */
 
 .gc1__hero-meta {
-  margin-top: 10px;
+  margin-top: 14px; /* aumenta o respiro abaixo do nome/badge */
   display: flex;
   flex-wrap: wrap;
-  gap: 14px 18px;
-  font-size: 13.5px; /* leve aumento */
+  gap: 16px 20px;
+
+  font-size: 14.5px; /* aumento elegante */
+  line-height: 1.4;
+
   color: #5f5a53;
 }
 
 .gc1__hero-meta span {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   white-space: nowrap;
 }
 
-/* Ícones dos metadados mais visíveis */
+/* ícones acompanham o crescimento */
 .gc1__hero-meta svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   opacity: 0.75;
 }
 
