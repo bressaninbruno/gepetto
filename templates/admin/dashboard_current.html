@@ -134,34 +134,47 @@
         </div>
 
         <div class="gc1__hero-status">
+
           {% if pending_bruno %}
             <article class="gc1__status-card gc1__status-card--warning">
-              <div class="gc1__status-head">{{ icon("alert") }} Bruno pendente</div>
-              <div class="gc1__status-value">1 ação</div>
+              <div class="gc1__status-icon">{{ icon("alert") }}</div>
+              <div class="gc1__status-title">Bruno</div>
+              <div class="gc1__status-value">
+                {{ pending_bruno }} ação{{ "" if pending_bruno == 1 else "ões" }}
+              </div>
             </article>
           {% else %}
             <article class="gc1__status-card gc1__status-card--success">
-              <div class="gc1__status-head">{{ icon("pulse") }} Bruno ok</div>
-              <div class="gc1__status-value">sem pendência</div>
+              <div class="gc1__status-icon">{{ icon("alert") }}</div>
+              <div class="gc1__status-title">Bruno</div>
+              <div class="gc1__status-value">Sem acionamento direto</div>
             </article>
           {% endif %}
-
+        
+        
           {% if pending_incident %}
             <article class="gc1__status-card gc1__status-card--danger">
-              <div class="gc1__status-head">{{ icon("alert") }} Incidente ok</div>
-              <div class="gc1__status-value">{{ recent_incidents|length }} aberto{{ "" if recent_incidents|length == 1 else "s" }}</div>
+              <div class="gc1__status-icon">{{ icon("alert") }}</div>
+              <div class="gc1__status-title">Incidentes</div>
+              <div class="gc1__status-value">
+                {{ recent_incidents|length }} aberto{{ "" if recent_incidents|length == 1 else "s" }}
+              </div>
             </article>
           {% else %}
             <article class="gc1__status-card gc1__status-card--success">
-              <div class="gc1__status-head">{{ icon("pulse") }} Incidente ok</div>
-              <div class="gc1__status-value">sem alerta crítico</div>
+              <div class="gc1__status-icon">{{ icon("alert") }}</div>
+              <div class="gc1__status-title">Incidentes</div>
+              <div class="gc1__status-value">Operação estável</div>
             </article>
           {% endif %}
-
+        
+        
           <article class="gc1__status-card gc1__status-card--neutral">
-            <div class="gc1__status-head">{{ icon("clock") }} Última atividade</div>
+            <div class="gc1__status-icon">{{ icon("clock") }}</div>
+            <div class="gc1__status-title">Última interação</div>
             <div class="gc1__status-value">{{ activity_value }}</div>
           </article>
+        
         </div>
       </div>
 
