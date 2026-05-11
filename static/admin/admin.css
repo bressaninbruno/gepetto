@@ -5142,3 +5142,110 @@ body.admin-body {
   background: #f8eeee;
   border-color: #e5caca;
 }
+
+/* ================================
+   STATUS CARDS — MICRO REFINO FINAL
+================================ */
+
+.gc1__hero-status {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+/* estrutura geral */
+.gc1__status-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 10px 14px;
+
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.55);
+
+  min-height: 64px;
+
+  transition: all 0.2s ease;
+}
+
+/* último card levemente mais compacto */
+.gc1__status-card--activity {
+  min-width: 150px;
+  max-width: 170px;
+}
+
+/* header (ícone + label) */
+.gc1__status-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+
+  color: rgba(0,0,0,0.55);
+
+  margin-bottom: 2px;
+}
+
+/* ícone refinado */
+.gc1__status-head svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.75;
+}
+
+/* valor */
+.gc1__status-value {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+
+  color: rgba(0,0,0,0.78);
+
+  line-height: 1.25;
+}
+
+/* última interação com leve diferença */
+.gc1__status-card--activity .gc1__status-value {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(0,0,0,0.65);
+}
+
+/* estados — base neutra elegante */
+.gc1__status-card--success {
+  background: rgba(120, 170, 120, 0.10);
+  border-color: rgba(120, 170, 120, 0.18);
+}
+
+.gc1__status-card--warning {
+  background: rgba(220, 170, 90, 0.10);
+  border-color: rgba(220, 170, 90, 0.20);
+}
+
+.gc1__status-card--danger {
+  background: rgba(200, 90, 90, 0.10);
+  border-color: rgba(200, 90, 90, 0.20);
+}
+
+.gc1__status-card--neutral {
+  background: rgba(0,0,0,0.03);
+}
+
+/* alinhamento fino entre cards */
+.gc1__status-card {
+  align-items: flex-start;
+}
+
+.gc1__status-card--activity {
+  align-items: flex-start;
+}
+
+/* leve ajuste óptico de baseline */
+.gc1__status-card:not(:last-child) {
+  margin-top: 1px;
+}
