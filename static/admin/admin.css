@@ -5054,43 +5054,60 @@ body.admin-body {
   }
 
   /* =========================
-   FAIXA 1 — STATUS CARDS V3 (final consolidado)
-   - compacto
-   - horizontal no head
-   - leitura rápida
-   - com estados visuais
+   FAIXA 1 — STATUS CARDS V4 (refino fino)
    ========================= */
 
+.gc1__hero-status {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.85fr; /* último menor */
+  gap: 10px;
+}
+
+/* CARD */
 .gc1__status-card {
   display: flex;
   flex-direction: column;
   justify-content: center;
 
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: 6px;
 
   border: 1px solid rgba(0,0,0,0.05);
   background: #f6f3ef;
 
-  min-height: 64px;
+  min-height: 56px; /* menor altura */
 }
 
-/* HEAD (ícone + título) */
+/* HEAD */
 .gc1__status-head {
   display: flex;
   align-items: center;
   gap: 6px;
 
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
   color: #3a342e;
 }
 
-/* ÍCONE */
+/* ÍCONE (mais presente, estilo circular) */
+.gc1__status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 18px;
+  height: 18px;
+
+  border-radius: 50%;
+  background: rgba(0,0,0,0.06);
+
+  font-size: 12px;
+}
+
+/* se usar SVG */
 .gc1__status-icon svg {
-  width: 14px;
-  height: 14px;
-  opacity: 0.85;
+  width: 12px;
+  height: 12px;
 }
 
 /* TÍTULO */
@@ -5098,30 +5115,30 @@ body.admin-body {
   letter-spacing: 0.2px;
 }
 
-/* VALOR */
+/* VALUE (mais elegante, menos pesado) */
 .gc1__status-value {
   margin-top: 2px;
 
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #1c1916;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #2a2622;
 }
 
 /* =========================
-   ESTADOS VISUAIS
+   ESTADOS (leve, não grita)
    ========================= */
 
 .gc1__status-card--success {
-  background: #eef6ee;
-  border-color: #cfe3cf;
+  background: #f2f7f2;
+  border-color: #d6e6d6;
 }
 
 .gc1__status-card--warning {
-  background: #fdf6e9;
-  border-color: #f0d9a7;
+  background: #faf5e9;
+  border-color: #ead9b8;
 }
 
 .gc1__status-card--danger {
-  background: #fbeeee;
-  border-color: #e7c2c2;
+  background: #f8eeee;
+  border-color: #e5caca;
 }
